@@ -1,0 +1,48 @@
+/* structure html page */
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  background-color: #fff;
+  width: 960px;
+  height: 700px;
+  margin-top: 0;
+}
+
+#main {
+  float: left;
+  width: 400px;
+}
+
+#sidebar {
+  float: right;
+  width: 100px;
+}
+
+#sequence {
+  width: 600px;
+  height: 70px;
+}
+
+#legend {
+  padding: 10px 0 0 3px;
+}
+
+#sequence text, #legend text {
+  font-weight: 600;
+  fill: #fff;
+}
+
+#plot {
+  position: relative;
+}
+
+#plot path {
+  stroke: #fff; /* lines in plot */
+}
+
+#percentage {
+  font-size: 2.5em;
+}
+

@@ -1,0 +1,88 @@
+---
+title: "Setting up custom treatment patterns study"
+author: "Aniek F Markus"
+date: "`r Sys.Date()`"
+output: pdf_document # rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette describes how to set up a custom treatment patterns study.
+
+## Study specification
+If you like to use this package to design a study follow the following steps:
+
+1. Define target/event cohorts and add to package.
+
+This package is build to work on the OMOP-CDM, but it can also be run on other types of databases.
+
+For 'OMOP-CDM' databases:
+
+- Specify all cohorts in ATLAS.
+- Set 'baseUrl' (e.g. http://atlas-demo.ohdsi.org/WebAPI) parameter and loadCohorts = TRUE to load cohort definitios automatically from ATLAS WebAPI.
+
+- Alternatively, specify a concept set and create re-use or create a new inst/Settings/CohortTemplate.sql. Specify concept sets in inst/Settings/eventcohorts_custom.csv:
+```{r, fig.show='hold', echo=FALSE}
+library('knitr')
+table <- data.frame("Descriptive name cohort","Number of concept IDs in conceptSet","List of unique concept IDs to be included")
+colnames(table) <- c("cohortName","count","conceptSet")
+kable(table)
+```
+
+For 'Other' databases:
+
+- Import the target/event cohorts from a csv file into the package. Add cohorts in inst/Settings/input_cohorts.csv:
+```{r, fig.show='hold', echo=FALSE}
+library('knitr')
+table <- data.frame("Unique ID number","Unique person ID number","Entry date cohort", "Exit date cohort")
+colnames(table) <- c("cohortId", "personId", "startDate", "endDate")
+kable(table)
+```
+
+
+
+In both cases, specify the target/event cohorts in inst/Settings/cohorts_to_create.csv:
+```{r, fig.show='hold', echo=FALSE}
+library('knitr')
+table <- data.frame("Unique ID number","Descriptive name cohort","‘ATLAS’ or ‘Custom’", "‘target’ or ‘event’", "Cohort ID ATLAS")
+colnames(table) <- c("cohortId", "cohortName", "cohortDefinition", "cohortType", "atlasID")
+kable(table)
+```
+
+
+
+2. Define study settings (mandatory) and characterization (optional).
+
+A default list of study settings: 
+```{r, fig.show='hold', echo=FALSE}
+library('knitr')
+table <- data.frame(c("studyName", "targetCohortId", "eventCohortIds", "includeTreatmentsPriorToIndex", "minEraDuration","splitEventCohorts","eraCollapseSize", "combinationWindow","minStepDuration","filterTreatments","maxPathLength","minCellCount", "minCellMethod","groupCombinations","addNoPaths"),c("default","1",'"10,11,12"',"0", "0","","0","30","30","First","5","0","Remove","10","FALSE"),
+                    c("Unique name identifying the set of study parameters below", "Select one study population", "Select all treatments of interest", "Number of days prior to the index date of the target cohort that event cohorts are allowed to start", "Minimum time an event era should last to be included in analysis", "Specify event cohort to split in acute (< 30 days) and therapy (>= 30 days)", "Window of time between which two eras of the same event cohort are collapsed into one era", "Window of time two event cohorts need to overlap to be considered a combination treatment", "Minimum time an event era before or after a generated combination treatment should last to be included in analysis", "Select first occurrences of / changes between / all event cohorts", "Maximum number of steps included in treatment pathway", "Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis", "Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount", "Select to group all non-fixed combinations in one category 'other’ in the sunburst plot", "Select to include untreated persons without treatment pathway in the sunburst plot"))
+colnames(table) <- c("param", "values", "description")
+kable(table)
+```
+
+Change these parameters according to the needs of your study in inst/Settings/study_settings.csv.
+
+3. Add custom analysis parts (optional).
+
+If desired, one can add addional output functions.
+Need to add R code and adjust shiny application.
+
+## Files in Package
+
+To do.
+
+
+## Detailed description of Package
+
+To do.

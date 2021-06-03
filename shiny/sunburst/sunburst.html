@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Visualization: Sunburst</title>
+	<link rel="stylesheet" type="text/css"
+      href="https://fonts.googleapis.com/css?family=Open+Sans:400,600">
+		<link href="../../../sunburst/chart.css" rel="stylesheet">
+</head>
+
+<body>
+<!--	<h1>Sunburst plot @name </h1>
+	<div>Sunburst plot of treatment patterns showing the first treatment in the center and subsequent treatments in the surrounding outer layers. Each color represents a drug class and a layer with multiple colors indicates a combination therapy. </div> -->
+	<div id="main">
+	<div style="width:100%" id="plot"></div>
+<!--	<hr/>
+<h1>Data</h1> -->
+	<textarea  id="chartData" style="visibility:hidden; width:400px; height:400px">
+@insert_data
+	</textarea>
+	<button id="reload" style="visibility:hidden;">Reload</button>
+	</div>  
+	<div id="sidebar">
+    <div id="legend" style="visibility:hidden;"></div>
+	</div>  
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.3/require.min.js"></script>
+	<script src="../../../sunburst/config.js"></script>
+	<script>
+		requirejs(['../../../sunburst/sunburst'], function(Sunburst) {
+			var plot = new Sunburst();
+			var target = document.querySelector('#plot');
+
+			function split(node) {
+
+				if (isNaN(node.data.name)) {
+					return [node];
+				};
+				
+				let splitNodes = [...Number.parseInt(node.data.name).toString(2)].reverse().reduce((result, bit, i) => {
+					if (bit == "1") {
+						let nodeClone = Object.assign({}, node);
+						nodeClone.data = {name: (1<<i).toString()};
+						result.push(nodeClone);
+					}
+					return result;
+				},[])
+				
+				const bandWidth = (node.y1 - node.y0) / splitNodes.length;
+				
+				return splitNodes.map((node, i) => {
+					node.y0 = node.y0 + (i * bandWidth);
+					node.y1 = node.y0 + bandWidth;
+					return node;
+				})
+				
+			}
+
+			function refreshPlot() {
+				chartData = JSON.parse(document.querySelector("#chartData").value);
+				plot.render(chartData.data, target, 700,700, {split: split}, chartData.lookup);
+			}
+			
+			document.querySelector("#reload").addEventListener("click", function() {
+				refreshPlot();	
+			});
+			refreshPlot();
+		});
+	</script>
+</body>
+</html>
+

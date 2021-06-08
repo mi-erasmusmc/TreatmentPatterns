@@ -27,12 +27,19 @@ names(all_targetcohorts) <- paste0("targetcohort ",all_targetcohorts) # optional
 all_targetcohorts <- as.list(all_targetcohorts)
 
 all_studynames <- unique(as.character(study_settings[study_settings$param == "studyName",-1]))
+names(all_studynames) <- all_studynames # optional: change with own custom names
+all_studynames <- as.list(all_studynames)
 
 all_years <- list("Entire study period" = "all",  # todo: adjust to study period
+                  "Index year 2000" = "2000",
+                  "Index year 2005" = "2005",
+                  "Index year 2010" = "2010",
                   "Index year 2015" = "2015",
                   "Index year 2016" = "2016",
                   "Index year 2017" = "2017",
-                  "Index year 2018" = "2018")
+                  "Index year 2018" = "2018",
+                  "Index year 2019" = "2019",
+                  "Index year 2020" = "2020")
 
 layers <- list("First-line treatment" = 1,
                "Second-line treatment" = 2,

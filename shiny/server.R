@@ -39,7 +39,7 @@ server <- function(input, output, session) {
       two <- selectInput("setting1", label = "Study population", choices = all_targetcohorts, selected = all_targetcohorts[[1]])
       return(tagList(one, two))
       
-    } else if (input$viewer1 == "Compare study populations") {
+    } else if (input$viewer1 == "Compare study settings") {
       one <- selectInput("dataset1", label = "Database", choices = included_databases, selected = included_databases[[1]])
       return(tagList(one))
       
@@ -49,11 +49,11 @@ server <- function(input, output, session) {
   output$dynamic_input2 = renderUI({
     if (input$viewer2 == "Compare databases") {
       one <- checkboxGroupInput("dataset2", label = "Database", choices = included_databases, selected = included_databases[[1]])
-      two <- selectInput("population2", label = "Study setting", choices = all_studynames, selected =  all_studynames[[1]])
+      two <- selectInput("population2", label = "Study setting", choices = all_studynames, selected = all_studynames[[1]])
       three <- selectInput("year2", label = "Year", choices = all_years, selected = "all")
       return(tagList(one, two, three))
       
-    } else if (input$viewer2 == "Compare study populations") {
+    } else if (input$viewer2 == "Compare study settings") {
       one <- checkboxGroupInput("population2", label = "Study", choices = all_studynames, selected =  all_studynames[[1]])
       two <- selectInput("dataset2", label = "Database", choices = included_databases, selected = included_databases[[1]])
       three <- selectInput("year2", label = "Year", choices = all_years, selected = "all")
@@ -109,7 +109,7 @@ server <- function(input, output, session) {
       data$mean[!(data$covariate_name %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))] <- data$mean[!(data$covariate_name %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))]*100
       
       # Rename to study populations
-      data$cohort_id <- sapply(data$cohort_id, function(c) names(all_studynames[c]))
+      data$cohort_id <- sapply(data$cohort_id, function(c) names(all_targetcohorts[c]))
       
       # Columns different study populations (rows different characteristics)
       table <- reshape2::dcast(data, covariate_name ~ cohort_id, value.var = "mean")
@@ -153,7 +153,7 @@ server <- function(input, output, session) {
       }
       do.call(tagList, result)
       
-    } else if  (input$viewer2 == "Compare study populations") {
+    } else if  (input$viewer2 == "Compare study settings") {
       
       for(i in 1:ceiling(length(input$population2)/n_cols)) { 
         cols_ <- list();
@@ -195,7 +195,7 @@ server <- function(input, output, session) {
   })
   
   output$sunburstlegend <- renderUI({
-    legend <- tags$iframe(seamless="seamless", src=paste0("workingdirectory/output/", included_databases[[1]], "/", input$population2, "/legend.html"), height=600, scrolling = "no", frameborder = "no")
+    legend <- tags$iframe(seamless="seamless", src=paste0("workingdirectory/output/", included_databases[[1]], "/", input$population2[[1]], "/legend.html"), height=600, scrolling = "no", frameborder = "no")
     return(legend)
   })
   

@@ -624,6 +624,8 @@ createSankeyDiagram <- function(data, outputFolder, databaseName, studyName, gro
 # Help function to group combinations
 groupInfrequentCombinations <- function(data, groupCombinations)  {
   
+  data <- as.data.frame(data)
+  
   # Find all non-fixed combinations occurring
   findCombinations <- apply(data, 2, function(x) grepl("+", x, fixed = TRUE))
   
@@ -637,12 +639,16 @@ groupInfrequentCombinations <- function(data, groupCombinations)  {
     freqCombinations <- matrix(rep(data$freq, times = num_columns), ncol = num_columns)[findCombinations == TRUE]
     
     summaryCombinations <- data.table(combination = combinations, freq = freqCombinations)
-    summaryCombinations <- summaryCombinations[,.(freq=sum(freq)), by=combination][order(-freq)]
     
-    summarizeCombinations <- summaryCombinations$combination[summaryCombinations$freq <= groupCombinations]
-    selectedCombinations <- apply(data, 2, function(x) x %in% summarizeCombinations)
-    data[selectedCombinations] <- "Other"
+    if (nrow(summaryCombinations) > 0) {
+      summaryCombinations <- summaryCombinations[,.(freq=sum(freq)), by=combination][order(-freq)]
+      
+      summarizeCombinations <- summaryCombinations$combination[summaryCombinations$freq <= groupCombinations]
+      selectedCombinations <- apply(data, 2, function(x) x %in% summarizeCombinations)
+      data[selectedCombinations] <- "Other"
+    }
+    
   }
   
-  return(data)
+  return(as.data.table(data))
 }

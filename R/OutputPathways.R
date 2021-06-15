@@ -47,7 +47,7 @@ generateResults <- function(study_settings, databaseName, studyName, outputFolde
       transformDuration(outputFolder = outputFolder, path = path, temp_path = temp_path, eventCohortIds = eventCohortIds, maxPathLength = maxPathLength, groupCombinations = TRUE, minCellCount = minCellCount)
       
       # Save (censored) results file_noyear and file_year
-      saveTreatmentSequence(file_noyear = file_noyear, file_withyear = file_withyear, path = path, groupCombinations = groupCombinations, minCellCount = minCellCount, minCellMethod = minCellMethod)
+      saveTreatmentSequence(file_noyear = file_noyear, file_withyear = file_withyear, path = path, temp_path = temp_path, groupCombinations = groupCombinations, minCellCount = minCellCount, minCellMethod = minCellMethod)
       
       file_noyear <- as.data.table(readr::read_csv(paste(path,"_file_noyear.csv",sep=''), col_types = readr::cols()))
       file_withyear <- as.data.table(readr::read_csv(paste(path,"_file_withyear.csv",sep=''), col_types = readr::cols()))
@@ -69,7 +69,7 @@ generateResults <- function(study_settings, databaseName, studyName, outputFolde
 # Input:
 # studyName Name for the study corresponding to the current settings.
 # path Path to the output folder including data specific file name.
-# temp_path Path to aggregated treatment pathways file of the target cohort in different rows.
+# temp_path Path to temporary output files.
 # maxPathLength Maximum number of steps included in treatment pathway (max 5).
 # minCellCount Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis.
 #
@@ -191,7 +191,7 @@ computePercentageGroupTreated <- function(data, eventCohortIds, groupCombination
 # Input:
 # outputFolder Path to the output folder.
 # path Path to the output folder including data specific file name.
-# temp_path Path to aggregated treatment pathways file of the target cohort in different rows.
+# temp_path Path to temporary output files.
 # eventCohortIds IDs to refer to event cohorts.
 # maxPathLength Maximum number of steps included in treatment pathway (max 5).
 # groupCombinations Select to group all non-fixed combinations in one category 'other’ in the sunburst plot.
@@ -219,9 +219,7 @@ transformDuration <- function(outputFolder, path, temp_path, eventCohortIds, max
   file$all_combinations[grepl("Other|\\+|\\&", file$event_cohort_name)] <- 1
   file$monotherapy[!grepl("Other|\\+|\\&", file$event_cohort_name)] <- 1
   
-  result_total_seq <- file[,.(event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("event_cohort_name", "total")]
-  result_total_seq$total <- NULL
-  
+  # Duration average per layer
   result_total_concept <- file[,.(event_cohort_name = "Total treated", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("event_seq", "total")]
   result_total_concept$total <- NULL
   
@@ -237,7 +235,23 @@ transformDuration <- function(outputFolder, path, temp_path, eventCohortIds, max
   result_monotherapy <- result_monotherapy[!is.na(monotherapy),]
   result_monotherapy$monotherapy <- NULL
   
-  results <- rbind(result, result_total_seq, result_total_concept, result_fixed_combinations, result_all_combinations, result_monotherapy)
+  # Duration average all layers 
+  result_total_seq <- file[,.(event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("event_cohort_name", "total")]
+  result_total_seq$total <- NULL
+  
+  results_total_treated <- file[,.(event_cohort_name = "Total treated", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("total")]
+  results_total_treated$total <- NULL
+  
+  results_total_fixed <- file[,.(event_cohort_name = "Fixed combinations", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("fixed_combinations")]
+  results_total_fixed$fixed_combinations <- NULL
+  
+  results_total_mono <- file[,.(event_cohort_name = "All combinations", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("all_combinations")]
+  results_total_mono$all_combinations <- NULL
+  
+  results_total_allcombi <- file[,.(event_cohort_name = "Monotherapy", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("monotherapy")]
+  results_total_allcombi$monotherapy <- NULL
+    
+  results <- rbind(result, result_total_concept, result_fixed_combinations, result_all_combinations, result_monotherapy, result_total_seq, results_total_treated, results_total_fixed, results_total_mono, results_total_allcombi)
   
   # Add missing groups
   cohorts <- readr::read_csv(paste(outputFolder, "/cohort.csv",sep=''), col_types = list("i", "c", "c", "c"))
@@ -261,10 +275,11 @@ transformDuration <- function(outputFolder, path, temp_path, eventCohortIds, max
 # file_noyear Dataframe with aggregated treatment pathways of the target cohort in different rows (unique pathways, with frequency).
 # file_withyear Idem, but split over index_year.
 # path Path to the output folder including data specific file name.
+# temp_path Path to temporary output files.
 # groupCombinations Select to group all non-fixed combinations in one category 'other’ in the sunburst plot.
 # minCellCount Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis.
 # minCellMethod Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount.
-saveTreatmentSequence <- function(file_noyear, file_withyear, path, groupCombinations, minCellCount, minCellMethod) {
+saveTreatmentSequence <- function(file_noyear, file_withyear, path, temp_path, groupCombinations, minCellCount, minCellMethod) {
   
   # Group non-fixed combinations in one group according to groupCobinations
   file_noyear <- groupInfrequentCombinations(file_noyear, groupCombinations)
@@ -308,7 +323,7 @@ saveTreatmentSequence <- function(file_noyear, file_withyear, path, groupCombina
   ParallelLogger::logInfo(paste("Remove ", sum(file_withyear$freq < minCellCount), " paths with too low frequency (with year)"))
   file_withyear <- file_withyear[freq >= minCellCount,]
   
-  summary_counts <- readr::read_csv(paste(path,"_summary_cnt.csv",sep=''), col_types = list("c", "i"))
+  summary_counts <- readr::read_csv(paste(temp_path,"_summary_cnt.csv",sep=''), col_types = list("c", "i"))
   summary_counts <- rbind(summary_counts, c("Total number of pathways (after minCellCount)", sum(file_noyear$freq)))
   
   for (y in unique(file_withyear$index_year)) {

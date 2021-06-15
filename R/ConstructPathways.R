@@ -123,8 +123,8 @@ constructPathways <- function(all_data, study_settings, databaseName, studyName,
       # Calculate number of persons in target cohort / with pathways, in total / per year
       colnames(counts_pathways) <- colnames(counts_targetcohort)
       counts <- rbind(counts_targetcohort, counts_pathways)
-      
-      write.csv(counts, paste0(outputFolder, "/",studyName, "/", databaseName, "_", studyName, "_summary_cnt.csv"), row.names = FALSE)
+
+      write.csv(counts, paste0(getwd(),"/temp/",  databaseName, "/", studyName, "/", databaseName, "_", studyName, "_summary_cnt.csv"), row.names = FALSE)
     }
   }
 }

@@ -91,6 +91,7 @@ executeTreatmentPatterns <- function(OMOP_CDM = TRUE,
       dir.create(paste0(outputFolder, "/characterization"), recursive = TRUE)
     
     # For all different target populations
+    settings <- colnames(study_settings)[grepl("analysis", colnames(study_settings))]
     targetCohortIds <- unique(as.numeric(study_settings[study_settings$param == "targetCohortId",-1]))
     minCellCount <- max(as.integer(study_settings[study_settings$param == "minCellCount",settings])) # Minimum number of subjects in the target cohort for a given eent in order to be counted in the pathway
     

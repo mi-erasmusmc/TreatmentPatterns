@@ -11,9 +11,11 @@ cohortCharacterization(
   cohortDatabaseSchema,
   cohortTable,
   outputFolder,
+  instFolder,
   databaseId,
   targetCohortIds,
-  minCellCount
+  minCellCount,
+  standardCovariateSettings
 )
 }
 \arguments{
@@ -43,6 +45,8 @@ study.}
 \item{targetCohortIds}{IDs to refer to target cohorts.}
 
 \item{minCellCount}{Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis.}
+
+\item{standardCovariateSettings}{... .}
 }
 \description{
 This function will perform baseline characterization for the the target cohorts.

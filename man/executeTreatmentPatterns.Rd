@@ -6,26 +6,36 @@
 \usage{
 executeTreatmentPatterns(
   OMOP_CDM = TRUE,
-  connection = NULL,
   connectionDetails = NULL,
   cdmDatabaseSchema,
   cohortDatabaseSchema = cdmDatabaseSchema,
+  databaseName = "unknown",
   cohortTable = "cohort",
-  outputFolder,
-  databaseId = "Unknown",
-  databaseName = "Unknown",
-  baseUrl = "...",
-  cohortLocation = "inst/Settings/input_cohorts.csv",
+  rootFolder,
+  instFolder = paste0(rootFolder, "/inst"),
+  outputFolder = paste0(rootFolder, "/output/", databaseName),
+  tempFolder = paste0(rootFolder, "/temp/", databaseName),
+  cohortLocation = paste0(instFolder, "/cohorts/input_cohorts.csv"),
+  targetCohorts = NULL,
+  eventCohorts = NULL,
+  characterizationSettings = NULL,
+  studySettings = NULL,
+  loadCohorts = FALSE,
+  baseUrl = NULL,
+  generateCohorts = TRUE,
+  flowChart = TRUE,
   runCreateCohorts = TRUE,
-  runCohortCharacterization = FALSE,
+  runCohortCharacterization = TRUE,
+ 
+    standardCovariateSettings = FeatureExtraction::createCovariateSettings(useDemographicsAge
+    = TRUE, useDemographicsGender = TRUE, useDemographicsTimeInCohort = TRUE,
+    useDemographicsPostObservationTime = TRUE, useConditionGroupEraAnyTimePrior = TRUE,
+    useConditionGroupEraLongTerm = TRUE, useCharlsonIndex = TRUE),
   runConstructPathways = TRUE,
-  runGenerateResults = TRUE,
-  study_settings = study_settings
+  runGenerateResults = TRUE
 )
 }
 \arguments{
-\item{connection}{Connection to database server.}
-
 \item{connectionDetails}{An object of type \code{connectionDetails} as created using the
 \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
 DatabaseConnector package.}
@@ -38,33 +48,53 @@ schema name, for example 'cdm_data.dbo'.}
 write priviliges in this schema. Note that for SQL Server, this should
 include both the database and schema name, for example 'cdm_data.dbo'.}
 
+\item{databaseName}{Name of the database that will appear in the results.}
+
 \item{cohortTable}{The name of the table that will be created in the work database schema.
 This table will hold the target and event cohorts used in this
 study.}
 
+\item{rootFolder}{...}
+
+\item{instFolder}{...}
+
 \item{outputFolder}{Name of local folder to place results; make sure to use forward slashes
 (/).}
 
-\item{databaseId}{Unique identifier for database (can be the same as databaseName).}
-
-\item{databaseName}{Name of the database that will appear in the results.}
-
-\item{baseUrl}{The base URL for theWebApi instance, for example: "http://server.org:80/WebAPI"
-Note, there is no trailing '/'. If trailing '/' is used, you may receive an error.}
+\item{tempFolder}{...}
 
 \item{cohortLocation}{Location where cohorts are saved if OMOP-CDM = FALSE.}
+
+\item{targetCohorts}{...}
+
+\item{eventCohorts}{...}
+
+\item{characterizationSettings}{...}
+
+\item{studySettings}{...}
+
+\item{loadCohorts}{Setting to load cohorts from ATLAS.}
+
+\item{baseUrl}{The base URL for the WebApi instance, for example: "http://server.org:80/WebAPI".
+Note, there is no trailing '/'. If trailing '/' is used, you may receive an error.}
+
+\item{generateCohorts}{Setting to extract specified target/event cohorts from database.}
+
+\item{flowChart}{Setting to return numbers for flowchart with inclusion/exclusion criteria.}
 
 \item{runCreateCohorts}{Setting to run part of the analysis where cohorts are created.}
 
 \item{runCohortCharacterization}{Setting to run part of the analysis where characterization of target cohorts is done.}
 
+\item{standardCovariateSettings}{....}
+
 \item{runConstructPathways}{Setting to run part of the analysis where treatment pathways are constructed.}
 
 \item{runGenerateResults}{Setting to run part of the analysis where final result files and plots are generated.}
 
-\item{study_settings}{Object that contains all study settings inputted by the user.}
-
 \item{OMOP-CDM}{Format of 'Observational Medical Outcomes Partnership Common Data Model' = TRUE or 'Other' = FALSE}
+
+\item{study_settings}{Object that contains all study settings inputted by the user.}
 }
 \description{
 This is the main function which runs all different parts of the treatment pathways analysis.

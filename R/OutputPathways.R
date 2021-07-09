@@ -2,12 +2,16 @@
 #' This function will generate all result files and plots.
 #'
 #' @param study_settings Object that contains all study settings inputted by the user.
-#' @param databaseName  Name of the database that will appear in the results.
+#' @param databaseName Name of the database that will appear in the results.
 #' @param studyName Name for the study corresponding to the current settings.
 #' @param outputFolder Name of local folder to place results; make sure to use forward slashes (/).
 #'
 #' @export
-generateResults <- function(study_settings, databaseName, studyName, outputFolder) {
+generateResults <- function(study_settings,
+                            databaseName,
+                            studyName,
+                            outputFolder,
+                            tempFolder) {
   
   # For all different study settings
   settings <- colnames(study_settings)[grepl("analysis", colnames(study_settings))]
@@ -23,14 +27,14 @@ generateResults <- function(study_settings, databaseName, studyName, outputFolde
     eventCohortIds <- unlist(strsplit(eventCohortIds, split = ","))
     
     # Result settings
-    maxPathLength <-  as.integer(study_settings[study_settings$param == "maxPathLength",s]) # Maximum number of steps included in treatment pathway (max 5)
-    minCellCount <-  as.integer(study_settings[study_settings$param == "minCellCount",s]) # Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis
-    minCellMethod  <-  study_settings[study_settings$param == "minCellMethod",s] # Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount
-    groupCombinations  <-  study_settings[study_settings$param == "groupCombinations",s] # Select to group all non-fixed combinations in one category 'other’ in the sunburst plot
-    addNoPaths  <-  study_settings[study_settings$param == "addNoPaths",s] # Select to include untreated persons without treatment pathway in the sunburst plot
+    maxPathLength <- as.integer(study_settings[study_settings$param == "maxPathLength",s]) # Maximum number of steps included in treatment pathway (max 5)
+    minCellCount <- as.integer(study_settings[study_settings$param == "minCellCount",s]) # Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis
+    minCellMethod <- study_settings[study_settings$param == "minCellMethod",s] # Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount
+    groupCombinations <- study_settings[study_settings$param == "groupCombinations",s] # Select to group all non-fixed combinations in one category 'other’ in the sunburst plot
+    addNoPaths <- study_settings[study_settings$param == "addNoPaths",s] # Select to include untreated persons without treatment pathway in the sunburst plot
     
-    path <- paste0(outputFolder, "/",studyName, "/", databaseName, "_", studyName)
-    temp_path <- paste0(getwd(),"/temp/",  databaseName, "/", studyName, "/", databaseName, "_", studyName)
+    path <- paste0(outputFolder, "/", studyName, "/", databaseName, "_", studyName)
+    temp_path <- paste0(tempFolder, "/", studyName, "/", databaseName, "_", studyName)
     
     # Transform results for output
     transformed_data <- transformTreatmentSequence(studyName = studyName, path = path, temp_path = temp_path, maxPathLength = maxPathLength, minCellCount = minCellCount)
@@ -85,7 +89,7 @@ transformTreatmentSequence <- function(studyName, path, temp_path, maxPathLength
   
   # Apply maxPathLength and remove unnecessary columns
   layers <- as.vector(colnames(file)[!grepl("index_year|freq", colnames(file))])
-  layers <- layers[1:maxPathLength]
+  layers <- layers[1:min(length(layers),maxPathLength)]
   
   columns <- c(layers, "index_year", "freq")
   
@@ -95,7 +99,7 @@ transformTreatmentSequence <- function(studyName, path, temp_path, maxPathLength
   findCombinations <- apply(file, 2, function(x) grepl("+", x, fixed = TRUE))
   
   combinations <- as.matrix(file)[findCombinations == TRUE]
-  num_columns <-  sum(grepl("event_cohort_name", colnames(file)))
+  num_columns <- sum(grepl("event_cohort_name", colnames(file)))
   freqCombinations <- matrix(rep(file$freq, times = num_columns), ncol = num_columns)[findCombinations == TRUE]
   
   summaryCombinations <- data.table(combination = combinations, freq = freqCombinations)
@@ -214,43 +218,36 @@ transformDuration <- function(outputFolder, path, temp_path, eventCohortIds, max
   result <- file[,.(AVG_DURATION=round(mean(duration_era),3), COUNT = .N), by = c("event_cohort_name", "event_seq")][order(event_cohort_name, event_seq)]
   
   # Add column for total treated, fixed combinations, all combinations
-  file$total <- 1
   file$fixed_combinations[grepl("\\&", file$event_cohort_name)] <- 1
   file$all_combinations[grepl("Other|\\+|\\&", file$event_cohort_name)] <- 1
   file$monotherapy[!grepl("Other|\\+|\\&", file$event_cohort_name)] <- 1
   
   # Duration average per layer
-  result_total_concept <- file[,.(event_cohort_name = "Total treated", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("event_seq", "total")]
-  result_total_concept$total <- NULL
+  result_total_concept <- file[,.(event_cohort_name = "Total treated", AVG_DURATION = round(mean(duration_era),2), COUNT = .N), by = c("event_seq")]
   
-  result_fixed_combinations <- file[,.(event_cohort_name = "Fixed combinations", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("event_seq", "fixed_combinations")]
+  result_fixed_combinations <- file[,.(event_cohort_name = "Fixed combinations", AVG_DURATION = round(mean(duration_era),2), COUNT = .N), by = c("event_seq", "fixed_combinations")]
   result_fixed_combinations <- result_fixed_combinations[!is.na(fixed_combinations),]
   result_fixed_combinations$fixed_combinations <- NULL
   
-  result_all_combinations <- file[,.(event_cohort_name = "All combinations", AVG_DURATION=round(mean(duration_era),2), COUNT = .N), by = c("event_seq", "all_combinations")]
+  result_all_combinations <- file[,.(event_cohort_name = "All combinations", AVG_DURATION = round(mean(duration_era),2), COUNT = .N), by = c("event_seq", "all_combinations")]
   result_all_combinations <- result_all_combinations[!is.na(all_combinations),]
   result_all_combinations$all_combinations <- NULL
   
-  result_monotherapy <- file[,.(event_cohort_name = "Monotherapy", AVG_DURATION=round(mean(duration_era),2), COUNT = .N), by = c("event_seq", "monotherapy")]
+  result_monotherapy <- file[,.(event_cohort_name = "Monotherapy", AVG_DURATION = round(mean(duration_era),2), COUNT = .N), by = c("event_seq", "monotherapy")]
   result_monotherapy <- result_monotherapy[!is.na(monotherapy),]
   result_monotherapy$monotherapy <- NULL
   
   # Duration average all layers 
-  result_total_seq <- file[,.(event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("event_cohort_name", "total")]
-  result_total_seq$total <- NULL
+  result_total_seq <- file[,.(event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("event_cohort_name")]
   
-  results_total_treated <- file[,.(event_cohort_name = "Total treated", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("total")]
-  results_total_treated$total <- NULL
+  results_total_treated <- file[,.(event_cohort_name = "Total treated", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N)]
   
-  results_total_fixed <- file[,.(event_cohort_name = "Fixed combinations", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("fixed_combinations")]
-  results_total_fixed$fixed_combinations <- NULL
+  results_total_fixed <- file[fixed_combinations == 1,.(event_cohort_name = "Fixed combinations", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N)]
   
-  results_total_mono <- file[,.(event_cohort_name = "All combinations", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("all_combinations")]
-  results_total_mono$all_combinations <- NULL
+  results_total_mono <- file[all_combinations == 1,.(event_cohort_name = "All combinations", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N)]
   
-  results_total_allcombi <- file[,.(event_cohort_name = "Monotherapy", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N), by = c("monotherapy")]
-  results_total_allcombi$monotherapy <- NULL
-    
+  results_total_allcombi <- file[monotherapy == 1,.(event_cohort_name = "Monotherapy", event_seq = "Overall", AVG_DURATION= round(mean(duration_era),2), COUNT = .N)]
+  
   results <- rbind(result, result_total_concept, result_fixed_combinations, result_all_combinations, result_monotherapy, result_total_seq, results_total_treated, results_total_fixed, results_total_mono, results_total_allcombi)
   
   # Add missing groups
@@ -264,7 +261,7 @@ transformDuration <- function(outputFolder, path, temp_path, eventCohortIds, max
   # Remove durations computed using less than minCellCount observations
   results[COUNT < minCellCount, c("AVG_DURATION", "COUNT")] <- NA
   
-  write.csv(results,  paste(path,"_duration.csv",sep=''), row.names = FALSE)
+  write.csv(results, paste(path,"_duration.csv",sep=''), row.names = FALSE)
   
   ParallelLogger::logInfo("transformDuration done")
 }
@@ -332,8 +329,8 @@ saveTreatmentSequence <- function(file_noyear, file_withyear, path, temp_path, g
   
   write.table(summary_counts,file=paste(path,"_summary_cnt.csv",sep=''), sep = ",", row.names = FALSE, col.names = TRUE)
   
-  write.csv(file_noyear,  paste(path,"_file_noyear.csv",sep=''), row.names = FALSE)
-  write.csv(file_withyear,  paste(path,"_file_withyear.csv",sep=''), row.names = FALSE)
+  write.csv(file_noyear, paste(path,"_file_noyear.csv",sep=''), row.names = FALSE)
+  write.csv(file_withyear, paste(path,"_file_withyear.csv",sep=''), row.names = FALSE)
   
   ParallelLogger::logInfo("saveTreatmentSequence done")
 }
@@ -387,8 +384,8 @@ createSunburstPlot <- function(data, databaseName, eventCohortIds, studyName, ou
     transformCSVtoJSON(eventCohortIds, outputFolder, path, index_year, maxPathLength)
     
     # Load template HTML file
-    html <- paste(readLines("shiny/sunburst/sunburst.html"), collapse="\n")
-    
+    html <- paste(readLines(paste0(system.file(package = "TreatmentPatterns"), "/shiny/sunburst/sunburst.html")), collapse="\n")
+
     # Replace @insert_data
     input_plot <- readLines(paste(path,"_inputsunburst_", index_year, ".txt",sep=''))
     html <- sub("@insert_data", input_plot, html)
@@ -535,7 +532,7 @@ buildHierarchy <- function(csv, maxPathLength) {
           } else if (j == 4) {
             root[['children']][[parts[1]]][['children']][[parts[2]]][['children']][[parts[3]]][['children']] <- children
           } else if (j == 5) {
-            root[['children']][[parts[1]]][['children']][[parts[2]]][['children']][[parts[3]]][['children']][[parts[4]]][['children']]  <- children
+            root[['children']][[parts[1]]][['children']][[parts[2]]][['children']][[parts[3]]][['children']][[parts[4]]][['children']] <- children
           }
         }
         currentNode = childNode
@@ -554,7 +551,7 @@ buildHierarchy <- function(csv, maxPathLength) {
         } else if (j == 4) {
           root[['children']][[parts[1]]][['children']][[parts[2]]][['children']][[parts[3]]][['children']] <- children
         } else if (j == 5) {
-          root[['children']][[parts[1]]][['children']][[parts[2]]][['children']][[parts[3]]][['children']][[parts[4]]][['children']]  <- children
+          root[['children']][[parts[1]]][['children']][[parts[2]]][['children']][[parts[3]]][['children']][[parts[4]]][['children']] <- children
         }
       }
     }
@@ -572,8 +569,8 @@ buildHierarchy <- function(csv, maxPathLength) {
 createLegend <- function(studyName, outputFolder, path) {
   
   # Load template HTML file
-  html <- paste(readLines("shiny/sunburst/legend.html"), collapse="\n")
-  
+  html <- paste(readLines(paste0(system.file(package = "TreatmentPatterns"), "/shiny/sunburst/legend.html")), collapse="\n")
+ 
   # Replace @insert_data
   input_plot <- readLines(paste(path,"_inputsunburst_all.txt",sep=''))
   html <- sub("@insert_data", input_plot, html)
@@ -637,7 +634,7 @@ createSankeyDiagram <- function(data, outputFolder, databaseName, studyName, gro
 }
 
 # Help function to group combinations
-groupInfrequentCombinations <- function(data, groupCombinations)  {
+groupInfrequentCombinations <- function(data, groupCombinations) {
   
   data <- as.data.frame(data)
   
@@ -650,7 +647,7 @@ groupInfrequentCombinations <- function(data, groupCombinations)  {
   } else {
     # Otherwise: group infrequent treatments below groupCombinations as "other"
     combinations <- as.matrix(data)[findCombinations == TRUE]
-    num_columns <-  sum(grepl("cohort_name", colnames(data)))
+    num_columns <- sum(grepl("cohort_name", colnames(data)))
     freqCombinations <- matrix(rep(data$freq, times = num_columns), ncol = num_columns)[findCombinations == TRUE]
     
     summaryCombinations <- data.table(combination = combinations, freq = freqCombinations)
@@ -662,7 +659,6 @@ groupInfrequentCombinations <- function(data, groupCombinations)  {
       selectedCombinations <- apply(data, 2, function(x) x %in% summarizeCombinations)
       data[selectedCombinations] <- "Other"
     }
-    
   }
   
   return(as.data.table(data))

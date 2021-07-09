@@ -14,7 +14,12 @@ addInfo <- function(item, infoId) {
 
 # Shiny ui function
 ui <- dashboardPage(
-  dashboardHeader(title = "Pathways Results"),
+  dashboardHeader(title = "Pathways Results",
+                  tags$li(div(img(src = 'logo.png',
+                                  title = "OHDSI PLP", height = "40px", width = "40px"),
+                              style = "padding-top:0px; padding-bottom:0px;"),
+                          class = "dropdown")
+  ),
   dashboardSidebar(
     sidebarMenu(
       id = "tabs",
@@ -22,6 +27,7 @@ ui <- dashboardPage(
       # Tabs (some with additional information)
       menuItem("About", tabName = "about"),
       menuItem("Databases", tabName = "databases"),
+      menuItem("Study settings", tabName = "studysettings"),
       menuItem("Characterization", tabName = "characterization"),
       addInfo(menuItem("Sunburst plots", tabName = "pathways"), "treatmentPathwaysInfo"),
       addInfo(menuItem("Sankey diagram", tabName = "sankeydiagram"), "sankeyDiagramInfo"),
@@ -30,6 +36,10 @@ ui <- dashboardPage(
       addInfo(menuItem("Custom", tabName = "custom"), "customInfo"),
       
       # Input parameters
+      conditionalPanel(
+        condition = "input.tabs=='studysettings'",
+        checkboxGroupInput("population0", label = "Study setting", choices = all_studynames, selected = all_studynames[[1]])
+      ),
       conditionalPanel(
         condition = "input.tabs=='characterization'",
         radioButtons("viewer1", label = "Viewer", choices = c("Compare databases", "Compare study populations"), selected = "Compare databases")
@@ -106,6 +116,13 @@ ui <- dashboardPage(
       tabItem(
         tabName = "databases",
         includeHTML("./html/databasesInfo.html")
+      ),
+      
+      tabItem(tabName = "studysettings",
+              box(width = 12,
+                  textOutput("tableStudySettingsTitle"),
+                  dataTableOutput("tableStudySettings")
+              )
       ),
       
       tabItem(tabName = "characterization",

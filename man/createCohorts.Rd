@@ -12,6 +12,7 @@ createCohorts(
   cohortDatabaseSchema,
   cohortTable,
   outputFolder,
+  instFolder,
   loadCohorts = FALSE,
   baseUrl,
   generateCohorts = TRUE,
@@ -43,7 +44,7 @@ study.}
 
 \item{loadCohorts}{Setting to load cohorts from ATLAS.}
 
-\item{baseUrl}{The base URL for theWebApi instance, for example: "http://server.org:80/WebAPI"
+\item{baseUrl}{The base URL for theWebApi instance, for example: "http://server.org:80/WebAPI".
 Note, there is no trailing '/'. If trailing '/' is used, you may receive an error.}
 
 \item{generateCohorts}{Setting to extract specified target/event cohorts from database.}

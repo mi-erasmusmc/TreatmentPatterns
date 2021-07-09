@@ -1,7 +1,7 @@
 Package: TreatmentPatterns
 Type: Package
 Title: A package to analyse real-world treatment patterns of a study population of interest.
-Version: 0.2.0
+Version: 0.2.1
 Author: Aniek F Markus 
 Maintainer: Aniek F Markus <a.markus@erasmusmc.nl>
 Description: This package gives insight in treatment patterns, the following tasks are performed sequentially:
@@ -12,12 +12,12 @@ Description: This package gives insight in treatment patterns, the following tas
     5. Shiny application is available to visualize the results
     Go to extras -> CodeToRun.R to execute package.
 Depends:
-    R (>= 3.6.1),
-    data.table,
-    dplyr
+    R (>= 3.6.1)
 Imports: 
     Andromeda,
     DatabaseConnector,
+    data.table,
+    dplyr,
     SqlRender,
     stringr,
     stringi,
@@ -25,13 +25,12 @@ Imports:
     rjson,
     reshape2,
     googleVis,
-    RJSONIO
-Suggests:
+    RJSONIO,
     FeatureExtraction,
     OhdsiSharing,
-    ROhdsiWebApi,
-    knitr,
-    rmarkdown
+    R.utils
+Suggests:
+    ROhdsiWebApi
 License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true

@@ -9,7 +9,8 @@ constructPathways(
   study_settings,
   databaseName,
   studyName,
-  outputFolder
+  outputFolder,
+  tempFolder
 )
 }
 \arguments{

@@ -7,7 +7,12 @@
 #' @param studyName Name for the study corresponding to the current settings.
 #' @param outputFolder Name of local folder to place results; make sure to use forward slashes (/).
 #' @export
-constructPathways <- function(all_data, study_settings, databaseName, studyName, outputFolder) {
+constructPathways <- function(all_data,
+                              study_settings,
+                              databaseName,
+                              studyName,
+                              outputFolder,
+                              tempFolder) {
   
   # For all different study settings
   settings <- colnames(study_settings)[grepl("analysis", colnames(study_settings))]
@@ -15,8 +20,8 @@ constructPathways <- function(all_data, study_settings, databaseName, studyName,
   for (s in settings) {
     studyName <- study_settings[study_settings$param == "studyName",s]
     
-    if (!file.exists(paste0(getwd(),"/temp/", databaseName, "/", studyName)))
-      dir.create(paste0(getwd(),"/temp/",  databaseName, "/", studyName), recursive = TRUE)
+    if (!file.exists(paste0(tempFolder, "/", studyName)))
+      dir.create(paste0(tempFolder, "/", studyName), recursive = TRUE)
     
     if (!file.exists(paste0(outputFolder, "/", studyName)))
       dir.create(paste0(outputFolder, "/",studyName), recursive = TRUE)
@@ -46,7 +51,7 @@ constructPathways <- function(all_data, study_settings, databaseName, studyName,
       targetCohort$index_year <- as.numeric(format(targetCohort$start_date, "%Y"))
       
       # Number of persons in target cohort (in total + per year)
-      counts_targetcohort <- rollup(targetCohort, .N, by = c("index_year"))
+      counts_targetcohort <- data.table::rollup(targetCohort, .N, by = c("index_year"))
       counts_targetcohort$index_year <- paste0("Number of persons in target cohort ", counts_targetcohort$index_year)
       
       # Select event cohorts for target cohort and merge with start/end date and index year
@@ -54,7 +59,7 @@ constructPathways <- function(all_data, study_settings, databaseName, studyName,
       data <- merge(x = eventCohorts, y = targetCohort, by = c("person_id"), all.x = TRUE)
       
       # Only keep event cohorts after target cohort start date
-      data <- data[data$start_date.y - as.difftime(includeTreatmentsPriorToIndex, unit="days") <= start_date.x & data$start_date.x < data$end_date.y,]
+      data <- data[data$start_date.y - as.difftime(includeTreatmentsPriorToIndex, unit="days") <= data$start_date.x & data$start_date.x < data$end_date.y,]
       
       # Remove unnecessary columns
       data <- data[,c("person_id","index_year", "cohort_id.x", "start_date.x", "end_date.x")]
@@ -84,8 +89,10 @@ constructPathways <- function(all_data, study_settings, databaseName, studyName,
       # Order the combinations
       ParallelLogger::logInfo("Order the combinations.")
       combi <- grep("+", data$event_cohort_id, fixed=TRUE)
-      concept_ids <- strsplit(data$event_cohort_id[combi], split="+", fixed=TRUE)
-      data$event_cohort_id[combi] <- sapply(concept_ids, function(x) paste(sort(x), collapse = "+"))
+      if (length(combi) != 0) {
+        concept_ids <- strsplit(data$event_cohort_id[combi], split="+", fixed=TRUE)
+        data$event_cohort_id[combi] <- sapply(concept_ids, function(x) paste(sort(x), collapse = "+"))
+      }
       
       data <- doFilterTreatments(data, filterTreatments)
       
@@ -106,7 +113,7 @@ constructPathways <- function(all_data, study_settings, databaseName, studyName,
       
       # Reformat and save counts target cohort/treatment pathways 
       data$event_cohort_name <- unlist(data$event_cohort_name)
-      write.csv(data, paste0(getwd(),"/temp/",  databaseName, "/", studyName, "/", databaseName, "_", studyName, "_event_seq_processed.csv"), row.names = FALSE) 
+      write.csv(data, paste0(tempFolder, "/", studyName, "/", databaseName, "_", studyName, "_event_seq_processed.csv"), row.names = FALSE) 
       
       # Group based on treatments and rename columns
       data <- as.data.table(reshape2::dcast(data = data, person_id + index_year ~ event_seq, value.var = "event_cohort_name"))
@@ -114,7 +121,7 @@ constructPathways <- function(all_data, study_settings, databaseName, studyName,
       
       layers <- c(colnames(data))[3:min(7,ncol(data))] # max first 5
       data <- data[, .(freq=length((person_id))), by = c(layers, "index_year")]
-      write.csv(data, paste0(getwd(),"/temp/",  databaseName, "/", studyName, "/", databaseName, "_", studyName, "_paths.csv"), row.names = FALSE) 
+      write.csv(data, paste0(tempFolder, "/", studyName, "/", databaseName, "_", studyName, "_paths.csv"), row.names = FALSE) 
       
       # Number of pathways (in total + per year)
       counts_pathways <- rollup(data, sum(freq), by = c("index_year"))
@@ -124,7 +131,7 @@ constructPathways <- function(all_data, study_settings, databaseName, studyName,
       colnames(counts_pathways) <- colnames(counts_targetcohort)
       counts <- rbind(counts_targetcohort, counts_pathways)
 
-      write.csv(counts, paste0(getwd(),"/temp/",  databaseName, "/", studyName, "/", databaseName, "_", studyName, "_summary_cnt.csv"), row.names = FALSE)
+      write.csv(counts, paste0(tempFolder, "/", studyName, "/", databaseName, "_", studyName, "_summary_cnt.csv"), row.names = FALSE)
     }
   }
 }
@@ -341,13 +348,13 @@ selectRowsCombinationWindow <- function(data) {
 # Updated dataframe, where the desired event cohorts are maintained for the visualizations.
 doFilterTreatments <- function(data, filterTreatments) {
   
+  # Order data by person_id, event_start_date, event_end_date
+  data <- data[order(person_id, event_start_date, event_end_date),]
+  
   if (filterTreatments == "First") {
     data <- data[, head(.SD,1), by=.(person_id, event_cohort_id)]
     
   } else if (filterTreatments == "Changes") {
-    
-    # Order data by person_id, event_start_date, event_end_date
-    data <- data[order(person_id, event_start_date, event_end_date),]
     
     # Group all rows per person for which previous treatment is same
     data <- data[, group:=rleid(person_id,event_cohort_id)]

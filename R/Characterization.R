@@ -19,6 +19,7 @@
 #' @param databaseId           Unique identifier for database (can be the same as databaseName).
 #' @param targetCohortIds      IDs to refer to target cohorts.
 #' @param minCellCount         Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis.
+#' @param standardCovariateSettings ... .
 #'
 #' @export
 cohortCharacterization <- function(connection,
@@ -27,9 +28,11 @@ cohortCharacterization <- function(connection,
                                    cohortDatabaseSchema,
                                    cohortTable,
                                    outputFolder,
+                                   instFolder,
                                    databaseId,
                                    targetCohortIds,
-                                   minCellCount) {
+                                   minCellCount,
+                                   standardCovariateSettings) {
   
   cohortCounts <- getCohortCounts(connection = connection,
                                   cohortDatabaseSchema = cohortDatabaseSchema,
@@ -43,14 +46,14 @@ cohortCharacterization <- function(connection,
   standardCovariateSettings <- FeatureExtraction::createCovariateSettings(useDemographicsAge = TRUE, useDemographicsGender = TRUE, useDemographicsTimeInCohort = TRUE, useDemographicsPostObservationTime = TRUE, useConditionGroupEraAnyTimePrior = TRUE, useConditionGroupEraLongTerm = TRUE, useCharlsonIndex = TRUE)
   
   # Add custom features
-  settings_characterization <- readr::read_csv("inst/Settings/characterization_settings.csv", col_types = list("c", "c", "c"))
-  custom <- settings_characterization[settings_characterization$covariate_id == "Custom", ]
+  settings_characterization <- readr::read_csv(paste0(instFolder, "/settings/characterization_settings.csv"), col_types = list("c", "c", "c"))
+  custom <- settings_characterization[settings_characterization$covariateId == "Custom", ]
   
   if (nrow(custom) != 0) {
-    for (c in 1:length(custom$covariate_name)) {
-      settings_characterization[settings_characterization$covariate_name == custom$covariate_name[c], "covariate_id"] <- as.character((999000+c)*1000+999)
+    for (c in 1:length(custom$covariateName)) {
+      settings_characterization[settings_characterization$covariateName == custom$covariateName[c], "covariateId"] <- as.character((999000+c)*1000+999)
     }
-    customCovariateSettings <- createCustomCovariateSettings(list_covariates = custom$covariate_name)
+    customCovariateSettings <- createCustomCovariateSettings(list_covariates = custom$covariateName)
     covariateSettings <- list(standardCovariateSettings, customCovariateSettings)
   } else {
     covariateSettings <- standardCovariateSettings
@@ -74,7 +77,7 @@ cohortCharacterization <- function(connection,
   
   # Selection of standard results
   characterization <- readr::read_csv(paste0(outputFolder, "/characterization/covariate_value.csv"), col_types =list("i", "c", "d", "d", "c"))
-  characterization <- merge(settings_characterization[,c("covariate_id", "covariate_name")], characterization, by = "covariate_id")
+  characterization <- merge(settings_characterization[,c("covariateId", "covariateName")], characterization, by = "covariateId")
   
   # Add cohort counts
   characterization <- rbind(characterization, cbind(covariate_id = "Custom", covariate_name = "Number of persons", cohort_id = cohortCounts$cohortId, mean = cohortCounts$cohortEntries, sd = NA, database_id = databaseId))

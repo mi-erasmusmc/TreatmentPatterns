@@ -4,7 +4,13 @@
 \alias{generateResults}
 \title{This function will generate all result files and plots.}
 \usage{
-generateResults(study_settings, databaseName, studyName, outputFolder)
+generateResults(
+  study_settings,
+  databaseName,
+  studyName,
+  outputFolder,
+  tempFolder
+)
 }
 \arguments{
 \item{study_settings}{Object that contains all study settings inputted by the user.}

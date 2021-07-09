@@ -67,6 +67,16 @@ server <- function(input, output, session) {
       
     }
   })
+  # Study settings tab
+  output$tableStudySettingsTitle <- renderText({"Table with study settings specified."})
+  
+  output$tableStudySettings <- renderDataTable({
+    cols <- sapply(study_settings[study_settings$param == "studyName",], function(c) ifelse(c %in% input$population0, 1, 0))
+    cols[1] <- 1 # add param list
+    table <- study_settings[,cols > 0]
+    return(table)
+  }, options = list(pageLength = 20))
+  
   
   # Characterization tab
   output$tableCharacterizationTitle <- renderText({"Table with selected demographics and patient characteristics (in percentages)."})
@@ -135,7 +145,7 @@ server <- function(input, output, session) {
     n_cols <- 2
     
     result <- list()
-
+    
     if (input$viewer2 == "Compare databases") {
       
       for(i in 1:ceiling(length(input$dataset2)/n_cols)) { 

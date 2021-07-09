@@ -6,21 +6,23 @@ library(ggplot2)
 library(data.table)
 library(DT)
 
-# Set working directory (shiny folder)
-if (!grepl("shiny$", getwd())) {
-  setwd(paste0(getwd(), "/shiny"))
+if (exists("shinySettings")) { # run via launchShinyApplication
+  setwd(shinySettings$shinyFilesLocation)
+} else { # allow to run from folder directly (select root folder of output) -> problem sunburst support files missing
+  setwd("/Volumes/USB DISK/TreatmentPatterns new set up example") # TODO: remove option and throw error?
 }
 
-local <- paste0(getwd(), "/")
+local <- paste0(getwd(), "/output/")
 addResourcePath("workingdirectory", getwd())
 
 # Fixing the labels
-included_databases <- list.dirs(paste0(local, "output/"), recursive = FALSE, full.names = FALSE) 
+included_databases <- list.dirs(local, recursive = FALSE, full.names = FALSE)
+included_databases <- included_databases[included_databases != "sunburst"]
 names(included_databases) <- included_databases # optional: change with own custom names
-included_databases <- as.list(included_databases)
+included_databases <- as.list(included_databases) 
 
 # Import settings
-study_settings <- data.frame(readr::read_csv(paste0("output/",included_databases[[1]],"/settings.csv"), col_types = readr::cols()))
+study_settings <- data.frame(readr::read_csv(paste0(local, "/", included_databases[[1]],"/settings.csv"), col_types = readr::cols()))
 
 all_targetcohorts <- unique(as.numeric(study_settings[study_settings$param == "targetCohortId",-1]))
 names(all_targetcohorts) <- paste0("targetcohort ",all_targetcohorts) # optional: change with own custom names
@@ -64,7 +66,7 @@ suppressWarnings({
   for (d in included_databases) {
     
     # Load characterization for entire database
-    characterization[[d]]  <- read.csv(paste0(local, "output/", d, "/characterization/characterization.csv"))
+    characterization[[d]]  <- read.csv(paste0(local, "/", d, "/characterization/characterization.csv"))
     
     # Load remaining file per study population
     summary_counts_d <- list()
@@ -73,12 +75,12 @@ suppressWarnings({
     duration_d <- list()
     
     # For database find study populations
-    available_studies <- list.dirs(path = paste0(local, "output/", d), full.names = FALSE, recursive = FALSE)
-
+    available_studies <- list.dirs(path = paste0(local, "/", d), full.names = FALSE, recursive = FALSE)
+    
     for (s in available_studies[available_studies != "characterization"]) {
       
       # Load summary counts
-      try({file <- read.csv(paste0(local, "output/", d, "/", s, "/", d , "_", s, "_summary_cnt.csv"))
+      try({file <- read.csv(paste0(local, "/", d, "/", s, "/", d , "_", s, "_summary_cnt.csv"))
       transformed_file <- data.table(year = character(), number_target = integer(), number_pathways = integer())
       transformed_file <- rbind(transformed_file, list("all", file$N[file$index_year == "Number of persons in target cohort NA"], file$N[file$index_year == "Total number of pathways (after minCellCount)"]))
       
@@ -90,11 +92,11 @@ suppressWarnings({
       summary_counts_d[[s]] <- transformed_file}, silent = TRUE)
       
       # Load event cohorts classes file for available study settings
-      try(summary_eventcohorts_d[[s]] <- read.csv(paste0(local, "output/", d, "/", s, "/",d , "_", s, "_percentage_groups_treated_noyear.csv")), silent = TRUE)
-      try(summary_eventcohorts_year_d[[s]] <- read.csv(paste0(local, "output/", d, "/", s, "/",d , "_", s, "_percentage_groups_treated_withyear.csv")), silent = TRUE)
+      try(summary_eventcohorts_d[[s]] <- read.csv(paste0(local, "/", d, "/", s, "/",d , "_", s, "_percentage_groups_treated_noyear.csv")), silent = TRUE)
+      try(summary_eventcohorts_year_d[[s]] <- read.csv(paste0(local, "/", d, "/", s, "/",d , "_", s, "_percentage_groups_treated_withyear.csv")), silent = TRUE)
       
       # Load duration file for available study populations
-      try(duration_d[[s]] <- read.csv(paste0(local, "output/", d, "/", s, "/",d , "_", s, "_duration.csv")), silent = TRUE)
+      try(duration_d[[s]] <- read.csv(paste0(local, "/", d, "/", s, "/",d , "_", s, "_duration.csv")), silent = TRUE)
     }
     
     summary_counts[[d]] <- summary_counts_d

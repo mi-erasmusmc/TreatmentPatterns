@@ -9,7 +9,7 @@ loadRenderTranslateSql <- function(sql,
                                    outputFile,
                                    ...) {
   if (grepl('.sql', sql)) {
-    pathToSql <- paste("inst/SQL/", sql, sep ="")
+    pathToSql <- sql
     parameterizedSql <- readChar(pathToSql, file.info(pathToSql)$size)[1]
   } else {
     parameterizedSql <- sql
@@ -60,7 +60,7 @@ getCohortCounts <- function(connection = NULL,
                             cohortDatabaseSchema,
                             cohortTable,
                             cohortIds = c()) {
-  sql <- loadRenderTranslateSql(sql = "CohortCounts.sql",
+  sql <- loadRenderTranslateSql(sql = paste0(system.file(package = "TreatmentPatterns"), "/SQL/CohortCounts.sql"),
                                 dbms = connection@dbms,
                                 resultsSchema = cohortDatabaseSchema,
                                 cohortTable = cohortTable,
@@ -361,8 +361,7 @@ writeToCsv <- function(data, fileName, incremental = FALSE, ...) {
   }
 }
 
-
-# Borrowed from Triton.
+# Borrowed function from Triton.
 appendCovariateData<- function(tempCovariateData,covariateData){
   ##==## appends covariate objects ##==##
   if (is.null(covariateData)) {
@@ -396,11 +395,27 @@ appendCovariateData<- function(tempCovariateData,covariateData){
   return(covariateData)
 }
 
-# Borrowed from Triton.
+# Borrowed function from Triton.
 hasData <- function(data) {
   ##==## checks if data has data ##==##
   return(!is.null(data) && (data %>% count() %>% pull()) > 0)
 }
 
-
-
+# Borrowed and adapted function from devtools.
+# https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L74
+ensure_installed <- function(pkg) {
+  if (!is_installed(pkg)) {
+    msg <-
+      paste0(sQuote(pkg), " must be installed for this functionality.")
+    if (interactive()) {
+      message(msg, "\nWould you like to install it?")
+      if (menu(c("Yes", "No")) == 1) {
+        install.packages(pkg)
+      } else {
+        stop(msg, call. = FALSE)
+      }
+    } else {
+      stop(msg, call. = FALSE)
+    }
+  }
+}

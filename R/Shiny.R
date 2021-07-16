@@ -19,7 +19,7 @@ launchShinyApplication <- function(rootFolder) {
   shinyFilesLocation <- paste0(rootFolder, "/filesShiny")
 
   unzipFiles(rootFolder, unzipMainFolder = paste0(shinyFilesLocation, "/output"))
-  addSunburstFiles(shinyFilesLocation = shinyFilesLocation)
+  addSunburstFiles(filesLocation = shinyFilesLocation)
   
   shinySettings <- list(
     shinyFilesLocation = shinyFilesLocation
@@ -30,8 +30,8 @@ launchShinyApplication <- function(rootFolder) {
   shiny::runApp(appDir = appDir)
 }
 
-addSunburstFiles <- function(shinyFilesLocation) {
-  R.utils::copyDirectory(paste0(from = system.file(package = "TreatmentPatterns"), "/shiny/sunburst"), to = paste0(shinyFilesLocation,"/sunburst"))
+addSunburstFiles <- function(filesLocation) {
+  R.utils::copyDirectory(paste0(from = system.file(package = "TreatmentPatterns"), "/shiny/sunburst"), to = paste0(filesLocation,"/sunburst"))
 }
 
 # Borrowed and adapted function from CohortDiagnostics.

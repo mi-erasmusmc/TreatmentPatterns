@@ -60,8 +60,8 @@ generateResults <- function(study_settings,
       createSankeyDiagram(data = file_noyear, outputFolder = outputFolder, databaseName = databaseName, studyName = studyName, groupCombinations = TRUE)
       
       # Treatment pathways sunburst plot 
-      outputSunburstPlot(data = file_noyear, databaseName = databaseName, eventCohortIds = eventCohortIds, studyName = studyName, outputFolder=outputFolder, path=path, addNoPaths=addNoPaths, maxPathLength=maxPathLength, createInput=TRUE, createPlot=TRUE)
-      outputSunburstPlot(data = file_withyear, databaseName = databaseName, eventCohortIds = eventCohortIds, studyName = studyName, outputFolder=outputFolder, path=path, addNoPaths=addNoPaths, maxPathLength=maxPathLength, createInput=TRUE, createPlot=TRUE)
+      outputSunburstPlot(data = file_noyear, databaseName = databaseName, eventCohortIds = eventCohortIds, studyName = studyName, outputFolder=outputFolder, path=path, addNoPaths=addNoPaths, maxPathLength=maxPathLength)
+      outputSunburstPlot(data = file_withyear, databaseName = databaseName, eventCohortIds = eventCohortIds, studyName = studyName, outputFolder=outputFolder, path=path, addNoPaths=addNoPaths, maxPathLength=maxPathLength)
       
     }
   }
@@ -347,14 +347,20 @@ saveTreatmentSequence <- function(file_noyear, file_withyear, path, temp_path, g
 # maxPathLength Maximum number of steps included in treatment pathway (max 5).
 # createInput Whether the input for sunburst plot should be created.
 # createPlot Whether the html for sunburst plot should be created.
-outputSunburstPlot <- function(data, databaseName, eventCohortIds, studyName, outputFolder, path, addNoPaths, maxPathLength, createInput, createPlot) {
+outputSunburstPlot <- function(data, databaseName, eventCohortIds, studyName, outputFolder, path, addNoPaths, maxPathLength) {
+  
+  cohorts <- readr::read_csv(paste(outputFolder, "/cohort.csv",sep=''), col_types = list("i", "c", "c", "c"))
+  outcomes <- c(cohorts$cohortName[cohorts$cohortId %in% eventCohortIds], "Other")
+  
   if (is.null(data$index_year)) {
     # For file_noyear compute once
-    createSunburstPlot(data, databaseName, eventCohortIds, studyName, outputFolder, path, addNoPaths, maxPathLength, index_year = 'all', createInput, createPlot)
+    data <- inputSunburstPlot(data, path, addNoPaths, index_year = 'all')
+    
+    createSunburstPlot(data, outcomes, folder = outputFolder, file_name = paste0(studyName, "/", databaseName, "_", studyName,"_all"), shiny = TRUE)
     
     # Create legend once
-    createLegend(studyName, outputFolder, path)
-    
+    createLegend(studyName, outputFolder, databaseName)
+      
   } else {
     # For file_withyear compute per year
     years <- unlist(unique(data[,"index_year"]))
@@ -362,7 +368,10 @@ outputSunburstPlot <- function(data, databaseName, eventCohortIds, studyName, ou
     for (y in years) {
       subset_data <- data[index_year == as.character(y),]
       if (nrow(subset_data) != 0) {
-        createSunburstPlot(subset_data, databaseName, eventCohortIds, studyName, outputFolder, path, addNoPaths, maxPathLength, index_year = y, createInput, createPlot)
+        subset_data <- inputSunburstPlot(subset_data, path, addNoPaths, index_year = y)
+        
+        createSunburstPlot(subset_data, outcomes, folder = outputFolder, file_name = paste0(studyName, "/", databaseName, "_", studyName,"_", y), shiny = TRUE)
+        
       } else {
         ParallelLogger::logInfo(warning(paste0("Subset of data is empty for study settings ", studyName, " in year ", y)))
       }
@@ -373,34 +382,78 @@ outputSunburstPlot <- function(data, databaseName, eventCohortIds, studyName, ou
   ParallelLogger::logInfo("outputSunburstPlot done")
 }
 
-# Help function to create input data for sunburst plot and the sunburst plot in HTML.
-createSunburstPlot <- function(data, databaseName, eventCohortIds, studyName, outputFolder, path, addNoPaths, maxPathLength, index_year, createInput, createPlot){
+
+#' Function to create sunburst plot from CSV file.
+#'
+#' @param data A data frame containing two columns: 1) column "path" should specify the event cohorts separated by dashes - (combinations can be indicated using &) and 2) column "freq" should specify how often that (unique) path occurs.
+#' @param outcomes Character vector containing all event cohorts.
+#' @param folder Root folder to store the results.
+#' @param file_name File name for the results.
+#' @param shiny Set to TRUE if HTML file is generated for shiny application, FALSE will generate a standalone HTML with title and legend.
+#' @param title Optional if shiny = FALSE: add descriptive title in sunburst plot for standalone HTML.
+#' 
+#' @export
+createSunburstPlot <- function(data, outcomes = NULL, folder = NULL, file_name = NULL, shiny = FALSE, title = ""){
   
-  if (createInput) {
-    inputSunburstPlot(data, path, addNoPaths, index_year)
+  # Check inputs
+  if(!("path" %in% colnames(data))) {
+    ParallelLogger::logWarn("Column 'path' is missing from input data to create sunburst plot.")
   }
   
-  if (createPlot) {
-    transformCSVtoJSON(eventCohortIds, outputFolder, path, index_year, maxPathLength)
-    
-    # Load template HTML file
-    html <- paste(readLines(paste0(system.file(package = "TreatmentPatterns"), "/shiny/sunburst/sunburst.html")), collapse="\n")
-
-    # Replace @insert_data
-    input_plot <- readLines(paste(path,"_inputsunburst_", index_year, ".txt",sep=''))
-    html <- sub("@insert_data", input_plot, html)
+  if(!("freq" %in% colnames(data))) {
+    ParallelLogger::logWarn("Column 'freq' is missing from input data to create sunburst plot.")
+  }
+  
+  if (is.null(outcomes)) {
+    outcomes <- unique(unlist(strsplit(data$path, split="-", fixed=TRUE)))
+  }
+  
+  if (is.null(folder)) {
+    folder <- getwd()
+  }
+  
+  if (shiny == FALSE) {
+    folder <- paste0(folder, "/plot")
+  }
+  
+  if (!file.exists(folder)) {
+    dir.create(folder, recursive = TRUE)
+  }
+  
+  if (is.null(file_name)) {
+    file_name <- "sunburst"
+  }
+  
+  # if (maxPathLength > 5) {
+  #   stop(paste0("MaxPathLength exceeds 5, currently not supported in buildHierarchy function."))
+  # }
+  
+  # Load CSV file and convert to JSON
+  json <- transformCSVtoJSON(data, outcomes, folder, file_name)
+  
+  # Load template HTML file
+  if (shiny == TRUE) {
+    html <- paste(readLines(paste0(system.file(package = "TreatmentPatterns"), "/shiny/sunburst/sunburst_shiny.html")), collapse="\n")
+  } else {
+    html <- paste(readLines(paste0(system.file(package = "TreatmentPatterns"), "/shiny/sunburst/sunburst_standalone.html")), collapse="\n")
     
     # Replace @name
-    html <- sub("@name", paste0("(", databaseName, " ", studyName," ", index_year, ")"), html)
+    html <- sub("@name", title, html)
     
-    # Save HTML file as sunburst_@studyName
-    write.table(html, 
-                file=paste0(outputFolder, "/", studyName, "/", "sunburst_", databaseName, "_", studyName,"_", index_year,".html"), 
-                quote = FALSE,
-                col.names = FALSE,
-                row.names = FALSE)
+    # Add supporting html files in folder
     
+    addSunburstFiles(filesLocation = folder)
   }
+ 
+  # Replace @insert_data
+  html <- sub("@insert_data", json, html)
+  
+  # Save HTML file
+  write.table(html, 
+              file = paste0(folder, "/", file_name,"_plot.html"), 
+              quote = FALSE,
+              col.names = FALSE,
+              row.names = FALSE)
 }
 
 
@@ -431,15 +484,13 @@ inputSunburstPlot <- function(data, path, addNoPaths, index_year) {
   transformed_file <- transformed_file[order(-transformed_file$freq, transformed_file$path),]
   
   write.table(transformed_file, file=paste(path,"_inputsunburst_", index_year, ".csv",sep=''), sep = ",", row.names = FALSE)
+  
+  return(transformed_file)
 }
 
 # Help function to transform data in csv format to required JSON format for HTML.
-transformCSVtoJSON <- function(eventCohortIds, outputFolder, path, index_year, maxPathLength) {
-  data <- readr::read_csv(paste(path,"_inputsunburst_", index_year, ".csv",sep=''), col_types = list("c", "i"))
-  
-  cohorts <- readr::read_csv(paste(outputFolder, "/cohort.csv",sep=''), col_types = list("i", "c", "c", "c"))
-  outcomes <- c(cohorts$cohortName[cohorts$cohortId %in% eventCohortIds], "Other")
-  
+transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
+ 
   # Add bitwise numbers to define combination treatments
   bitwiseNumbers <- sapply(1:length(outcomes), function(o) {2^(o-1)})
   linking <- data.frame(outcomes,bitwiseNumbers)
@@ -472,22 +523,20 @@ transformCSVtoJSON <- function(eventCohortIds, outputFolder, path, index_year, m
   })
   
   transformed_csv <- cbind(oath = updated_path, freq = data$freq)
-  transformed_json <- buildHierarchy(transformed_csv, maxPathLength) 
+  transformed_json <- buildHierarchy(transformed_csv) 
   
   result <- paste0("{ \"data\" : ", transformed_json, ", \"lookup\" : ", lookup, "}")
   
-  file <- file(paste(path,"_inputsunburst_", index_year, ".txt",sep=''))
+  file <- file(paste0(folder, "/", file_name ,"_input.txt"))
   writeLines(result, file)
   close(file)
+  
+  return(result) # TODO: check this, or return writeLines(result)
 }
 
 # Help function to create hierarchical data structure.
-buildHierarchy <- function(csv, maxPathLength) {
-  
-  if (maxPathLength > 5) {
-    stop(paste0("MaxPathLength exceeds 5, currently not supported in buildHierarchy function."))
-  }
-  
+buildHierarchy <- function(csv) {
+
   root = list("name" = "root", "children" = list())
   
   # Create nested structure of lists 
@@ -566,18 +615,15 @@ buildHierarchy <- function(csv, maxPathLength) {
   return(json)
 }
 
-createLegend <- function(studyName, outputFolder, path) {
-  
+
+createLegend <- function(studyName, outputFolder, databaseName) {
   # Load template HTML file
   html <- paste(readLines(paste0(system.file(package = "TreatmentPatterns"), "/shiny/sunburst/legend.html")), collapse="\n")
- 
+  
   # Replace @insert_data
-  input_plot <- readLines(paste(path,"_inputsunburst_all.txt",sep=''))
+  input_plot <- readLines( paste0(outputFolder, "/", studyName, "/", databaseName, "_", studyName,"_all_input.txt"))
   html <- sub("@insert_data", input_plot, html)
-  
-  # Replace @name
-  html <- sub("@name", paste0("(for legend)"), html)
-  
+
   # Save HTML file as sunburst_@studyName
   write.table(html, 
               file=paste0(outputFolder, "/", studyName, "/legend.html"), 
@@ -586,8 +632,6 @@ createLegend <- function(studyName, outputFolder, path) {
               row.names = FALSE)
   
 }
-
-
 
 # Input:
 # data Dataframe with event cohorts of the target cohort in different columns.

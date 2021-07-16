@@ -76,11 +76,12 @@ cohortCharacterization <- function(connection,
                          minCellCount = minCellCount)
   
   # Selection of standard results
-  characterization <- readr::read_csv(paste0(outputFolder, "/characterization/covariate_value.csv"), col_types =list("i", "c", "d", "d", "c"))
+  characterization <- readr::read_csv(paste0(outputFolder, "/characterization/covariate_value.csv"), col_types = list("i", "c", "d", "d", "c"))
+  colnames(characterization) <- c("cohortId", "covariateId", "mean", "sd", "databaseId") 
   characterization <- merge(settings_characterization[,c("covariateId", "covariateName")], characterization, by = "covariateId")
   
   # Add cohort counts
-  characterization <- rbind(characterization, cbind(covariate_id = "Custom", covariate_name = "Number of persons", cohort_id = cohortCounts$cohortId, mean = cohortCounts$cohortEntries, sd = NA, database_id = databaseId))
+  characterization <- rbind(characterization, cbind(covariateId = "Custom", covariateName = "Number of persons", cohortId = cohortCounts$cohortId, mean = cohortCounts$cohortEntries, sd = NA, databaseId = databaseId))
   
   write.csv(characterization, paste0(outputFolder, "/characterization/characterization.csv"), row.names = FALSE)
   

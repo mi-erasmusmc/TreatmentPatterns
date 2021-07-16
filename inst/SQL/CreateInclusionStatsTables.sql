@@ -9,6 +9,9 @@ IF OBJECT_ID('@cohort_database_schema.@cohort_inclusion_stats_table', 'U') IS NO
 	
 IF OBJECT_ID('@cohort_database_schema.@cohort_summary_stats_table', 'U') IS NOT NULL
 	DROP TABLE @cohort_database_schema.@cohort_summary_stats_table;
+		
+IF OBJECT_ID('@cohort_database_schema.@cohort_censor_stats_table', 'U') IS NOT NULL
+	DROP TABLE @cohort_database_schema.@cohort_censor_stats_table;
 
 CREATE TABLE @cohort_database_schema.@cohort_inclusion_table (
 	cohort_definition_id BIGINT NOT NULL,
@@ -38,4 +41,11 @@ CREATE TABLE @cohort_database_schema.@cohort_summary_stats_table (
 	base_count BIGINT NOT NULL,
 	final_count BIGINT NOT NULL,
 	mode_id INT
+	);
+	
+CREATE TABLE @cohort_database_schema.@cohort_censor_stats_table (
+	cohort_definition_id BIGINT NOT NULL,
+	rule_sequence INT NOT NULL,
+	name VARCHAR(255) NULL,
+	description VARCHAR(1000) NULL
 	);

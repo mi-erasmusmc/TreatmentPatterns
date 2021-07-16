@@ -60,12 +60,15 @@ createCohorts <- function(connection,
                                   cohort_inclusion_table = "cohort_inclusion",
                                   cohort_inclusion_result_table = "cohort_inclusion_result",
                                   cohort_inclusion_stats_table =  "cohort_inclusion_stats",
-                                  cohort_summary_stats_table =  "cohort_summary_stats")
+                                  cohort_summary_stats_table =  "cohort_summary_stats",
+                                  cohort_censor_stats_table = "cohort_censor_stats")
     DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
     
     # In case of custom definitions: load custom definitions
     pathToCsv <- paste0(instFolder,"/settings/eventcohorts_custom.csv")
-    custom_definitions <- readr::read_csv(pathToCsv, col_types = readr::cols())
+    if (file.exists(pathToCsv)) {
+      custom_definitions <- readr::read_csv(pathToCsv, col_types = readr::cols())
+    }
     
     # Instantiate cohorts
     ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
@@ -165,7 +168,7 @@ createCohorts <- function(connection,
   }
   
   # Return numbers for flowchart with inclusion/exclusion criteria
-  if(flowChart) {
+  if(flowChart) { # TODO: add check if file exists
     cohort_inclusion <- extractFile(connection, "cohort_inclusion", cohortDatabaseSchema, connectionDetails$dbms)
     write.csv(cohort_inclusion, file.path(outputFolder, "cohort_inclusion.csv"), row.names = FALSE)
     
@@ -174,9 +177,12 @@ createCohorts <- function(connection,
     
     cohort_inclusion_stats <- extractFile(connection, "cohort_inclusion_stats", cohortDatabaseSchema, connectionDetails$dbms)
     write.csv(cohort_inclusion_stats, file.path(outputFolder, "cohort_inclusion_stats.csv"), row.names = FALSE)
-    
+
     cohort_summary_stats <- extractFile(connection, "cohort_summary_stats", cohortDatabaseSchema, connectionDetails$dbms)
     write.csv(cohort_summary_stats, file.path(outputFolder, "cohort_summary_stats.csv"), row.names = FALSE)
+    
+    cohort_censor_stats <- extractFile(connection, "cohort_censor_stats", cohortDatabaseSchema, connectionDetails$dbms)
+    write.csv(cohort_censor_stats, file.path(outputFolder, "cohort_censor_stats.csv"), row.names = FALSE)
   }
   
 }

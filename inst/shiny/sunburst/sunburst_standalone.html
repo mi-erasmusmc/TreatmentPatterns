@@ -4,14 +4,14 @@
 	<title>Visualization: Sunburst</title>
 	<link rel="stylesheet" type="text/css"
       href="https://fonts.googleapis.com/css?family=Open+Sans:400,600">
-		<link href="../../../sunburst/chart.css" rel="stylesheet">
+		<link href="./sunburst/chart.css" rel="stylesheet">
 </head>
 
 <body>
-<!--	<h1>Sunburst plot</h1>
-	<div>Sunburst plot of treatment patterns showing the first treatment in the center and subsequent treatments in the surrounding outer layers. Each color represents a drug class and a layer with multiple colors indicates a combination therapy. </div> -->
+<h1>Sunburst plot @name</h1>
+	<div>Sunburst plot of treatment patterns showing the first treatment in the center and subsequent treatments in the surrounding outer layers. Each color represents a treatment and a layer with multiple colors indicates a combination therapy. </div>
 	<div id="main">
-	      <div id="legend" style=" height:600px"></div>
+	<div style="width:100%" id="plot"></div>
 <!--	<hr/>
 <h1>Data</h1> -->
 	<textarea  id="chartData" style="visibility:hidden; width:400px; height:400px">
@@ -20,12 +20,12 @@
 	<button id="reload" style="visibility:hidden;">Reload</button>
 	</div>  
 	<div id="sidebar">
-	<div style="width:100%; visibility:hidden;" id="plot"></div>
+    <div id="legend"></div>
 	</div>  
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.3/require.min.js"></script>
-	<script src="../../../sunburst/config.js"></script>
+	<script src="./sunburst/config.js"></script>
 	<script>
-		requirejs(['../../../sunburst/sunburst'], function(Sunburst) {
+		requirejs(['./sunburst/sunburst'], function(Sunburst) {
 			var plot = new Sunburst();
 			var target = document.querySelector('#plot');
 

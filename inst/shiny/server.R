@@ -92,45 +92,45 @@ server <- function(input, output, session) {
       }
       
       # Rename to study populations
-      data$cohort_id <- sapply(data$cohort_id, function(c) names(all_targetcohorts[c]))
-      data <- data[data$cohort_id == names(which(all_targetcohorts == input$setting1)),]
+      data$cohortId <- sapply(data$cohortId, function(c) names(all_targetcohorts[c]))
+      data <- data[data$cohortId == names(which(all_targetcohorts == input$setting1)),]
       
       data$sd <- NULL
-      data$cohort_id <- NULL
-      data$covariate_id <- NULL
+      data$cohortId <- NULL
+      data$covariateId <- NULL
       
-      data$database_id <- sapply(data$database_id, function(d) names(which(included_databases == d)))
+      data$databaseId <- sapply(data$databaseId, function(d) names(which(included_databases == d)))
       
       # Multiply all rows by 100 to get percentages (except Age, Charlson comorbidity index score, Number of persons)
-      data$mean[!(data$covariate_name %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))] <- data$mean[!(data$covariate_name %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))]*100
+      data$mean[!(data$covariateName %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))] <- data$mean[!(data$covariateName %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))]*100
       
       # Columns different databases (rows different characteristics)
-      table <- reshape2::dcast(data, covariate_name ~ database_id, value.var = "mean")
+      table <- reshape2::dcast(data, covariateName ~ databaseId, value.var = "mean")
       
     } else if  (input$viewer1 == "Compare study populations") { 
       # Get the data
       data <- characterization[[input$dataset1]]
       
       data$sd <- NULL
-      data$database_id <- NULL
-      data$covariate_id <- NULL
+      data$databaseId <- NULL
+      data$covariateId <- NULL
       
       # Multiply all rows by 100 to get percentages (except Age, Charlson comorbidity index score, Number of persons)
-      data$mean[!(data$covariate_name %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))] <- data$mean[!(data$covariate_name %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))]*100
+      data$mean[!(data$covariateName %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))] <- data$mean[!(data$covariateName %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))]*100
       
       # Rename to study populations
-      data$cohort_id <- sapply(data$cohort_id, function(c) names(all_targetcohorts[c]))
+      data$cohortId <- sapply(data$cohortId, function(c) names(all_targetcohorts[c]))
       
       # Columns different study populations (rows different characteristics)
-      table <- reshape2::dcast(data, covariate_name ~ cohort_id, value.var = "mean")
+      table <- reshape2::dcast(data, covariateName ~ cohortId, value.var = "mean")
     }
     
     # Sort
-    table  <- table[order(match(table$covariate_name,orderRows)),]
+    table  <- table[order(match(table$covariateName,orderRows)),]
     row.names(table) <- NULL
     
-    table$covariate_name[table$covariate_name == 'Age'] <- 'Age (in years, mean)'
-    table$covariate_name[table$covariate_name == 'Charlson comorbidity index score'] <- 'Charlson comorbidity index score (mean)'
+    table$covariateName[table$covariateName == 'Age'] <- 'Age (in years, mean)'
+    table$covariateName[table$covariateName == 'Charlson comorbidity index score'] <- 'Charlson comorbidity index score (mean)'
     
     colnames(table)[1] <- "Covariate name" 
     table <- round_df(table, 1)
@@ -155,7 +155,7 @@ server <- function(input, output, session) {
           
           info <- summary_counts[[input$dataset2[[j]]]][[input$population2]]
           title_plot <- paste0(names(which(included_databases == input$dataset2[[j]])), " (N = ", info$number_target[info$year == input$year2], " , Treated % = ", info$perc[info$year == input$year2], ")")
-          plot_location <- paste0("workingdirectory/output/", input$dataset2[[j]], "/", input$population2,"/sunburst_", input$dataset2[[j]], "_",input$population2, "_" ,input$year2,".html")
+          plot_location <- paste0("workingdirectory/output/", input$dataset2[[j]], "/", input$population2,"/", input$dataset2[[j]], "_",input$population2, "_" ,input$year2,"_plot.html")
           
           cols_ <- append(cols_,list(column(width = floor(8/n_cols), offset = 0, tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=400, height=400, scrolling = "no", frameborder = "no")))));
         }
@@ -171,7 +171,7 @@ server <- function(input, output, session) {
           
           info <- summary_counts[[input$dataset2]][[input$population2[[j]]]]
           title_plot <- paste0(names(which(all_studynames == input$population2[[j]])), " (N = ", info$number_target[info$year == input$year2], " , Treated % = ", info$perc[info$year == input$year2], ")")
-          plot_location <- paste0("workingdirectory/output/",input$dataset2 ,"/",input$population2[[j]], "/sunburst_", input$dataset2, "_",input$population2[[j]], "_" ,input$year2,".html")
+          plot_location <- paste0("workingdirectory/output/",input$dataset2 ,"/",input$population2[[j]], "/", input$dataset2, "_",input$population2[[j]], "_" ,input$year2,"_plot.html")
           
           cols_ <- append(cols_,list(column(width = floor(8/n_cols), offset = 0, tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=400, height=400, scrolling = "no", frameborder = "no")))));
         }
@@ -187,7 +187,7 @@ server <- function(input, output, session) {
           
           info <- summary_counts[[input$dataset2]][[input$population2]]
           title_plot <- paste0(names(which(all_years == input$year2[[j]])), " (N = ", info$number_target[info$year == input$year2[[j]]], " , Treated % = ", info$perc[info$year == input$year2[[j]]], ")")
-          plot_location <- paste0("workingdirectory/output/",input$dataset2, "/", input$population2, "/sunburst_", input$dataset2, "_",input$population2, "_" ,input$year2[[j]],".html")
+          plot_location <- paste0("workingdirectory/output/",input$dataset2, "/", input$population2, "/", input$dataset2, "_",input$population2, "_" ,input$year2[[j]],"_plot.html")
           
           cols_ <- append(cols_,list(column(width = floor(8/n_cols), offset = 0, tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=400, height=400, scrolling = "no", frameborder = "no")))));
         }

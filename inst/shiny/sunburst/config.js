@@ -2,7 +2,7 @@ requirejs.config({
 	packages: [
 		{
 			name: "sunburst",
-			location: "../sunburst",
+			location: "./sunburst",
 			main: "main"
 		}	
   ],

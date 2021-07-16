@@ -27,7 +27,9 @@ There are two approaches: A) manually filling the inst folder in the package or 
 Throughout this vignette we will use an adjusted example describing the treatment patterns of hypertension patients. The included drugs of interests are hydrochlorothiazide, metorolol, amlodipine, lisinopril, and losartan (for simplicity we limit it to 5 events of interest).
 
 Some definitions used throughout this vignette:
+
 - Target cohort = study population.
+
 - Event cohort(s) = treatment(s) of interest.
 
 ## 2.1 Databases in OMOP CDM format
@@ -49,7 +51,7 @@ kable(table)
 
 ```{r, fig.show='hold', echo=FALSE}
 library('knitr')
-table <- data.frame("Descriptive name covariate", "Unique ID number referring to covariate from FeatureExtraction or 'Custom' (see explanation in Section 3.2)","")
+table <- data.frame("Descriptive name covariate", "Unique ID number referring to covariate from FeatureExtraction or 'Custom' (see explanation in Section 3.2)")
 colnames(table) <- c("covariateName", "covariateId")
 kable(table)
 ```
@@ -80,26 +82,25 @@ We need the following components:
 
 ```{r tidy=FALSE,eval=FALSE}
 targetCohorts <- data.frame(cohortId = c(1),
-                           atlasId = c(1777380),
-                           cohortName = c('Hypertension'))
+                            atlasId = c(1777380),
+                            cohortName = c('Hypertension'))
 ```
 
 - The events of interest (event cohorts).
 
 ```{r tidy=FALSE,eval=FALSE}
 eventCohorts <- data.frame(cohortId = c(10, 11, 12, 13, 14),
-                          atlasId = c(1777381,1777382, 1777383, 1777384, 1777385),
-                          cohortName = c('Hydrochlorothiazide', 'Metorolol',
-                                         'Amlodipine', 'Lisinopril', 'Losartan'))
+                           atlasId = c(1777381,1777382, 1777383, 1777384, 1777385),
+                           cohortName = c('Hydrochlorothiazide', 'Metorolol',
+                                          'Amlodipine', 'Lisinopril', 'Losartan'))
 ```
 
 2. Optional: specify baseline characteristics of interest.
 
 ```{r tidy=FALSE,eval=FALSE}
-characterizationSettings <- data.frame(covariate_name = c('Male', 'Age',
+characterizationSettings <- data.frame(covariateName = c('Male', 'Age',
                                                           'Charlson comorbidity index score'),
-                                       covariate_id = c(8507001, 1002, 1901),
-                                       concept_set = c('', '', ''))
+                                       covariateId = c(8507001, 1002, 1901))
 ```
 
 3. Define study settings.
@@ -122,7 +123,7 @@ studySettings <- data.frame(studyName = c("default", "analysis1"),
                             addNoPaths = c(FALSE, TRUE))                                       
 ```
 
-                        
+
 ## 2.2 Databases in other formats
 
 ### A) Manually filling the inst folder in the package
@@ -167,17 +168,17 @@ kable(table)
 
 ```{r tidy=FALSE,eval=FALSE}
 targetCohorts <- data.frame(cohortId = c(1),
-                           atlasId = c(""),
-                           cohortName = c('Hypertension'))
+                            atlasId = c(""),
+                            cohortName = c('Hypertension'))
 ```
 
 - The events of interest (event cohorts).
 
 ```{r tidy=FALSE,eval=FALSE}
 eventCohorts <- data.frame(cohortId = c(10, 11, 12, 13, 14),
-                          atlasId = c("","", "", "", ""),
-                          cohortName = c('Hydrochlorothiazide', 'Metorolol',
-                                         'Amlodipine', 'Lisinopril', 'Losartan'))
+                           atlasId = c("","", "", "", ""),
+                           cohortName = c('Hydrochlorothiazide', 'Metorolol',
+                                          'Amlodipine', 'Lisinopril', 'Losartan'))
 ```
 
 2. Define study settings.
@@ -203,13 +204,37 @@ kable(table)
 
 ## 3.2 Adding custom covariates for baseline characterization
 
+If desired, one can add custom covariates in inst/SQL for characterization. An example template: 
 
+```{r tidy=FALSE,eval=FALSE}
+SELECT @covariateId AS covariate_id,
+{@aggregated} ? {
+  cohort_definition_id,
+  COUNT(DISTINCT target.@rowIdField) AS sum_value
+} : {
+  target.@rowIdField  AS row_id,
+  1 AS covariate_value
+}
+FROM @cohortTable target
+INNER JOIN @cdmDatabaseSchema.condition_occurrence covariate
+ON covariate.person_id = target.@rowIdField 
+WHERE covariate.condition_concept_id IN ()
+AND covariate.condition_start_date <= target.cohort_start_date
+{@cohortId != -1} ? {AND cohort_definition_id IN (@cohortId)}
+{@aggregated} ? {GROUP BY cohort_definition_id}
+```
 
 ## 3.3 Stand alone sunburst plot functionality
 
-
+```{r tidy=FALSE,eval=FALSE}
+data <- readr::read_csv(paste0(system.file(package = "TreatmentPatterns"),"/examples/sequences.csv"),
+                        col_types = list("c", "i"))
+createSunburstPlot(data, folder = outputFolder <- paste0(getwd(), "/output"),
+                   file_name = "example", shiny = FALSE,
+                   title = "example sequences.csv")
+```
 
 ## 3.4 Add custom analysis parts
 
-If desired, one can add additonal output functions. Need to add R code and adjust shiny application.
+If desired, one can add additional output functions. Need to add R code and adjust shiny application.
 

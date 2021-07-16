@@ -67,7 +67,8 @@ TreatmentPatterns::executeTreatmentPatterns(OMOP_CDM = TRUE,
                                             cohortTable = paste0(cohortTable, "_", databaseName),
                                             instFolder = instFolder,
                                             outputFolder = outputFolder,
-                                            tempFolder = tempFolder)
+                                            tempFolder = tempFolder
+                                            )
 ```
 
 ### B) Using function arguments when calling the main function of the package
@@ -83,7 +84,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = Sys.geten
                                                                 port = Sys.getenv('port'))
 
 cdmDatabaseSchema <- 'cdm'
-cohortDatabaseSchema <- 'results'
+cohortDatabaseSchema <- 'results' 
 databaseName <- 'IPCI'
 cohortTable <- 'treatment_patterns'
 
@@ -98,10 +99,9 @@ eventCohorts <- data.frame(cohortId = c(10, 11, 12, 13, 14),
                           cohortName = c('Hydrochlorothiazide', 'Metorolol',
                                          'Amlodipine', 'Lisinopril', 'Losartan'))
 
-characterizationSettings <- data.frame(covariate_name = c('Male', 'Age',
+characterizationSettings <- data.frame(covariateName = c('Male', 'Age',
                                                           'Charlson comorbidity index score'),
-                                       covariate_id = c(8507001, 1002, 1901),
-                                       concept_set = c('', '', ''))
+                                       covariateId = c(8507001, 1002, 1901))
 
 studySettings <- data.frame(studyName = c("default", "analysis1"),
                             targetCohortId = c(1,1),
@@ -146,7 +146,7 @@ instFolder <- paste0(system.file(package = "TreatmentPatterns"),"/examples/other
 outputFolder <- paste0(getwd(), "/output")
 tempFolder <- paste0(getwd(), "/temp")
 
-cohortLocation <- paste0(instFolder, "/cohorts/input_cohorts.csv"),
+cohortLocation <- paste0(instFolder, "/cohorts/input_cohorts.csv")
 
 TreatmentPatterns::executeTreatmentPatterns(OMOP_CDM = FALSE,
                                             databaseName = databaseName,
@@ -163,7 +163,7 @@ databaseName <- 'IPCI'
 
 rootFolder <- getwd()
 
-cohortLocation <- paste0(system.file(package = "TreatmentPatterns"),"/examples/other format/inst/cohorts/input_cohorts.csv"),
+cohortLocation <- paste0(system.file(package = "TreatmentPatterns"),"/examples/other format/inst/cohorts/input_cohorts.csv")
 
 targetCohorts <- data.frame(cohortId = c(1),
                            atlasId = c(""),
@@ -202,9 +202,9 @@ TreatmentPatterns::executeTreatmentPatterns(OMOP_CDM = FALSE,
 
 # 3. Results
 
-- The results are located in the output folder (default: '~/output').
+- The results are combined in the autoomatically generated zip file
 
-- Run the Shiny App for an interactive visualization of the results:
+- Select the folder containing the zip files as 'rootFolder' and run the Shiny App for an interactive visualization of the results:
 ```{r tidy=FALSE,eval=FALSE}
 TreatmentPatterns::launchShinyApplication(rootFolder)
 ```

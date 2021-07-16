@@ -16,12 +16,12 @@ This R package contains the resources for performing a treatment pathway analysi
 <tr valign="bottom">
 <td width = 50%>
 
-<img src="..."/>
+<img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/sunburstplot.png"/>
 
 </td>
 <td width = 50%>
   
-<img src="..."/>
+<img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/sankeydiagram.png"/>
 
 </td>
 </tr><tr>
@@ -43,8 +43,8 @@ This R package contains the resources for performing a treatment pathway analysi
 
 ## User Documentation
 Available documentation includes:
-- Vignette: [Designing a study using the TreatmentPatterns package](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/SetUpNewStudy.pdf)
-- Vignette: [Executing a study using the TreatmentPatterns package](...)
+- Vignette: [Designing a study using the TreatmentPatterns package](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/DesigningStudy.pdf)
+- Vignette: [Executing a study using the TreatmentPatterns package](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/ExecutingStudy.pdf)
 - Package manual: [TreatmentPatterns.pdf](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatterns_0.2.0.pdf)
 
 ## Support

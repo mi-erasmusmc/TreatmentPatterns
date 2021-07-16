@@ -1,0 +1,7 @@
+cohortId,cohortName,cohortDefinition,cohortType,atlasId
+1,Hypertension,ATLAS,target,
+10,Hydrochlorothiazide,ATLAS,event,
+11,Metorolol,ATLAS,event,
+12,Amlodipine,ATLAS,event,
+13,Lisinopril,ATLAS,event,
+14,Losartan,ATLAS,event,

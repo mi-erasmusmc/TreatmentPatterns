@@ -1,7 +1,7 @@
 param,analysis1
 studyName,HTN
 targetCohortId,1
-"eventCohortIds,""10,11,12,13,14"""
+eventCohortIds,"10,11,12,13,14"
 includeTreatmentsPriorToIndex,0
 minEraDuration,5
 splitEventCohorts,

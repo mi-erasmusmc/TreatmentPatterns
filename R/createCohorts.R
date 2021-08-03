@@ -1,27 +1,24 @@
 
-#' This function will create the target and event cohorts following the definitions included in
-#' this package if OMOP-CDM = TRUE.
+#' Only for OMOP-CDM TRUE: Extract target and event cohorts from the database using the definitions included in the package.
+#' Cohorts can be defined 1) in ATLAS (recommended) or 2) by creating custom concept sets in combination with a SQL cohort template (advanced).
 #'
 #' @param connection           Connection to database server.
-#' @param connectionDetails    An object of type \code{connectionDetails} as created using the
-#'                             \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
+#' @param connectionDetails    An object of type connectionDetails as created using the createConnectionDetails function in the
 #'                             DatabaseConnector package.
-#' @param cdmDatabaseSchema    Schema name where your patient-level data resides if OMOP-CDM = TRUE.
-#'                             Note that for SQL Server, this should include both the database and
-#'                             schema name, for example 'cdm_data.dbo'.
-#' @param cohortDatabaseSchema Schema name where intermediate data can be stored. You will need to have
+#' @param cdmDatabaseSchema    Schema name where your patient-level data resides. Note that for SQL Server, 
+#'                             this should include both the database and schema name, for example 'cdm_data.dbo'.
+#' @param cohortDatabaseSchema Only for OMOP-CDM TRUE: Schema name where intermediate data can be stored. You will need to have
 #'                             write priviliges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param cohortTable          The name of the table that will be created in the work database schema.
-#'                             This table will hold the target and event cohorts used in this
-#'                             study.
-#' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
-#'                             (/).
-#' @param loadCohorts          Setting to load cohorts from ATLAS.
-#' @param baseUrl              The base URL for theWebApi instance, for example: "http://server.org:80/WebAPI".
-#'                             Note, there is no trailing '/'. If trailing '/' is used, you may receive an error.   
-#' @param generateCohorts      Setting to extract specified target/event cohorts from database.
-#' @param flowChart            Setting to return numbers for flowchart with inclusion/exclusion criteria.        
+#'                             include both the database and schema name, for example 'cdm_results.dbo'.
+#' @param cohortTable          The name of the table that will be created in the cohortDatabaseSchema.
+#'                             This table will hold the target and event cohorts used in this study.
+#' @param instFolder           Name of local folder to place all settings and cohorts; make sure to use forward slashes (/).              
+#' @param outputFolder         Name of local folder to place results; make sure to use forward slashes (/).
+#' @param loadCohorts          etting to retrieve cohort definitions from ATLAS WebApi.
+#' @param baseUrl              The base URL for the WebApi instance, for example: "http://server.org:80/WebAPI".
+#'                             Note, there is no trailing '/'. If trailing '/' is used, you may receive an error. 
+#' @param generateCohorts      Setting to (re)generate cohortTable in the database.
+#' @param flowChart            Setting to return numbers for flowchart with inclusion/exclusion criteria for ATLAS cohorts. 
 #' @export
 
 createCohorts <- function(connection,
@@ -32,11 +29,11 @@ createCohorts <- function(connection,
                           instFolder,
                           outputFolder,
                           loadCohorts = FALSE,
-                          baseUrl,
+                          baseUrl = NULL,
                           generateCohorts = TRUE,
                           flowChart = TRUE) {
   
-  # Input checks
+  # Check if directory exists
   if (!file.exists(outputFolder))
     dir.create(outputFolder, recursive = TRUE)
   
@@ -187,45 +184,3 @@ createCohorts <- function(connection,
   
   ParallelLogger::logInfo("createCohorts done.")
 }
-
-#' This function will import the target and event cohorts following the path included in
-#' this package if OMOP-CDM = FALSE.
-#' 
-#' @param cohortLocation Location where cohorts are saved if OMOP-CDM = FALSE.
-#' @param outputFolder Name of local folder to place results; make sure to use forward slashes (/).
-#' @export
-importCohorts <- function(cohortLocation, outputFolder) {
-  
-  # Load cohorts in from file
-  # Required columns: cohortId, personId, startDate, endDate
-  data <- data.table(readr::read_csv(cohortLocation), col_types = list("i", "i", "D", "D"))
-  
-  # Load information cohorts to create
-  pathToCsv <- paste0(instFolder,"/settings/cohorts_to_create.csv")
-  cohortsToCreate <- readr::read_csv(pathToCsv, col_types = readr::cols())
-  write.csv(cohortsToCreate, file.path(outputFolder, "cohort.csv"), row.names = FALSE)
-  
-  # Check number of subjects per cohort
-  ParallelLogger::logInfo("Counting cohorts")
-  counts <- data.frame(cohortDefinitionId = cohortsToCreate$cohortId)
-  
-  counts$cohortCount <- sapply(counts$cohortDefinitionId, function(c) {
-    length(data$person_id[data$cohortId == c]) 
-  })
-  
-  counts$personCount <- sapply(counts$cohortDefinitionId, function(c) {
-    length(unique(data$person_id[data$cohortId == c]))
-  })
-  
-  write.csv(counts, file.path(outputFolder, "cohort_counts.csv"), row.names = FALSE)
-  
-  # Check if all cohorts have non-zero count
-  checkCohorts <- setdiff(cohortsToCreate$cohortId,counts$cohortDefinitionId)
-  
-  if(length(checkCohorts) != 0) {
-    warning(paste0("Cohort definition ", paste0(checkCohorts, collapse = ","), " has zero count. "))
-  }
-  
-  ParallelLogger::logInfo("importCohorts done.")
-}
-

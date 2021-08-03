@@ -1,16 +1,16 @@
 Package: TreatmentPatterns
 Type: Package
-Title: A package to analyse real-world treatment patterns of a study population of interest.
+Title: A package to analyse real-world treatment patterns of a study population of interest
 Version: 0.2.2
 Author: Aniek F Markus 
 Maintainer: Aniek F Markus <a.markus@erasmusmc.nl>
 Description: This package gives insight in treatment patterns, the following tasks are performed sequentially:
+    0. If input arguments given, use these to create study settings
     1. Target/event cohorts of interest are created
     2. Characterization of study/target population
     3. Treatment pathways are constructed
     4. Output is generated (sunburst plots and more)
-    5. Shiny application is available to visualize the results
-    Go to extras -> CodeToRun.R to execute package.
+    5. Launch shiny application to visualize the results
 Depends:
     R (>= 3.6.1)
 Imports: 
@@ -30,9 +30,11 @@ Imports:
     OhdsiSharing,
     R.utils
 Suggests:
+    testthat (>= 3.0.0),
     ROhdsiWebApi
 License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
+Config/testthat/edition: 3

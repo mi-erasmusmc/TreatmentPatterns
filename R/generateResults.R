@@ -1,10 +1,10 @@
 
-#' This function will generate all result files and plots.
+#' Generate all result files and plots from constructed pathways.
 #'
-#' @param pathwaySettings Object that contains all study settings inputted by the user.
 #' @param databaseName Name of the database that will appear in the results.
-#' @param studyName Name for the study corresponding to the current settings.
+#' @param studyName Name for the study corresponding to the current pathway settings.
 #' @param outputFolder Name of local folder to place results; make sure to use forward slashes (/).
+#' @param tempFolder Name of local folder to place intermediate results (not to be shared); make sure to use forward slashes (/).
 #'
 #' @export
 generateResults <- function(databaseName,
@@ -12,13 +12,13 @@ generateResults <- function(databaseName,
                             outputFolder,
                             tempFolder) {
   
-  # Load study settings
+  # Load pathway settings
   pathwaySettings <- data.frame(readr::read_csv(paste0(instFolder, "/settings/pathway_settings.csv"), col_types = readr::cols()))
   
-  # Save study settings
+  # Save pathway settings
   write.csv(pathwaySettings, file.path(outputFolder, "settings.csv"), row.names = FALSE)
   
-  # For all different study settings
+  # For all different pathway settings
   settings <- colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
   
   for (s in settings) {

@@ -1,18 +1,28 @@
 
-#' This function will construct treatment pathways.
+#' Load already created cohorts and construct pathways based on pathway settings.
 #'
-#' @param all_data Datatable with all target and event cohorts.
-#' @param pathwaySettings Object that contains all study settings inputted by the user.
-#' @param databaseName  Name of the database that will appear in the results.
-#' @param studyName Name for the study corresponding to the current settings.
+#' @param OMOP_CDM Format of database 'Observational Medical Outcomes Partnership Common Data Model' = TRUE or 'Other' = FALSE.
+#' @param connection  Connection to database server.
+#' @param connectionDetails    Only for OMOP-CDM TRUE: An object of type connectionDetails as created using the createConnectionDetails function in the
+#'                             DatabaseConnector package.
+#' @param cohortTable Only for OMOP-CDM TRUE: The name of the table that will be created in the cohortDatabaseSchema.
+#'                             This table will hold the target and event cohorts used in this study.
+#' @param cohortDatabaseSchema Only for OMOP-CDM TRUE: Schema name where intermediate data can be stored. You will need to have
+#'                             write priviliges in this schema. Note that for SQL Server, this should
+#'                             include both the database and schema name, for example 'cdm_results.dbo'.
+#' @param cohortLocation Only for OMOP-CDM FALSE: Location from where cohorts can be loaded.
+#' @param databaseName Name of the database that will appear in the results.
+#' @param studyName Name for the study corresponding to the current pathway settings.
 #' @param outputFolder Name of local folder to place results; make sure to use forward slashes (/).
+#' @param tempFolder  Name of local folder to place intermediate results (not to be shared); make sure to use forward slashes (/).
+#'
 #' @export
 constructPathways <- function(OMOP_CDM,
-                              connection = NULL,
-                              cohortTable = NULL,
-                              cohortDatabaseSchema = NULL,
-                              dbms = NULL,
-                              cohortLocation,
+                              connection, # only for OMOP-CDM TRUE
+                              connectionDetails, # only for OMOP-CDM TRUE
+                              cohortTable, # only for OMOP-CDM TRUE
+                              cohortDatabaseSchema, # only for OMOP-CDM TRUE
+                              cohortLocation, # only for OMOP-CDM FALSE
                               databaseName,
                               studyName,
                               outputFolder,
@@ -21,7 +31,7 @@ constructPathways <- function(OMOP_CDM,
   # Load already created cohorts
   if (OMOP_CDM) {
     # Get cohorts from database
-    all_data <- data.table::as.data.table(extractFile(connection, cohortTable, cohortDatabaseSchema, dbms))
+    all_data <- data.table::as.data.table(extractFile(connection, cohortTable, cohortDatabaseSchema, connectionDetails$dbms))
     
   } else {
     # Get cohorts from csv file
@@ -30,10 +40,10 @@ constructPathways <- function(OMOP_CDM,
   }
   colnames(all_data) <- c("cohort_id", "person_id", "start_date", "end_date")   
   
-  # Load study settings
+  # Load pathway settings
   pathwaySettings <- data.frame(readr::read_csv(paste0(instFolder, "/settings/pathway_settings.csv"), col_types = readr::cols()))
   
-  # For all different study settings
+  # For all different pathway settings
   settings <- colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
   
   for (s in settings) {

@@ -194,7 +194,7 @@ See explanation in Section 2.1 (B).
 Instead of defining each cohort separately in ATLAS, there is the possibility to specify a file with concept sets that will be used in combination with a SQL template. In the package there is a cohort template available for drugs (inst/SQL/CohortDrugTemplate.sql). This template identifies all drug exposures of the concept set till the end of a continuous exposure with a maximum persistence window of 30 days. If you want to make use of this option, you need to fill the inst folder manually (approach A). 
 
 
-- Alternatively, specify a concept set and create re-use or create a new inst/Settings/CohortTemplate.sql. Specify concept sets in inst/Settings/eventcohorts_custom.csv:
+- Alternatively, specify a concept set and create re-use or create a new inst/SQL/CohortDrugTemplate.sql. Specify concept sets in instFolder/settings/eventcohorts_custom.csv:
 ```{r, fig.show='hold', echo=FALSE}
 library('knitr')
 table <- data.frame("Descriptive name cohort","Number of concept IDs in conceptSet","List of unique concept IDs to be included")

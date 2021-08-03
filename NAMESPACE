@@ -3,6 +3,7 @@
 export(cohortCharacterization)
 export(constructPathways)
 export(createCohorts)
+export(createStudySettings)
 export(createSunburstPlot)
 export(executeTreatmentPatterns)
 export(generateResults)

@@ -1,11 +1,11 @@
 
-#' This function processes the zipped result folder(s) and launches the shiny application.
+#' Processes the zipped result folder(s) and launch the shiny application.
 #'
-#' @param rootFolder 
+#' @param zipFolder Name of local folder containing zip file(s).
 #'
 #' @return
 #' @export
-launchShinyApplication <- function(rootFolder) {
+launchShinyApplication <- function(zipFolder) {
   # ensure_installed("shiny")
   # ensure_installed("shinydashboard")
   # ensure_installed("shinymanager")
@@ -16,9 +16,9 @@ launchShinyApplication <- function(rootFolder) {
   # ensure_installed("R.utils")
   
   appDir <- paste0(system.file(package = "TreatmentPatterns"), "/shiny")
-  shinyFilesLocation <- paste0(rootFolder, "/filesShiny")
+  shinyFilesLocation <- paste0(zipFolder, "/filesShiny")
 
-  unzipFiles(rootFolder, unzipMainFolder = paste0(shinyFilesLocation, "/output"))
+  unzipFiles(zipFolder, unzipMainFolder = paste0(shinyFilesLocation, "/output"))
   addSunburstFiles(filesLocation = shinyFilesLocation)
   
   shinySettings <- list(

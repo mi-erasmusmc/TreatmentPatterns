@@ -1,25 +1,20 @@
 
-#' This function will perform baseline characterization for the the target cohorts.
+#' Only for OMOP-CDM TRUE: Perform baseline characterization for the the target cohorts.
 #'
 #' @param connection Connection to database server.
-#' @param connectionDetails An object of type \code{connectionDetails} as created using the
-#'                             createConnectionDetails function in the
+#' @param connectionDetails    Only for OMOP-CDM TRUE: An object of type connectionDetails as created using the createConnectionDetails function in the
 #'                             DatabaseConnector package.
-#' @param cdmDatabaseSchema   Schema name where your patient-level data resides if OMOP-CDM = TRUE.
-#'                             Note that for SQL Server, this should include both the database and
-#'                             schema name, for example 'cdm_data.dbo'.
-#' @param cohortDatabaseSchema Schema name where intermediate data can be stored. You will need to have
+#' @param cdmDatabaseSchema    Only for OMOP-CDM TRUE: Schema name where your patient-level data resides. Note that for SQL Server, 
+#'                             this should include both the database and schema name, for example 'cdm_data.dbo'.
+#' @param cohortDatabaseSchema Only for OMOP-CDM TRUE: Schema name where intermediate data can be stored. You will need to have
 #'                             write priviliges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param cohortTable          The name of the table that will be created in the work database schema.
-#'                             This table will hold the target and event cohorts used in this
-#'                             study.
-#' @param outputFolder          Name of local folder to place results; make sure to use forward slashes
-#'                             (/).
+#'                             include both the database and schema name, for example 'cdm_results.dbo'.
+#' @param cohortTable          Only for OMOP-CDM TRUE: The name of the table that will be created in the cohortDatabaseSchema.
+#'                             This table will hold the target and event cohorts used in this study.
+#' @param instFolder           Name of local folder to place all settings and cohorts; make sure to use forward slashes (/).   
+#' @param outputFolder         Name of local folder to place results; make sure to use forward slashes (/).
 #' @param databaseId           Unique identifier for database (can be the same as databaseName).
-#' @param targetCohortIds      IDs to refer to target cohorts.
-#' @param minCellCount         Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis.
-#' @param standardCovariateSettings ... .
+#' @param standardCovariateSettings An object of type covariateSettings as created using the createCovariateSettings function in the FeatureExtraction package.
 #'
 #' @export
 cohortCharacterization <- function(connection,
@@ -27,11 +22,9 @@ cohortCharacterization <- function(connection,
                                    cdmDatabaseSchema,
                                    cohortDatabaseSchema,
                                    cohortTable,
-                                   outputFolder,
                                    instFolder,
+                                   outputFolder,
                                    databaseId,
-                                   targetCohortIds,
-                                   minCellCount,
                                    standardCovariateSettings) {
   
   if (!file.exists(paste0(outputFolder, "/characterization")))

@@ -1,28 +1,24 @@
 
-# Create study settings.
-#' Title
+#' Transforms and saves input arguments given by user in instFolder/settings.
 #'
-#' @param instFolder 
-#' @param targetCohorts 
-#' @param eventCohorts 
-#' @param characterizationSettings 
-#' @param pathwaySettings 
+#' @param instFolder Name of local folder to place all settings and cohorts; make sure to use forward slashes (/).   
+#' @param targetCohorts Data frame containing the study population of interest (cohortId, atlasId, cohortName).
+#' @param eventCohorts Data frame containing the events of interest (cohortId, atlasId, cohortName).
+#' @param characterizationSettings Data frame containing the baseline characteristics of interest (covariateName, covariateId).
+#' @param pathwaySettings Data frame containing all pathway settings.
 #'
-#' @return
 #' @export
-#'
-#' @examples
 createStudySettings <- function(instFolder,
-                                targetCohorts,
-                                eventCohorts,
-                                characterizationSettings,
-                                pathwaySettings) {
+                                targetCohorts = NULL,
+                                eventCohorts = NULL,
+                                characterizationSettings = NULL,
+                                pathwaySettings = NULL) {
   # Check if directory exists
   if (!file.exists(paste0(instFolder, "/settings"))) { 
     dir.create(paste0(instFolder, "/settings"), recursive = TRUE)
   } 
   
-  # If input arguments given, use these settings
+  # If input arguments given, use these to create study settings
   # Create file settings/cohorts_to_create
   if (!is.null(targetCohorts) & !is.null(eventCohorts)) {
     ParallelLogger::logInfo(print("Create cohorts_to_create.csv from arguments"))

@@ -2,24 +2,44 @@
 #' This function will construct treatment pathways.
 #'
 #' @param all_data Datatable with all target and event cohorts.
-#' @param study_settings Object that contains all study settings inputted by the user.
+#' @param pathwaySettings Object that contains all study settings inputted by the user.
 #' @param databaseName  Name of the database that will appear in the results.
 #' @param studyName Name for the study corresponding to the current settings.
 #' @param outputFolder Name of local folder to place results; make sure to use forward slashes (/).
 #' @export
-constructPathways <- function(all_data,
-                              study_settings,
+constructPathways <- function(OMOP_CDM,
+                              connection = NULL,
+                              cohortTable = NULL,
+                              cohortDatabaseSchema = NULL,
+                              dbms = NULL,
+                              cohortLocation,
                               databaseName,
                               studyName,
                               outputFolder,
                               tempFolder) {
   
+  # Load already created cohorts
+  if (OMOP_CDM) {
+    # Get cohorts from database
+    all_data <- data.table::as.data.table(extractFile(connection, cohortTable, cohortDatabaseSchema, dbms))
+    
+  } else {
+    # Get cohorts from csv file
+    # Required columns: cohortId, personId, startDate, endDate
+    all_data <- data.table::as.data.table(readr::read_csv(cohortLocation), col_types = list("i", "i", "D", "D"))
+  }
+  colnames(all_data) <- c("cohort_id", "person_id", "start_date", "end_date")   
+  
+  # Load study settings
+  pathwaySettings <- data.frame(readr::read_csv(paste0(instFolder, "/settings/pathway_settings.csv"), col_types = readr::cols()))
+  
   # For all different study settings
-  settings <- colnames(study_settings)[grepl("analysis", colnames(study_settings))]
+  settings <- colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
   
   for (s in settings) {
-    studyName <- study_settings[study_settings$param == "studyName",s]
+    studyName <- pathwaySettings[pathwaySettings$param == "studyName",s]
     
+    # Check if directories exist
     if (!file.exists(paste0(tempFolder, "/", studyName)))
       dir.create(paste0(tempFolder, "/", studyName), recursive = TRUE)
     
@@ -29,17 +49,17 @@ constructPathways <- function(all_data,
     ParallelLogger::logInfo(print(paste0("Constructing treatment pathways: ", studyName)))
     
     # Select cohorts included
-    targetCohortId <- study_settings[study_settings$param == "targetCohortId",s]
-    eventCohortIds <- study_settings[study_settings$param == "eventCohortIds",s]
+    targetCohortId <- pathwaySettings[pathwaySettings$param == "targetCohortId",s]
+    eventCohortIds <- pathwaySettings[pathwaySettings$param == "eventCohortIds",s]
     
     # Analysis settings
-    includeTreatmentsPriorToIndex <- as.integer(study_settings[study_settings$param == "includeTreatmentsPriorToIndex",s]) # Number of days prior to the index date of the target cohort that event cohorts are allowed to start
-    minEraDuration <-  as.integer(study_settings[study_settings$param == "minEraDuration",s]) # Minimum time an event era should last to be included in analysis
-    splitEventCohorts <-  study_settings[study_settings$param == "splitEventCohorts",s] # Specify event cohort to split in acute (< 30 days) and therapy (>= 30 days)
-    eraCollapseSize <-  as.integer(study_settings[study_settings$param == "eraCollapseSize",s]) # Window of time between which two eras of the same event cohort are collapsed into one era
-    combinationWindow <-  as.integer(study_settings[study_settings$param == "combinationWindow",s]) # Window of time two event cohorts need to overlap to be considered a combination treatment
-    minStepDuration <-  as.integer(study_settings[study_settings$param == "minStepDuration",s]) # Minimum time an event era before or after a generated combination treatment should last to be included in analysis
-    filterTreatments <-  study_settings[study_settings$param == "filterTreatments",s] # Select first occurrence of / changes between / all event cohorts
+    includeTreatmentsPriorToIndex <- as.integer(pathwaySettings[pathwaySettings$param == "includeTreatmentsPriorToIndex",s]) # Number of days prior to the index date of the target cohort that event cohorts are allowed to start
+    minEraDuration <-  as.integer(pathwaySettings[pathwaySettings$param == "minEraDuration",s]) # Minimum time an event era should last to be included in analysis
+    splitEventCohorts <-  pathwaySettings[pathwaySettings$param == "splitEventCohorts",s] # Specify event cohort to split in acute (< 30 days) and therapy (>= 30 days)
+    eraCollapseSize <-  as.integer(pathwaySettings[pathwaySettings$param == "eraCollapseSize",s]) # Window of time between which two eras of the same event cohort are collapsed into one era
+    combinationWindow <-  as.integer(pathwaySettings[pathwaySettings$param == "combinationWindow",s]) # Window of time two event cohorts need to overlap to be considered a combination treatment
+    minStepDuration <-  as.integer(pathwaySettings[pathwaySettings$param == "minStepDuration",s]) # Minimum time an event era before or after a generated combination treatment should last to be included in analysis
+    filterTreatments <-  pathwaySettings[pathwaySettings$param == "filterTreatments",s] # Select first occurrence of / changes between / all event cohorts
     
     # Select target cohort
     select_people <- all_data$person_id[all_data$cohort_id == targetCohortId]
@@ -130,10 +150,12 @@ constructPathways <- function(all_data,
       # Calculate number of persons in target cohort / with pathways, in total / per year
       colnames(counts_pathways) <- colnames(counts_targetcohort)
       counts <- rbind(counts_targetcohort, counts_pathways)
-
+      
       write.csv(counts, paste0(tempFolder, "/", studyName, "/", databaseName, "_", studyName, "_summary_cnt.csv"), row.names = FALSE)
     }
   }
+  
+  ParallelLogger::logInfo("constructPathways done.")
 }
 
 # Input:

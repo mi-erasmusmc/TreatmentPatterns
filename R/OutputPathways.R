@@ -1,37 +1,42 @@
 
 #' This function will generate all result files and plots.
 #'
-#' @param study_settings Object that contains all study settings inputted by the user.
+#' @param pathwaySettings Object that contains all study settings inputted by the user.
 #' @param databaseName Name of the database that will appear in the results.
 #' @param studyName Name for the study corresponding to the current settings.
 #' @param outputFolder Name of local folder to place results; make sure to use forward slashes (/).
 #'
 #' @export
-generateResults <- function(study_settings,
-                            databaseName,
+generateResults <- function(databaseName,
                             studyName,
                             outputFolder,
                             tempFolder) {
   
+  # Load study settings
+  pathwaySettings <- data.frame(readr::read_csv(paste0(instFolder, "/settings/pathway_settings.csv"), col_types = readr::cols()))
+  
+  # Save study settings
+  write.csv(pathwaySettings, file.path(outputFolder, "settings.csv"), row.names = FALSE)
+  
   # For all different study settings
-  settings <- colnames(study_settings)[grepl("analysis", colnames(study_settings))]
+  settings <- colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
   
   for (s in settings) {
-    studyName <- study_settings[study_settings$param == "studyName",s]
+    studyName <- pathwaySettings[pathwaySettings$param == "studyName",s]
     
     ParallelLogger::logInfo(print(paste0("Creating output: ", studyName)))
     
     # Select cohorts included
-    targetCohortId <- study_settings[study_settings$param == "targetCohortId",s]
-    eventCohortIds <- study_settings[study_settings$param == "eventCohortIds",s]
+    targetCohortId <- pathwaySettings[pathwaySettings$param == "targetCohortId",s]
+    eventCohortIds <- pathwaySettings[pathwaySettings$param == "eventCohortIds",s]
     eventCohortIds <- unlist(strsplit(eventCohortIds, split = ","))
     
     # Result settings
-    maxPathLength <- as.integer(study_settings[study_settings$param == "maxPathLength",s]) # Maximum number of steps included in treatment pathway (max 5)
-    minCellCount <- as.integer(study_settings[study_settings$param == "minCellCount",s]) # Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis
-    minCellMethod <- study_settings[study_settings$param == "minCellMethod",s] # Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount
-    groupCombinations <- study_settings[study_settings$param == "groupCombinations",s] # Select to group all non-fixed combinations in one category 'other’ in the sunburst plot
-    addNoPaths <- study_settings[study_settings$param == "addNoPaths",s] # Select to include untreated persons without treatment pathway in the sunburst plot
+    maxPathLength <- as.integer(pathwaySettings[pathwaySettings$param == "maxPathLength",s]) # Maximum number of steps included in treatment pathway (max 5)
+    minCellCount <- as.integer(pathwaySettings[pathwaySettings$param == "minCellCount",s]) # Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis
+    minCellMethod <- pathwaySettings[pathwaySettings$param == "minCellMethod",s] # Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount
+    groupCombinations <- pathwaySettings[pathwaySettings$param == "groupCombinations",s] # Select to group all non-fixed combinations in one category 'other’ in the sunburst plot
+    addNoPaths <- pathwaySettings[pathwaySettings$param == "addNoPaths",s] # Select to include untreated persons without treatment pathway in the sunburst plot
     
     path <- paste0(outputFolder, "/", studyName, "/", databaseName, "_", studyName)
     temp_path <- paste0(tempFolder, "/", studyName, "/", databaseName, "_", studyName)
@@ -65,6 +70,8 @@ generateResults <- function(study_settings,
       
     }
   }
+  
+  ParallelLogger::logInfo("generateResults done.")
 }
 
 

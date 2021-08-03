@@ -34,6 +34,18 @@ cohortCharacterization <- function(connection,
                                    minCellCount,
                                    standardCovariateSettings) {
   
+  if (!file.exists(paste0(outputFolder, "/characterization")))
+    dir.create(paste0(outputFolder, "/characterization"), recursive = TRUE)
+  
+  # Load pathway settings
+  pathwaySettings <- data.frame(readr::read_csv(paste0(instFolder, "/settings/pathway_settings.csv"), col_types = readr::cols()))
+  
+  # For all different target populations
+  settings <- colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
+  targetCohortIds <- unique(as.numeric(pathwaySettings[pathwaySettings$param == "targetCohortId",-1]))
+  minCellCount <- max(as.integer(pathwaySettings[pathwaySettings$param == "minCellCount",settings])) # Minimum number of subjects in the target cohort for a given eent in order to be counted in the pathway
+  
+  # Count cohorts
   cohortCounts <- getCohortCounts(connection = connection,
                                   cohortDatabaseSchema = cohortDatabaseSchema,
                                   cohortTable = cohortTable, 
@@ -85,4 +97,6 @@ cohortCharacterization <- function(connection,
   
   write.csv(characterization, paste0(outputFolder, "/characterization/characterization.csv"), row.names = FALSE)
   
+  
+  ParallelLogger::logInfo("cohortCharacterization done.")
 }

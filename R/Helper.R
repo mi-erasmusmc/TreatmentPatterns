@@ -3,7 +3,6 @@
 loadRenderTranslateSql <- function(sql,
                                    oracleTempSchema = NULL,
                                    dbms = "postgresql",
-                                   # cdm_version = cdmVersion,
                                    warnOnMissingParameters = TRUE,
                                    output = FALSE,
                                    outputFile,

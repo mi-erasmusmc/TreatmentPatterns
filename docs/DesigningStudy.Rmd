@@ -56,9 +56,9 @@ colnames(table) <- c("covariateName", "covariateId")
 kable(table)
 ```
 
-3. Define study settings.
+3. Define pathway settings.
 
-A default list of study settings: 
+A default list of pathway settings: 
 ```{r, fig.show='hold', echo=FALSE}
 library('knitr')
 table <- data.frame(c("studyName", "targetCohortId", "eventCohortIds", "includeTreatmentsPriorToIndex", "minEraDuration","splitEventCohorts","eraCollapseSize", "combinationWindow","minStepDuration","filterTreatments","maxPathLength","minCellCount", "minCellMethod","groupCombinations","addNoPaths"),c("default","1",'"10,11,12,13,14"',"0", "0","","0","30","30","First","5","0","Remove","10","FALSE"),
@@ -67,7 +67,7 @@ colnames(table) <- c("param", "values", "description")
 kable(table)
 ```
 
-Change these parameters according to the needs of your study in inst/Settings/study_settings.csv.
+Change these parameters according to the needs of your study in inst/Settings/pathway_settings.csv.
 
 
 ### B) Using function arguments when calling the main function of the package
@@ -103,10 +103,10 @@ characterizationSettings <- data.frame(covariateName = c('Male', 'Age',
                                        covariateId = c(8507001, 1002, 1901))
 ```
 
-3. Define study settings.
+3. Define pathway settings.
 
 ```{r tidy=FALSE,eval=FALSE}
-studySettings <- data.frame(studyName = c("default", "analysis1"),
+pathwaySettings <- data.frame(studyName = c("default", "analysis1"),
                             targetCohortId = c(1,1),
                             eventCohortIds = c("10,11,12,13,14","10,11,12,13,14"),
                             includeTreatmentsPriorToIndex = c(0,0),
@@ -146,7 +146,7 @@ colnames(table) <- c("cohortId", "cohortName", "cohortDefinition", "cohortType",
 kable(table)
 ```
 
-2. Define study settings.
+2. Define pathway settings.
 
 See explanation in Section 2.1 (A).
 
@@ -181,7 +181,7 @@ eventCohorts <- data.frame(cohortId = c(10, 11, 12, 13, 14),
                                           'Amlodipine', 'Lisinopril', 'Losartan'))
 ```
 
-2. Define study settings.
+2. Define pathway settings.
 
 See explanation in Section 2.1 (B).
 

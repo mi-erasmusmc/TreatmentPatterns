@@ -21,7 +21,6 @@
 #' @param baseUrl              The base URL for theWebApi instance, for example: "http://server.org:80/WebAPI".
 #'                             Note, there is no trailing '/'. If trailing '/' is used, you may receive an error.   
 #' @param generateCohorts      Setting to extract specified target/event cohorts from database.
-#' @param minCellCount         Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis.
 #' @param flowChart            Setting to return numbers for flowchart with inclusion/exclusion criteria.        
 #' @export
 
@@ -30,19 +29,22 @@ createCohorts <- function(connection,
                           cdmDatabaseSchema,
                           cohortDatabaseSchema,
                           cohortTable,
-                          outputFolder,
                           instFolder,
+                          outputFolder,
                           loadCohorts = FALSE,
                           baseUrl,
                           generateCohorts = TRUE,
-                          minCellCount,
                           flowChart = TRUE) {
+  
+  # Input checks
+  if (!file.exists(outputFolder))
+    dir.create(outputFolder, recursive = TRUE)
   
   # Load information cohorts to create
   pathToCsv <- paste0(instFolder, "/settings/cohorts_to_create.csv")
   cohortsToCreate <- readr::read_csv(pathToCsv, col_types = list("i","c","c","c","i"))
   write.csv(cohortsToCreate, file.path(outputFolder, "cohort.csv"), row.names = FALSE)
-  
+
   if (generateCohorts) {
     # Create study cohort table structure
     ParallelLogger::logInfo("Creating table for the cohorts")
@@ -109,8 +111,6 @@ createCohorts <- function(connection,
                                          createTable = FALSE,
                                          tempTable = FALSE,
                                          camelCaseToSnakeCase = TRUE)
-          
-          
         }
         
         # Generate cohort
@@ -168,7 +168,7 @@ createCohorts <- function(connection,
   }
   
   # Return numbers for flowchart with inclusion/exclusion criteria
-  if(flowChart) { # TODO: add check if file exists
+  if(flowChart) {
     cohort_inclusion <- extractFile(connection, "cohort_inclusion", cohortDatabaseSchema, connectionDetails$dbms)
     write.csv(cohort_inclusion, file.path(outputFolder, "cohort_inclusion.csv"), row.names = FALSE)
     
@@ -185,6 +185,7 @@ createCohorts <- function(connection,
     write.csv(cohort_censor_stats, file.path(outputFolder, "cohort_censor_stats.csv"), row.names = FALSE)
   }
   
+  ParallelLogger::logInfo("createCohorts done.")
 }
 
 #' This function will import the target and event cohorts following the path included in
@@ -225,6 +226,6 @@ importCohorts <- function(cohortLocation, outputFolder) {
     warning(paste0("Cohort definition ", paste0(checkCohorts, collapse = ","), " has zero count. "))
   }
   
-  
+  ParallelLogger::logInfo("importCohorts done.")
 }
 

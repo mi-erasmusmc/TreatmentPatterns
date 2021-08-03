@@ -103,7 +103,7 @@ characterizationSettings <- data.frame(covariateName = c('Male', 'Age',
                                                           'Charlson comorbidity index score'),
                                        covariateId = c(8507001, 1002, 1901))
 
-studySettings <- data.frame(studyName = c("default", "analysis1"),
+pathwaySettings <- data.frame(studyName = c("default", "analysis1"),
                             targetCohortId = c(1,1),
                             eventCohortIds = c("10,11,12,13,14","10,11,12,13,14"),
                             includeTreatmentsPriorToIndex = c(0,0),
@@ -130,7 +130,7 @@ TreatmentPatterns::executeTreatmentPatterns(connectionDetails = connectionDetail
                                             targetCohorts = targetCohorts,
                                             eventCohorts = eventCohorts,
                                             characterizationSettings = characterizationSettings,
-                                            studySettings = studySettings,
+                                            pathwaySettings = pathwaySettings,
                                             loadCohorts = TRUE,
                                             baseUrl = baseUrl)
 ```
@@ -174,7 +174,7 @@ eventCohorts <- data.frame(cohortId = c(10, 11, 12, 13, 14),
                           cohortName = c('Hydrochlorothiazide', 'Metorolol',
                                          'Amlodipine', 'Lisinopril', 'Losartan'))
 
-studySettings <- data.frame(studyName = c("default", "analysis1"),
+pathwaySettings <- data.frame(studyName = c("default", "analysis1"),
                             targetCohortId = c(1,1),
                             eventCohortIds = c("10,11,12,13,14","10,11,12,13,14"),
                             includeTreatmentsPriorToIndex = c(0,0),
@@ -196,7 +196,7 @@ TreatmentPatterns::executeTreatmentPatterns(OMOP_CDM = FALSE,
                                             cohortLocation = cohortLocation,
                                             targetCohorts = targetCohorts,
                                             eventCohorts = eventCohorts,
-                                            studySettings = studySettings,
+                                            pathwaySettings = pathwaySettings,
                                             runCohortCharacterization = FALSE)
 ```
 

@@ -1,11 +1,12 @@
 
 #' Processes the zipped result folder(s) and launch the shiny application.
-#'
+#' 
+#' @param saveSettings Settings object as created by createSaveSettings().
 #' @param zipFolder Name of local folder containing zip file(s).
 #'
 #' @return
 #' @export
-launchShinyApplication <- function(zipFolder) {
+launchResultsExplorer <- function(saveSettings = NULL, zipFolder) {
   # ensure_installed("shiny")
   # ensure_installed("shinydashboard")
   # ensure_installed("shinymanager")
@@ -15,10 +16,15 @@ launchShinyApplication <- function(zipFolder) {
   # ensure_installed("DT")
   # ensure_installed("R.utils")
   
-  appDir <- paste0(system.file(package = "TreatmentPatterns"), "/shiny")
-  shinyFilesLocation <- paste0(zipFolder, "/filesShiny")
+  # TODO: test if this works
+  if (!is.null(saveSettings)) {
+    zipFolder <- saveSettings$rootFolder
+  }
+  
+  appDir <- file.path(system.file(package = "TreatmentPatterns"), "shiny")
+  shinyFilesLocation <- file.path(zipFolder, "filesShiny")
 
-  unzipFiles(zipFolder, unzipMainFolder = paste0(shinyFilesLocation, "/output"))
+  unzipFiles(zipFolder, unzipMainFolder = file.path(shinyFilesLocation, "output"))
   addSunburstFiles(filesLocation = shinyFilesLocation)
   
   shinySettings <- list(
@@ -31,7 +37,7 @@ launchShinyApplication <- function(zipFolder) {
 }
 
 addSunburstFiles <- function(filesLocation) {
-  R.utils::copyDirectory(paste0(from = system.file(package = "TreatmentPatterns"), "/shiny/sunburst"), to = paste0(filesLocation,"/sunburst"))
+  R.utils::copyDirectory(file.path(from = system.file(package = "TreatmentPatterns"), "shiny", "sunburst"), to = file.path(filesLocation,"sunburst"))
 }
 
 # Borrowed and adapted function from CohortDiagnostics.

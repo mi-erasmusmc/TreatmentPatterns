@@ -2,46 +2,17 @@
 % Please edit documentation in R/constructPathways.R
 \name{constructPathways}
 \alias{constructPathways}
-\title{Load already created cohorts and construct pathways based on pathway settings.}
+\title{Construct treatment pathways.}
 \usage{
-constructPathways(
-  OMOP_CDM,
-  connection,
-  connectionDetails,
-  cohortTable,
-  cohortDatabaseSchema,
-  cohortLocation,
-  databaseName,
-  studyName,
-  outputFolder,
-  tempFolder
-)
+constructPathways(dataSettings, pathwaySettings, saveSettings)
 }
 \arguments{
-\item{OMOP_CDM}{Format of database 'Observational Medical Outcomes Partnership Common Data Model' = TRUE or 'Other' = FALSE.}
+\item{dataSettings}{Settings object as created by createDataSettings().}
 
-\item{connection}{Connection to database server.}
+\item{pathwaySettings}{Settings object as created by createPathwaySettings().}
 
-\item{connectionDetails}{Only for OMOP-CDM TRUE: An object of type connectionDetails as created using the createConnectionDetails function in the
-DatabaseConnector package.}
-
-\item{cohortTable}{Only for OMOP-CDM TRUE: The name of the table that will be created in the cohortDatabaseSchema.
-This table will hold the target and event cohorts used in this study.}
-
-\item{cohortDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where intermediate data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
-include both the database and schema name, for example 'cdm_results.dbo'.}
-
-\item{cohortLocation}{Only for OMOP-CDM FALSE: Location from where cohorts can be loaded.}
-
-\item{databaseName}{Name of the database that will appear in the results.}
-
-\item{studyName}{Name for the study corresponding to the current pathway settings.}
-
-\item{outputFolder}{Name of local folder to place results; make sure to use forward slashes (/).}
-
-\item{tempFolder}{Name of local folder to place intermediate results (not to be shared); make sure to use forward slashes (/).}
+\item{saveSettings}{Settings object as created by createSaveSettings().}
 }
 \description{
-Load already created cohorts and construct pathways based on pathway settings.
+Construct treatment pathways.
 }

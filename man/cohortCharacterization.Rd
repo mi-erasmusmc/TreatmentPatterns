@@ -2,44 +2,17 @@
 % Please edit documentation in R/cohortCharacterization.R
 \name{cohortCharacterization}
 \alias{cohortCharacterization}
-\title{Only for OMOP-CDM TRUE: Perform baseline characterization for the the target cohorts.}
+\title{Optional, only for OMOP-CDM data: Perform baseline characterization of study/target population.}
 \usage{
-cohortCharacterization(
-  connection,
-  connectionDetails,
-  cdmDatabaseSchema,
-  cohortDatabaseSchema,
-  cohortTable,
-  instFolder,
-  outputFolder,
-  databaseId,
-  standardCovariateSettings
-)
+cohortCharacterization(dataSettings, characterizationSettings, saveSettings)
 }
 \arguments{
-\item{connection}{Connection to database server.}
+\item{dataSettings}{Settings object as created by createDataSettings().}
 
-\item{connectionDetails}{Only for OMOP-CDM TRUE: An object of type connectionDetails as created using the createConnectionDetails function in the
-DatabaseConnector package.}
+\item{characterizationSettings}{Settings object as created by createCharcterizationSettings().}
 
-\item{cdmDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where your patient-level data resides. Note that for SQL Server, 
-this should include both the database and schema name, for example 'cdm_data.dbo'.}
-
-\item{cohortDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where intermediate data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
-include both the database and schema name, for example 'cdm_results.dbo'.}
-
-\item{cohortTable}{Only for OMOP-CDM TRUE: The name of the table that will be created in the cohortDatabaseSchema.
-This table will hold the target and event cohorts used in this study.}
-
-\item{instFolder}{Name of local folder to place all settings and cohorts; make sure to use forward slashes (/).}
-
-\item{outputFolder}{Name of local folder to place results; make sure to use forward slashes (/).}
-
-\item{databaseId}{Unique identifier for database (can be the same as databaseName).}
-
-\item{standardCovariateSettings}{An object of type covariateSettings as created using the createCovariateSettings function in the FeatureExtraction package.}
+\item{saveSettings}{Settings object as created by createSaveSettings().}
 }
 \description{
-Only for OMOP-CDM TRUE: Perform baseline characterization for the the target cohorts.
+Optional, only for OMOP-CDM data: Perform baseline characterization of study/target population.
 }

@@ -3,108 +3,51 @@
 \name{executeTreatmentPatterns}
 \alias{executeTreatmentPatterns}
 \title{This is the main function which runs all parts of the treatment pathways analysis. The following tasks are performed sequentially:
-0) If input arguments given, use these to create study settings
-1) Target/event cohorts of interest are created
-2) Characterization of study/target population
-3) Treatment pathways are constructed
-4) Output is generated (sunburst plots and more)
-5) Launch shiny application to visualize the results}
+1) Create target/event cohorts of interest,
+2) Optional, only for OMOP-CDM data: Perform baseline characterization of study/target population,
+3) Construct treatment pathways,
+4) Generate output (sunburst plots, Sankey diagrams and more),
+5) Launch shiny application to visualize the results.}
 \usage{
 executeTreatmentPatterns(
-  OMOP_CDM = TRUE,
-  connectionDetails = NULL,
-  cdmDatabaseSchema,
-  cohortDatabaseSchema,
-  databaseName = "unknown_name",
-  cohortTable = "treatmentpatterns_cohorts",
-  rootFolder = getwd(),
-  instFolder = paste0(rootFolder, "/inst"),
-  outputFolder = paste0(rootFolder, "/output/", databaseName),
-  tempFolder = paste0(rootFolder, "/temp/", databaseName),
-  cohortLocation = paste0(instFolder, "/cohorts/input_cohorts.csv"),
-  targetCohorts = NULL,
-  eventCohorts = NULL,
+  dataSettings,
+  cohortSettings,
   characterizationSettings = NULL,
-  pathwaySettings = NULL,
-  loadCohorts = FALSE,
-  baseUrl = NULL,
-  generateCohorts = TRUE,
-  flowChart = TRUE,
- 
-    standardCovariateSettings = FeatureExtraction::createCovariateSettings(useDemographicsAge
-    = TRUE, useDemographicsGender = TRUE, useDemographicsTimeInCohort = TRUE,
-    useDemographicsPostObservationTime = TRUE, useConditionGroupEraAnyTimePrior = TRUE,
-    useConditionGroupEraLongTerm = TRUE, useCharlsonIndex = TRUE),
+  pathwaySettings,
+  saveSettings,
   runCreateCohorts = TRUE,
   runCohortCharacterization = TRUE,
   runConstructPathways = TRUE,
-  runGenerateResults = TRUE,
+  runGenerateOutput = TRUE,
   launchShiny = FALSE
 )
 }
 \arguments{
-\item{connectionDetails}{Only for OMOP-CDM TRUE: An object of type connectionDetails as created using the createConnectionDetails function in the
-DatabaseConnector package.}
+\item{dataSettings}{Settings object as created by createDataSettings().}
 
-\item{cdmDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where your patient-level data resides. Note that for SQL Server, 
-this should include both the database and schema name, for example 'cdm_data.dbo'.}
+\item{cohortSettings}{Settings object as created by createCohortSettings().}
 
-\item{cohortDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where intermediate data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
-include both the database and schema name, for example 'cdm_results.dbo'.}
+\item{characterizationSettings}{Optional, only for OMOP-CDM data: Settings object as created by createCharcterizationSettings().}
 
-\item{databaseName}{Name of the database that will appear in the results.}
+\item{pathwaySettings}{Settings object as created by createPathwaySettings().}
 
-\item{cohortTable}{Only for OMOP-CDM TRUE: The name of the table that will be created in the cohortDatabaseSchema.
-This table will hold the target and event cohorts used in this study.}
+\item{saveSettings}{Settings object as created by createSaveSettings().}
 
-\item{rootFolder}{Name of local folder to place all package output (instFolder, outputFolder, tempFolder if not given).}
+\item{runCreateCohorts}{Setting to run 1) createCohorts().}
 
-\item{instFolder}{Name of local folder to place all settings and cohorts; make sure to use forward slashes (/).}
+\item{runCohortCharacterization}{Optional, only for OMOP-CDM data: Setting to run 2) cohortCharacterization().}
 
-\item{outputFolder}{Name of local folder to place results; make sure to use forward slashes (/).}
+\item{runConstructPathways}{Setting to run 3) constructPathways().}
 
-\item{tempFolder}{Name of local folder to place intermediate results (not to be shared); make sure to use forward slashes (/).}
+\item{runGenerateOutput}{Setting to run 4) generateOutput().}
 
-\item{cohortLocation}{Only for OMOP-CDM FALSE: Location from where cohorts can be loaded.}
-
-\item{targetCohorts}{Data frame containing the study population of interest (cohortId, atlasId, cohortName).}
-
-\item{eventCohorts}{Data frame containing the events of interest (cohortId, atlasId, cohortName).}
-
-\item{characterizationSettings}{Only for OMOP-CDM TRUE: Data frame containing the baseline characteristics of interest (covariateName, covariateId).}
-
-\item{pathwaySettings}{Data frame containing all pathway settings.}
-
-\item{loadCohorts}{Only for OMOP-CDM TRUE: Setting to retrieve cohort definitions from ATLAS WebApi.}
-
-\item{baseUrl}{Only for OMOP-CDM TRUE: The base URL for the WebApi instance, for example: "http://server.org:80/WebAPI".
-Note, there is no trailing '/'. If trailing '/' is used, you may receive an error.}
-
-\item{generateCohorts}{Only for OMOP-CDM TRUE: Setting to (re)generate cohortTable in the database.}
-
-\item{flowChart}{Only for OMOP-CDM TRUE: Setting to return numbers for flowchart with inclusion/exclusion criteria for ATLAS cohorts.}
-
-\item{standardCovariateSettings}{An object of type covariateSettings as created using the createCovariateSettings function in the FeatureExtraction package.}
-
-\item{runCreateCohorts}{Setting to run 1) Target/event cohorts of interest are created.}
-
-\item{runCohortCharacterization}{Only for OMOP-CDM TRUE: Setting to run 2) Characterization of study/target population.}
-
-\item{runConstructPathways}{Setting to run 3) Treatment pathways are constructed.}
-
-\item{runGenerateResults}{Setting to run 4) Output is generated (sunburst plots and more).}
-
-\item{launchShiny}{Setting to run 5) Launch shiny application to visualize the results.}
-
-\item{OMOP-CDM}{Format of database 'Observational Medical Outcomes Partnership Common Data Model' = TRUE or 'Other' = FALSE.}
+\item{launchShiny}{Setting to run 5) launchResultsExplorer().}
 }
 \description{
 This is the main function which runs all parts of the treatment pathways analysis. The following tasks are performed sequentially:
-0) If input arguments given, use these to create study settings
-1) Target/event cohorts of interest are created
-2) Characterization of study/target population
-3) Treatment pathways are constructed
-4) Output is generated (sunburst plots and more)
-5) Launch shiny application to visualize the results
+1) Create target/event cohorts of interest,
+2) Optional, only for OMOP-CDM data: Perform baseline characterization of study/target population,
+3) Construct treatment pathways,
+4) Generate output (sunburst plots, Sankey diagrams and more),
+5) Launch shiny application to visualize the results.
 }

@@ -71,9 +71,9 @@ server <- function(input, output, session) {
   output$tableStudySettingsTitle <- renderText({"Table with study settings specified."})
   
   output$tableStudySettings <- renderDataTable({
-    cols <- sapply(study_settings[study_settings$param == "studyName",], function(c) ifelse(c %in% input$population0, 1, 0))
+    cols <- sapply(pathway_settings[pathway_settings$param == "studyName",], function(c) ifelse(c %in% input$population0, 1, 0))
     cols[1] <- 1 # add param list
-    table <- study_settings[,cols > 0]
+    table <- pathway_settings[,cols > 0]
     return(table)
   }, options = list(pageLength = 20))
   

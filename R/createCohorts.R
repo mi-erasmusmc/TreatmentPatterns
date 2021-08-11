@@ -1,185 +1,194 @@
 
-#' Only for OMOP-CDM TRUE: Extract target and event cohorts from the database using the definitions included in the package.
-#' Cohorts can be defined 1) in ATLAS (recommended) or 2) by creating custom concept sets in combination with a SQL cohort template (advanced).
+
+#' Create target/event cohorts of interest.
 #'
-#' @param connection           Connection to database server.
-#' @param connectionDetails    An object of type connectionDetails as created using the createConnectionDetails function in the
-#'                             DatabaseConnector package.
-#' @param cdmDatabaseSchema    Schema name where your patient-level data resides. Note that for SQL Server, 
-#'                             this should include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param cohortDatabaseSchema Only for OMOP-CDM TRUE: Schema name where intermediate data can be stored. You will need to have
-#'                             write priviliges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_results.dbo'.
-#' @param cohortTable          The name of the table that will be created in the cohortDatabaseSchema.
-#'                             This table will hold the target and event cohorts used in this study.
-#' @param instFolder           Name of local folder to place all settings and cohorts; make sure to use forward slashes (/).              
-#' @param outputFolder         Name of local folder to place results; make sure to use forward slashes (/).
-#' @param loadCohorts          etting to retrieve cohort definitions from ATLAS WebApi.
-#' @param baseUrl              The base URL for the WebApi instance, for example: "http://server.org:80/WebAPI".
-#'                             Note, there is no trailing '/'. If trailing '/' is used, you may receive an error. 
-#' @param generateCohorts      Setting to (re)generate cohortTable in the database.
-#' @param flowChart            Setting to return numbers for flowchart with inclusion/exclusion criteria for ATLAS cohorts. 
+#' @param dataSettings Settings object as created by createDataSettings().
+#' @param cohortSettings Settings object as created by createCohortSettings().
+#' @param saveSettings Settings object as created by createSaveSettings().
+#'
 #' @export
-
-createCohorts <- function(connection,
-                          connectionDetails,
-                          cdmDatabaseSchema,
-                          cohortDatabaseSchema,
-                          cohortTable,
-                          instFolder,
-                          outputFolder,
-                          loadCohorts = FALSE,
-                          baseUrl = NULL,
-                          generateCohorts = TRUE,
-                          flowChart = TRUE) {
+createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
   
-  # Check if directory exists
-  if (!file.exists(outputFolder))
-    dir.create(outputFolder, recursive = TRUE)
+  # Check if directory exists and create if necessary
+  if (!file.exists(file.path(saveSettings$outputFolder, "settings")))
+    dir.create(file.path(saveSettings$outputFolder, "settings"), recursive = TRUE)
   
-  # Load information cohorts to create
-  pathToCsv <- paste0(instFolder, "/settings/cohorts_to_create.csv")
-  cohortsToCreate <- readr::read_csv(pathToCsv, col_types = list("i","c","c","c","i"))
-  write.csv(cohortsToCreate, file.path(outputFolder, "cohort.csv"), row.names = FALSE)
-
-  if (generateCohorts) {
-    # Create study cohort table structure
-    ParallelLogger::logInfo("Creating table for the cohorts")
-    sql <- loadRenderTranslateSql(sql = paste0(system.file(package = "TreatmentPatterns"),"/SQL/CreateCohortTable.sql"),
-                                  dbms = connectionDetails$dbms,
-                                  cohort_database_schema = cohortDatabaseSchema,
-                                  cohort_table = cohortTable)
-    DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+  # Save cohorts to create
+  cohortsToCreate <- cohortSettings$cohortsToCreate
+  write.csv(cohortsToCreate, file.path(saveSettings$outputFolder, "settings", "cohorts_to_create.csv"), row.names = FALSE)
+  
+  # For OMOP-CDM TRUE: Extract target and event cohorts from the database using the definitions included in the package.
+  # Cohorts can be defined 1) in ATLAS (recommended) or 2) by creating custom concept sets in combination with a SQL cohort template (advanced).
+  if (dataSettings$OMOP_CDM) {
     
-    # Create inclusion rule statistics tables
-    ParallelLogger::logInfo("Creating inclusion rule statistics tables")
-    sql <- loadRenderTranslateSql(sql = paste0(system.file(package = "TreatmentPatterns"),"/SQL/CreateInclusionStatsTables.sql"),
-                                  dbms = connectionDetails$dbms,
-                                  cohort_database_schema = cohortDatabaseSchema,
-                                  cohort_inclusion_table = "cohort_inclusion",
-                                  cohort_inclusion_result_table = "cohort_inclusion_result",
-                                  cohort_inclusion_stats_table =  "cohort_inclusion_stats",
-                                  cohort_summary_stats_table =  "cohort_summary_stats",
-                                  cohort_censor_stats_table = "cohort_censor_stats")
-    DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    # TODO: check if cohortSettings is not NULL!
     
-    # In case of custom definitions: load custom definitions
-    pathToCsv <- paste0(instFolder,"/settings/eventcohorts_custom.csv")
-    if (file.exists(pathToCsv)) {
-      custom_definitions <- readr::read_csv(pathToCsv, col_types = readr::cols())
-    }
+    # Connect to database
+    connection <- DatabaseConnector::connect(dataSettings$connectionDetails)
+    on.exit(DatabaseConnector::disconnect(connection))
     
-    # Instantiate cohorts
-    ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
-    
-    for (i in 1: nrow(cohortsToCreate)) {
-      writeLines(paste0("Creating cohort:", cohortsToCreate$cohortName[i], " ", cohortsToCreate$cohortDefinition[i]))
+    # Generate cohorts in database
+    if (cohortSettings$generateCohorts) {
       
-      if (cohortsToCreate$cohortDefinition[i] == "ATLAS") {
-        if (loadCohorts) {
-          writeLines(paste("Inserting cohort:", cohortsToCreate$cohortName[i]))
-          ROhdsiWebApi::insertCohortDefinitionInPackage(cohortId = cohortsToCreate$atlasId[i], 
-                                                        name = cohortsToCreate$cohortName[i], 
-                                                        jsonFolder = paste0(instFolder,"/cohorts/JSON"),
-                                                        sqlFolder = paste0(instFolder,"/cohorts/SQL"),
-                                                        baseUrl = baseUrl, 
-                                                        generateStats = TRUE)
-        }
-        
-        # Populate cohort_inclusion table with names of the rules
-        cohortDefinition <- RJSONIO::fromJSON(content = paste0(instFolder,"/cohorts/JSON/", cohortsToCreate$cohortName[i], ".json"), digits = 23)
-        
-        inclusionRules <- tidyr::tibble()
-        nrOfRules <- length(cohortDefinition$InclusionRules)
-        
-        if (nrOfRules > 0) {
-          for (r in 1:nrOfRules) {
-            inclusionRules <- dplyr::bind_rows(inclusionRules, tidyr::tibble(cohortDefinitionId = cohortsToCreate$cohortId[i],
-                                                                             ruleSequence = r - 1,
-                                                                             name = cohortDefinition$InclusionRules[[r]]$name))
+      # # Create study cohort table structure
+      # ParallelLogger::logInfo("Creating table for the cohorts")
+      # sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"),"SQL","CreateCohortTable.sql"),
+      #                               dbms = dataSettings$connectionDetails$dbms,
+      #                               cohort_database_schema = dataSettings$cohortDatabaseSchema,
+      #                               cohort_table = dataSettings$cohortTable)
+      # DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+      # 
+      # # Create inclusion rule statistics tables
+      # ParallelLogger::logInfo("Creating inclusion rule statistics tables")
+      # sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"),"SQL","CreateInclusionStatsTables.sql"),
+      #                               dbms = dataSettings$connectionDetails$dbms,
+      #                               cohort_database_schema = dataSettings$cohortDatabaseSchema,
+      #                               cohort_inclusion_table = "cohort_inclusion",
+      #                               cohort_inclusion_result_table = "cohort_inclusion_result",
+      #                               cohort_inclusion_stats_table =  "cohort_inclusion_stats",
+      #                               cohort_summary_stats_table =  "cohort_summary_stats",
+      #                               cohort_censor_stats_table = "cohort_censor_stats")
+      # DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+      # 
+      # Save location cohorts
+      cohortsFolder <- cohortSettings$cohortsFolder
+      if (is.null(cohortsFolder)) {
+        cohortsFolder <- file.path(saveSettings$outputFolder, "cohorts")
+      }
+      
+      # Instantiate cohorts
+      ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
+      
+      # TODO: add error messages if cohorts not there etc.
+      for (i in 4: nrow(cohortsToCreate)) {
+        if (!is.na(cohortsToCreate$atlasId[i]) & cohortsToCreate$atlasId[i] != "") { # If atlasId is not NA/empty -> standard ATLAS definition
+          writeLines(paste0("Creating ATLAS cohort: ", cohortsToCreate$cohortName[i]))
+          
+          if (cohortSettings$loadCohorts) {
+            writeLines(paste("Inserting cohort:", cohortsToCreate$cohortName[i]))
+            
+            if (ROhdsiWebApi::isValidId(ids = cohortsToCreate$atlasId[i], baseUrl = cohortSettings$baseUrl, category = 'cohort'))
+            {
+              ROhdsiWebApi::insertCohortDefinitionInPackage(cohortId = cohortsToCreate$atlasId[i], 
+                                                            name = cohortsToCreate$cohortName[i], 
+                                                            jsonFolder = file.path(cohortsFolder, "JSON"),
+                                                            sqlFolder = file.path(cohortsFolder, "SQL"),
+                                                            baseUrl = cohortSettings$baseUrl, 
+                                                            generateStats = TRUE)
+            } else {
+              stop (paste0("atlasId missing or incorrect for ", cohortsToCreate$cohortName[i]))
+            }
           }
           
-          DatabaseConnector::insertTable(connection = connection,
-                                         tableName = paste(cohortDatabaseSchema,
-                                                           "cohort_inclusion",
-                                                           sep = "."),
-                                         data = inclusionRules,
-                                         dropTableIfExists = FALSE,
-                                         createTable = FALSE,
-                                         tempTable = FALSE,
-                                         camelCaseToSnakeCase = TRUE)
+          # Populate cohort_inclusion table with names of the rules
+          tryCatch(cohortDefinition <- RJSONIO::fromJSON(content = file.path(cohortsFolder, "JSON", paste0(cohortsToCreate$cohortName[i], ".json")), digits = 23),
+                   error = function(e) {ParallelLogger::logInfo(print(paste0("Problem with JSON file cohort definition, check location of cohorts 'cohortSettings$cohortFolder' or load cohorts from ATLAS with 'cohortSettings$loadCohorts = TRUE': ", e)))})
+          
+          inclusionRules <- tidyr::tibble()
+          nrOfRules <- length(cohortDefinition$InclusionRules)
+          
+          if (nrOfRules > 0) {
+            for (r in 1:nrOfRules) {
+              inclusionRules <- dplyr::bind_rows(inclusionRules, tidyr::tibble(cohortDefinitionId = cohortsToCreate$cohortId[i],
+                                                                               ruleSequence = r - 1,
+                                                                               name = cohortDefinition$InclusionRules[[r]]$name))
+            }
+            
+            DatabaseConnector::insertTable(connection = connection,
+                                           tableName = paste0(dataSettings$cohortDatabaseSchema, ".cohort_inclusion"),
+                                           data = inclusionRules,
+                                           dropTableIfExists = FALSE,
+                                           createTable = FALSE,
+                                           tempTable = FALSE,
+                                           camelCaseToSnakeCase = TRUE)
+          }
+          
+          # Generate cohort
+          sql <- loadRenderTranslateSql(sql = file.path(cohortsFolder, "SQL", paste0(cohortsToCreate$cohortName[i], ".sql")),
+                                        dbms = dataSettings$connectionDetails$dbms,
+                                        cdm_database_schema = dataSettings$cdmDatabaseSchema,
+                                        results_database_schema = dataSettings$cohortDatabaseSchema,
+                                        vocabulary_database_schema = dataSettings$cdmDatabaseSchema,
+                                        target_database_schema = dataSettings$cohortDatabaseSchema,
+                                        target_cohort_table = dataSettings$cohortTable,
+                                        target_cohort_id = cohortsToCreate$cohortId[i])
+          DatabaseConnector::executeSql(connection, sql)
+        } else if (!is.na(cohortsToCreate$conceptSet[i]) & cohortsToCreate$conceptSet[i] != "") { # If conceptSet is not NA/empty -> standard ATLAS definition
+          writeLines(paste0("Creating Custom cohort: ", cohortsToCreate$cohortName[i]))
+          
+          # Load in concept sets
+          concept_set <- cohortsToCreate$conceptSet[i]
+          concept_set <- gsub(";", ",", concept_set)
+          concept_set <- paste0("(", concept_set, ")")
+          
+          # Insert concept set in SQL template to create cohort
+          sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"), "SQL", "CohortDrugTemplate.sql"),
+                                        dbms = dataSettings$connectionDetails$dbms,
+                                        cdm_database_schema = dataSettings$cdmDatabaseSchema,
+                                        vocabulary_database_schema = dataSettings$cdmDatabaseSchema,
+                                        target_database_schema = dataSettings$cohortDatabaseSchema,
+                                        target_cohort_table = dataSettings$cohortTable,
+                                        target_cohort_id = cohortsToCreate$cohortId[i],
+                                        concept_set = concept_set)
+          DatabaseConnector::executeSql(connection, sql)
+          
+        } else {
+          warning(paste0("Cohort definition not given, please add atlasId or conceptSet for ", cohortsToCreate$cohortName[i]))
         }
-        
-        # Generate cohort
-        sql <- loadRenderTranslateSql(sql = paste0(instFolder, "/cohorts/SQL/",cohortsToCreate$cohortName[i], ".sql"),
-                                      dbms = connectionDetails$dbms,
-                                      cdm_database_schema = cdmDatabaseSchema,
-                                      results_database_schema = cohortDatabaseSchema,
-                                      vocabulary_database_schema = cdmDatabaseSchema,
-                                      target_database_schema = cohortDatabaseSchema,
-                                      target_cohort_table = cohortTable,
-                                      target_cohort_id = cohortsToCreate$cohortId[i])
-        DatabaseConnector::executeSql(connection, sql)
-        
-      } else if (cohortsToCreate$cohortDefinition[i] == "Custom") {
-        
-        # Load in concept sets (later: change to -> generate sql to form concept sets)
-        concept_set <- custom_definitions[custom_definitions$cohortName == cohortsToCreate$cohortName[i],"conceptSet"]
-        concept_set <- paste0("(", substr(concept_set, 2, nchar(concept_set)-1), ")")
-        
-        if (is.null(concept_set))
-        {
-          warning("Concept set is empty")
-        }
-        
-        # Insert concept set in SQL template to create cohort
-        sql <- loadRenderTranslateSql(sql = paste0(system.file(package = "TreatmentPatterns"), "/SQL/CohortDrugTemplate.sql"),
-                                      dbms = connectionDetails$dbms,
-                                      cdm_database_schema = cdmDatabaseSchema,
-                                      vocabulary_database_schema = cdmDatabaseSchema,
-                                      target_database_schema = cohortDatabaseSchema,
-                                      target_cohort_table = cohortTable,
-                                      target_cohort_id = cohortsToCreate$cohortId[i],
-                                      concept_set = concept_set)
-        DatabaseConnector::executeSql(connection, sql)
-        
-      } else {
-        warning("Cohort definition not implemented, specify ATLAS or Custom")
       }
     }
+    
+    
+    # Return numbers for flowchart with inclusion/exclusion criteria
+    # TODO: check which of these overviews necessary, remove others
+    cohort_inclusion <- extractFile(connection, "cohort_inclusion", dataSettings$cohortDatabaseSchema, dataSettings$connectionDetails$dbms)
+    write.csv(cohort_inclusion, file.path(saveSettings$outputFolder, "cohort_inclusion.csv"), row.names = FALSE)
+    
+    cohort_inclusion_result <- extractFile(connection, "cohort_inclusion_result", dataSettings$cohortDatabaseSchema, dataSettings$connectionDetails$dbms)
+    write.csv(cohort_inclusion_result, file.path(saveSettings$outputFolder, "cohort_inclusion_result.csv"), row.names = FALSE)
+    
+    cohort_inclusion_stats <- extractFile(connection, "cohort_inclusion_stats", dataSettings$cohortDatabaseSchema, dataSettings$connectionDetails$dbms)
+    write.csv(cohort_inclusion_stats, file.path(saveSettings$outputFolder, "cohort_inclusion_stats.csv"), row.names = FALSE)
+    
+    cohort_summary_stats <- extractFile(connection, "cohort_summary_stats", dataSettings$cohortDatabaseSchema, dataSettings$connectionDetails$dbms)
+    write.csv(cohort_summary_stats, file.path(saveSettings$outputFolder, "cohort_summary_stats.csv"), row.names = FALSE)
+    
+    cohort_censor_stats <- extractFile(connection, "cohort_censor_stats", dataSettings$cohortDatabaseSchema, dataSettings$connectionDetails$dbms)
+    write.csv(cohort_censor_stats, file.path(saveSettings$outputFolder, "cohort_censor_stats.csv"), row.names = FALSE)
+    
+    # Check number of subjects per cohort
+    ParallelLogger::logInfo("Counting cohorts")
+    counts <- getCohortCounts(connection = connection,
+                              cohortDatabaseSchema = dataSettings$cohortDatabaseSchema,
+                              cohortTable = dataSettings$cohortTable,
+                              cohortIds = "")
+    write.csv(counts, file.path(saveSettings$outputFolder, "cohort_counts.csv"), row.names = FALSE)
+    
+  } else { # For OMOP-CDM FALSE: Import the target and event cohorts from a csv file in which the cohorts are stored. 
+    
+    # Load cohorts in from file
+    # Required columns: cohortId, personId, startDate, endDate
+    data <- data.table(readr::read_csv(dataSettings$cohortLocation), col_types = list("d", "d", "D", "D"))
+    
+    # TODO: check if file contains required columns
+    
+    # Check number of subjects per cohort
+    ParallelLogger::logInfo("Counting cohorts")
+    counts <- data.frame(cohortDefinitionId = cohortsToCreate$cohortId)
+    counts$cohortCount <- sapply(counts$cohortDefinitionId, function(c) {
+      length(data$person_id[data$cohortId == c]) 
+    })
+    counts$personCount <- sapply(counts$cohortDefinitionId, function(c) {
+      length(unique(data$person_id[data$cohortId == c]))
+    })
+    write.csv(counts, file.path(saveSettings$outputFolder, "cohort_counts.csv"), row.names = FALSE)
   }
   
-  # Check number of subjects per cohort
-  ParallelLogger::logInfo("Counting cohorts")
-  counts <- getCohortCounts(connection = connection,
-                            cohortDatabaseSchema = cohortDatabaseSchema,
-                            cohortTable = cohortTable,
-                            cohortIds = "")
-  write.csv(counts, file.path(outputFolder, "cohort_counts.csv"), row.names = FALSE)
-  
-  # Check if all target cohorts have non-zero count
+  # Check if all cohorts have non-zero count
   checkCohorts <- setdiff(cohortsToCreate$cohortId,counts$cohortDefinitionId)
   
   if(length(checkCohorts) != 0) {
     warning(paste0("Cohort definition ", paste0(checkCohorts, collapse = ","), " has zero count. "))
-  }
-  
-  # Return numbers for flowchart with inclusion/exclusion criteria
-  if(flowChart) {
-    cohort_inclusion <- extractFile(connection, "cohort_inclusion", cohortDatabaseSchema, connectionDetails$dbms)
-    write.csv(cohort_inclusion, file.path(outputFolder, "cohort_inclusion.csv"), row.names = FALSE)
-    
-    cohort_inclusion_result <- extractFile(connection, "cohort_inclusion_result", cohortDatabaseSchema, connectionDetails$dbms)
-    write.csv(cohort_inclusion_result, file.path(outputFolder, "cohort_inclusion_result.csv"), row.names = FALSE)
-    
-    cohort_inclusion_stats <- extractFile(connection, "cohort_inclusion_stats", cohortDatabaseSchema, connectionDetails$dbms)
-    write.csv(cohort_inclusion_stats, file.path(outputFolder, "cohort_inclusion_stats.csv"), row.names = FALSE)
-
-    cohort_summary_stats <- extractFile(connection, "cohort_summary_stats", cohortDatabaseSchema, connectionDetails$dbms)
-    write.csv(cohort_summary_stats, file.path(outputFolder, "cohort_summary_stats.csv"), row.names = FALSE)
-    
-    cohort_censor_stats <- extractFile(connection, "cohort_censor_stats", cohortDatabaseSchema, connectionDetails$dbms)
-    write.csv(cohort_censor_stats, file.path(outputFolder, "cohort_censor_stats.csv"), row.names = FALSE)
   }
   
   ParallelLogger::logInfo("createCohorts done.")

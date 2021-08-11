@@ -1,7 +1,7 @@
-cohortId,cohortName,cohortDefinition,cohortType,atlasId
-1,Hypertension,ATLAS,target,1777380
-10,Hydrochlorothiazide,ATLAS,event,1777381
-11,Metorolol,ATLAS,event,1777382
-12,Amlodipine,ATLAS,event,1777383
-13,Lisinopril,ATLAS,event,1777384
-14,Losartan,ATLAS,event,1777385
+cohortId,cohortName,cohortType,atlasId,conceptSet
+1,Hypertension,target,1777380,
+10,Hydrochlorothiazide,event,1777381,
+11,Metorolol,event,1777382,
+12,Amlodipine,event,1777383,
+13,Lisinopril,event,1777384,
+14,Losartan,event,1777385,

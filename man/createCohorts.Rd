@@ -2,53 +2,17 @@
 % Please edit documentation in R/createCohorts.R
 \name{createCohorts}
 \alias{createCohorts}
-\title{Only for OMOP-CDM TRUE: Extract target and event cohorts from the database using the definitions included in the package.
-Cohorts can be defined 1) in ATLAS (recommended) or 2) by creating custom concept sets in combination with a SQL cohort template (advanced).}
+\title{Create target/event cohorts of interest.}
 \usage{
-createCohorts(
-  connection,
-  connectionDetails,
-  cdmDatabaseSchema,
-  cohortDatabaseSchema,
-  cohortTable,
-  instFolder,
-  outputFolder,
-  loadCohorts = FALSE,
-  baseUrl = NULL,
-  generateCohorts = TRUE,
-  flowChart = TRUE
-)
+createCohorts(dataSettings, cohortSettings, saveSettings)
 }
 \arguments{
-\item{connection}{Connection to database server.}
+\item{dataSettings}{Settings object as created by createDataSettings().}
 
-\item{connectionDetails}{An object of type connectionDetails as created using the createConnectionDetails function in the
-DatabaseConnector package.}
+\item{cohortSettings}{Settings object as created by createCohortSettings().}
 
-\item{cdmDatabaseSchema}{Schema name where your patient-level data resides. Note that for SQL Server, 
-this should include both the database and schema name, for example 'cdm_data.dbo'.}
-
-\item{cohortDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where intermediate data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
-include both the database and schema name, for example 'cdm_results.dbo'.}
-
-\item{cohortTable}{The name of the table that will be created in the cohortDatabaseSchema.
-This table will hold the target and event cohorts used in this study.}
-
-\item{instFolder}{Name of local folder to place all settings and cohorts; make sure to use forward slashes (/).}
-
-\item{outputFolder}{Name of local folder to place results; make sure to use forward slashes (/).}
-
-\item{loadCohorts}{etting to retrieve cohort definitions from ATLAS WebApi.}
-
-\item{baseUrl}{The base URL for the WebApi instance, for example: "http://server.org:80/WebAPI".
-Note, there is no trailing '/'. If trailing '/' is used, you may receive an error.}
-
-\item{generateCohorts}{Setting to (re)generate cohortTable in the database.}
-
-\item{flowChart}{Setting to return numbers for flowchart with inclusion/exclusion criteria for ATLAS cohorts.}
+\item{saveSettings}{Settings object as created by createSaveSettings().}
 }
 \description{
-Only for OMOP-CDM TRUE: Extract target and event cohorts from the database using the definitions included in the package.
-Cohorts can be defined 1) in ATLAS (recommended) or 2) by creating custom concept sets in combination with a SQL cohort template (advanced).
+Create target/event cohorts of interest.
 }

@@ -12,7 +12,7 @@ if (exists("shinySettings")) { # run via launchShinyApplication
   setwd("/Volumes/USB DISK/TreatmentPatterns new set up example") # TODO: remove option and throw error?
 }
 
-local <- paste0(getwd(), "/output/")
+local <- file.path(getwd(), "output")
 addResourcePath("workingdirectory", getwd())
 
 # Fixing the labels
@@ -22,13 +22,13 @@ names(included_databases) <- included_databases # optional: change with own cust
 included_databases <- as.list(included_databases) 
 
 # Import settings
-study_settings <- data.frame(readr::read_csv(paste0(local, "/", included_databases[[1]],"/settings.csv"), col_types = readr::cols()))
+pathway_settings <- data.frame(readr::read_csv(file.path(local, included_databases[[1]],"settings", "pathway_settings.csv"), col_types = readr::cols()))
 
-all_targetcohorts <- unique(as.numeric(study_settings[study_settings$param == "targetCohortId",-1]))
+all_targetcohorts <- unique(as.numeric(pathway_settings[pathway_settings$param == "targetCohortId",-1]))
 names(all_targetcohorts) <- paste0("targetcohort ",all_targetcohorts) # optional: change with own custom names
 all_targetcohorts <- as.list(all_targetcohorts)
 
-all_studynames <- unique(as.character(study_settings[study_settings$param == "studyName",-1]))
+all_studynames <- unique(as.character(pathway_settings[pathway_settings$param == "studyName",-1]))
 names(all_studynames) <- all_studynames # optional: change with own custom names
 all_studynames <- as.list(all_studynames)
 

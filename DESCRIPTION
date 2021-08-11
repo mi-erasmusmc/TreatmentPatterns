@@ -5,11 +5,10 @@ Version: 0.2.2
 Author: Aniek F Markus 
 Maintainer: Aniek F Markus <a.markus@erasmusmc.nl>
 Description: This package gives insight in treatment patterns, the following tasks are performed sequentially:
-    0. If input arguments given, use these to create study settings
-    1. Target/event cohorts of interest are created
-    2. Characterization of study/target population
-    3. Treatment pathways are constructed
-    4. Output is generated (sunburst plots and more)
+    1. Create target/event cohorts of interest
+    2. Optional, only for OMOP-CDM data: Perform baseline characterization of study/target population
+    3. Construct treatment pathways
+    4. Generate output (sunburst plots, Sankey diagrams and more)
     5. Launch shiny application to visualize the results
 Depends:
     R (>= 3.6.1)

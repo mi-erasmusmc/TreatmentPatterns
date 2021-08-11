@@ -34,179 +34,143 @@ If you like to execute the customized study package against a database follow th
 
 ## 2.1 Databases in OMOP CDM format
 
-3. In extras -> CodeToRun.R: specify connection details (if OMOP-CDM) or cohort location (if Other format). 
-
-
 ### A) Manually filling the inst folder in the package
 
 Full example:
 ```{r tidy=FALSE,eval=FALSE}
 library(TreatmentPatterns)
+dataSettings <- createDataSettings(OMOP_CDM = TRUE,
+                                   connectionDetails = DatabaseConnector::createConnectionDetails(dbms = Sys.getenv('dbms'),
+                                                                                                  server = Sys.getenv('server'),
+                                                                                                  user = Sys.getenv('user'),
+                                                                                                  password = Sys.getenv('password'),
+                                                                                                  port = Sys.getenv('port')),
+                                   cdmDatabaseSchema = 'cdm',
+                                   cohortDatabaseSchema = 'amarkus',
+                                   cohortTable = "treatmentpatterns_cohorts")
 
-connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = Sys.getenv('dbms'),
-                                                                server = Sys.getenv('server'),
-                                                                user = Sys.getenv('user'),
-                                                                password = Sys.getenv('password'),
-                                                                port = Sys.getenv('port'))
+cohortSettings <- createCohortSettings(cohortsToCreate_location = file.path(system.file(package = "TreatmentPatterns"),
+                                                                            "examples", "OMOP CDM", "inst", "settings", "cohorts_to_create.csv"))
 
+characterizationSettings <- createCharacterizationSettings(baselineCovariates_location = file.path(system.file(package = "TreatmentPatterns"),
+                                                                                                   "examples", "OMOP CDM", "inst", "settings", "characterization_settings.csv"))
 
-cdmDatabaseSchema <- 'cdm'
-cohortDatabaseSchema <- 'results'
-databaseName <- 'IPCI'
-cohortTable <- 'treatment_patterns'
+pathwaySettings <- createPathwaySettings(pathwaySettings_location = file.path(system.file(package = "TreatmentPatterns"),
+                                                                              "examples", "OMOP CDM", "inst", "settings", "pathway_settings.csv"))
 
-instFolder <- paste0(system.file(package = "TreatmentPatterns"),"/examples/OMOP CDM/inst")
-outputFolder <- paste0(getwd(), "/output")
-tempFolder <- paste0(getwd(), "/temp")
+saveSettings <- createSaveSettings(databaseName = "IPCI")
 
-TreatmentPatterns::executeTreatmentPatterns(OMOP_CDM = TRUE,
-                                            connectionDetails = connectionDetails,
-                                            cdmDatabaseSchema = cdmDatabaseSchema,
-                                            cohortDatabaseSchema = cohortDatabaseSchema,
-                                            databaseName = databaseName,
-                                            cohortTable = paste0(cohortTable, "_", databaseName),
-                                            instFolder = instFolder,
-                                            outputFolder = outputFolder,
-                                            tempFolder = tempFolder
-                                            )
+TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
+                                            cohortSettings = cohortSettings,
+                                            characterizationSettings = characterizationSettings,
+                                            pathwaySettings = pathwaySettings,
+                                            saveSettings = saveSettings)
 ```
+
 
 ### B) Using function arguments when calling the main function of the package
 
 Full example:
 ```{r tidy=FALSE,eval=FALSE}
 library(TreatmentPatterns)
+dataSettings <- createDataSettings(OMOP_CDM = TRUE,
+                                   connectionDetails = DatabaseConnector::createConnectionDetails(dbms = Sys.getenv('dbms'),
+                                                                                                  server = Sys.getenv('server'),
+                                                                                                  user = Sys.getenv('user'),
+                                                                                                  password = Sys.getenv('password'),
+                                                                                                  port = Sys.getenv('port')),
+                                   cdmDatabaseSchema = 'cdm',
+                                   cohortDatabaseSchema = 'amarkus',
+                                   cohortTable = "treatmentpatterns_cohorts")
 
-connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = Sys.getenv('dbms'),
-                                                                server = Sys.getenv('server'),
-                                                                user = Sys.getenv('user'),
-                                                                password = Sys.getenv('password'),
-                                                                port = Sys.getenv('port'))
+cohortSettings <- createCohortSettings(targetCohorts = data.frame(cohortId = c(1),
+                                                                  atlasId = c(590),
+                                                                  cohortName = c('Hypertension'),
+                                                                  conceptSet = ""),
+                                       eventCohorts = data.frame(cohortId = c(10, 11, 12, 13, 14),
+                                                                 atlasId = c(1777381,1777382, 1777383, 1777384, 1777385),
+                                                                 cohortName = c('Hydrochlorothiazide', 'Metorolol',
+                                                                                'Amlodipine', 'Lisinopril', 'Losartan'),
+                                                                 conceptSet = c("", "", "", "", "")),
+                                       baseUrl = "http://Res-Srv-Lin-01:8080/WebAPI",
+                                       loadCohorts = TRUE)
 
-cdmDatabaseSchema <- 'cdm'
-cohortDatabaseSchema <- 'results' 
-databaseName <- 'IPCI'
-cohortTable <- 'treatment_patterns'
+characterizationSetttings <- createCharacterizationSettings(baselineCovariates = data.frame(covariateName = c('Male', 'Age', 
+                                                                                                              'Charlson comorbidity index score'),
+                                                                                            covariateId = c(8507001, 1002, 1901)))
 
-rootFolder <- getwd()
+pathwaySettings <- createPathwaySettings(targetCohortId = 590, eventCohortIds = c(10, 11, 12, 13, 14))
 
-targetCohorts <- data.frame(cohortId = c(1),
-                           atlasId = c(1777380),
-                           cohortName = c('Hypertension'))
+saveSettings <- createSaveSettings(databaseName = "IPCI")
 
-eventCohorts <- data.frame(cohortId = c(10, 11, 12, 13, 14),
-                          atlasId = c(1777381,1777382, 1777383, 1777384, 1777385),
-                          cohortName = c('Hydrochlorothiazide', 'Metorolol',
-                                         'Amlodipine', 'Lisinopril', 'Losartan'))
-
-characterizationSettings <- data.frame(covariateName = c('Male', 'Age',
-                                                          'Charlson comorbidity index score'),
-                                       covariateId = c(8507001, 1002, 1901))
-
-pathwaySettings <- data.frame(studyName = c("default", "analysis1"),
-                            targetCohortId = c(1,1),
-                            eventCohortIds = c("10,11,12,13,14","10,11,12,13,14"),
-                            includeTreatmentsPriorToIndex = c(0,0),
-                            minEraDuration = c(0,5),
-                            splitEventCohorts = c("",""),
-                            eraCollapseSize = c(0,30),
-                            combinationWindow = c(30,30), 
-                            minStepDuration = c(30,30),
-                            filterTreatments = c("First","Changes"),
-                            maxPathLength = c(5,5), 
-                            minCellCount = c(0,5),
-                            minCellMethod = c("Remove","Adjust"),
-                            groupCombinations = c(10,10),
-                            addNoPaths = c(FALSE, TRUE))   
-
-baseUrl <- "http://atlas-demo.ohdsi.org/WebAPI"
-
-TreatmentPatterns::executeTreatmentPatterns(connectionDetails = connectionDetails,
-                                            cdmDatabaseSchema = cdmDatabaseSchema,
-                                            cohortDatabaseSchema = cohortDatabaseSchema,
-                                            databaseName = databaseName,
-                                            cohortTable = paste0(cohortTable, "_", databaseName),
-                                            rootFolder = rootFolder,
-                                            targetCohorts = targetCohorts,
-                                            eventCohorts = eventCohorts,
+TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
+                                            cohortSettings = cohortSettings,
                                             characterizationSettings = characterizationSettings,
                                             pathwaySettings = pathwaySettings,
-                                            loadCohorts = TRUE,
-                                            baseUrl = baseUrl)
+                                            saveSettings = saveSettings)
 ```
+
 
 ## 2.2 Databases in other formats
 
 ### A) Manually filling the inst folder in the package
 Full example:
 ```{r tidy=FALSE,eval=FALSE}
-databaseName <- 'IPCI'
+dataSettings <- createDataSettings(OMOP_CDM = FALSE,
+                                   cohortLocation = file.path(system.file(package = "TreatmentPatterns"), "examples", "other format", "inst",
+                                                              "cohorts", "input_cohorts.csv"))
 
-instFolder <- paste0(system.file(package = "TreatmentPatterns"),"/examples/other format/inst")
-outputFolder <- paste0(getwd(), "/output")
-tempFolder <- paste0(getwd(), "/temp")
+cohortSettings <- createCohortSettings(cohortsToCreate_location = paste0(system.file(package = "TreatmentPatterns"), "examples", "other format", "inst", "settings", "cohorts_to_create.csv"))
 
-cohortLocation <- paste0(instFolder, "/cohorts/input_cohorts.csv")
+pathwaySettings <- createPathwaySettings(pathwaySettings_location = file.path(system.file(package = "TreatmentPatterns"),
+                                                                              "examples", "other format", "inst", "settings", "pathway_settings.csv"))
 
-TreatmentPatterns::executeTreatmentPatterns(OMOP_CDM = FALSE,
-                                            databaseName = databaseName,
-                                            instFolder = instFolder,
-                                            outputFolder = outputFolder,
-                                            tempFolder = tempFolder,
-                                            cohortLocation = cohortLocation,
-                                            runCohortCharacterization = FALSE)
+saveSettings <- createSaveSettings(databaseName = "IPCI")
+
+TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
+                                            cohortSettings = cohortSettings,
+                                            pathwaySettings = pathwaySettings,
+                                            saveSettings = saveSettings)
 ```
 
 ### B) Using function arguments when calling the main function of the package
 ```{r tidy=FALSE,eval=FALSE}
-databaseName <- 'IPCI'
+library(TreatmentPatterns)
+dataSettings <- createDataSettings(OMOP_CDM = FALSE,
+                                   cohortLocation = file.path(system.file(package = "TreatmentPatterns"), "examples", "other format", "inst",
+                                                              "cohorts", "input_cohorts.csv"))
 
-rootFolder <- getwd()
+cohortSettings <- createCohortSettings(targetCohorts = data.frame(cohortId = c(1),
+                                                                  atlasId = c(1777380),
+                                                                  cohortName = c('Hypertension'),
+                                                                  conceptSet = ""),
+                                       eventCohorts = data.frame(cohortId = c(10, 11, 12, 13, 14),
+                                                                 atlasId = c(1777381,1777382, 1777383, 1777384, 1777385),
+                                                                 cohortName = c('Hydrochlorothiazide', 'Metorolol',
+                                                                                'Amlodipine', 'Lisinopril', 'Losartan'),
+                                                                 conceptSet = c("", "", "", "", "")))
 
-cohortLocation <- paste0(system.file(package = "TreatmentPatterns"),"/examples/other format/inst/cohorts/input_cohorts.csv")
+characterizationSetttings <- createCharacterizationSettings(baselineCovariates = data.frame(covariateName = c('Male', 'Age', 
+                                                                                                              'Charlson comorbidity index score'),
+                                                                                            covariateId = c(8507001, 1002, 1901)))
 
-targetCohorts <- data.frame(cohortId = c(1),
-                           atlasId = c(""),
-                           cohortName = c('Hypertension'))
+pathwaySettings <- createPathwaySettings(targetCohortId = 590, eventCohortIds = c(10, 11, 12, 13, 14))
 
-eventCohorts <- data.frame(cohortId = c(10, 11, 12, 13, 14),
-                          atlasId = c("","", "", "", ""),
-                          cohortName = c('Hydrochlorothiazide', 'Metorolol',
-                                         'Amlodipine', 'Lisinopril', 'Losartan'))
+saveSettings <- createSaveSettings(databaseName = "IPCI")
 
-pathwaySettings <- data.frame(studyName = c("default", "analysis1"),
-                            targetCohortId = c(1,1),
-                            eventCohortIds = c("10,11,12,13,14","10,11,12,13,14"),
-                            includeTreatmentsPriorToIndex = c(0,0),
-                            minEraDuration = c(0,5),
-                            splitEventCohorts = c("",""),
-                            eraCollapseSize = c(0,30),
-                            combinationWindow = c(30,30), 
-                            minStepDuration = c(30,30),
-                            filterTreatments = c("First","Changes"),
-                            maxPathLength = c(5,5), 
-                            minCellCount = c(0,5),
-                            minCellMethod = c("Remove","Adjust"),
-                            groupCombinations = c(10,10),
-                            addNoPaths = c(FALSE, TRUE))   
-
-TreatmentPatterns::executeTreatmentPatterns(OMOP_CDM = FALSE,
-                                            databaseName = databaseName,
-                                            rootFolder = rootFolder,
-                                            cohortLocation = cohortLocation,
-                                            targetCohorts = targetCohorts,
-                                            eventCohorts = eventCohorts,
+TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
+                                            cohortSettings = cohortSettings,
                                             pathwaySettings = pathwaySettings,
-                                            runCohortCharacterization = FALSE)
+                                            saveSettings = saveSettings)
 ```
 
 # 3. Results
 
 - The results are combined in the autoomatically generated zip file
 
-- Select the folder containing the zip files as 'rootFolder' and run the Shiny App for an interactive visualization of the results:
+- Select the folder containing the zip files and run the Shiny App for an interactive visualization of the results:
 ```{r tidy=FALSE,eval=FALSE}
-TreatmentPatterns::launchShinyApplication(rootFolder)
+TreatmentPatterns::launchResultsExplorer(zipFolder)
 ```
 
 - Share the results in the automatically generated zip folder.

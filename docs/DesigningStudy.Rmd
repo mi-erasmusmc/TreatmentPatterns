@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette describes how to design a custom treatment patterns study.
+This vignette describes how to design a custom treatment patterns study (TODO: needs to be updated!)
 
 # 1. Setting up
 Make sure you have TreatmentPatterns installed and all dependencies (see instructions in README).
@@ -82,17 +82,19 @@ We need the following components:
 
 ```{r tidy=FALSE,eval=FALSE}
 targetCohorts <- data.frame(cohortId = c(1),
+                            cohortName = c('Hypertension'),
                             atlasId = c(1777380),
-                            cohortName = c('Hypertension'))
+                            conceptSet = c("")) # conceptSet can also be left out
 ```
 
 - The events of interest (event cohorts).
 
 ```{r tidy=FALSE,eval=FALSE}
 eventCohorts <- data.frame(cohortId = c(10, 11, 12, 13, 14),
-                           atlasId = c(1777381,1777382, 1777383, 1777384, 1777385),
                            cohortName = c('Hydrochlorothiazide', 'Metorolol',
-                                          'Amlodipine', 'Lisinopril', 'Losartan'))
+                                          'Amlodipine', 'Lisinopril', 'Losartan'),
+                           atlasId = c(1777381,1777382, 1777383, 1777384, 1777385),
+                           conceptSet = c("","","","","")) # conceptSet can also be left out
 ```
 
 2. Optional: specify baseline characteristics of interest.

@@ -30,26 +30,26 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
     # Generate cohorts in database
     if (cohortSettings$generateCohorts) {
       
-      # # Create study cohort table structure
-      # ParallelLogger::logInfo("Creating table for the cohorts")
-      # sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"),"SQL","CreateCohortTable.sql"),
-      #                               dbms = dataSettings$connectionDetails$dbms,
-      #                               cohort_database_schema = dataSettings$cohortDatabaseSchema,
-      #                               cohort_table = dataSettings$cohortTable)
-      # DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-      # 
-      # # Create inclusion rule statistics tables
-      # ParallelLogger::logInfo("Creating inclusion rule statistics tables")
-      # sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"),"SQL","CreateInclusionStatsTables.sql"),
-      #                               dbms = dataSettings$connectionDetails$dbms,
-      #                               cohort_database_schema = dataSettings$cohortDatabaseSchema,
-      #                               cohort_inclusion_table = "cohort_inclusion",
-      #                               cohort_inclusion_result_table = "cohort_inclusion_result",
-      #                               cohort_inclusion_stats_table =  "cohort_inclusion_stats",
-      #                               cohort_summary_stats_table =  "cohort_summary_stats",
-      #                               cohort_censor_stats_table = "cohort_censor_stats")
-      # DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-      # 
+      # Create study cohort table structure
+      ParallelLogger::logInfo("Creating table for the cohorts")
+      sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"),"SQL","CreateCohortTable.sql"),
+                                    dbms = dataSettings$connectionDetails$dbms,
+                                    cohort_database_schema = dataSettings$cohortDatabaseSchema,
+                                    cohort_table = dataSettings$cohortTable)
+      DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+
+      # Create inclusion rule statistics tables
+      ParallelLogger::logInfo("Creating inclusion rule statistics tables")
+      sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"),"SQL","CreateInclusionStatsTables.sql"),
+                                    dbms = dataSettings$connectionDetails$dbms,
+                                    cohort_database_schema = dataSettings$cohortDatabaseSchema,
+                                    cohort_inclusion_table = "cohort_inclusion",
+                                    cohort_inclusion_result_table = "cohort_inclusion_result",
+                                    cohort_inclusion_stats_table =  "cohort_inclusion_stats",
+                                    cohort_summary_stats_table =  "cohort_summary_stats",
+                                    cohort_censor_stats_table = "cohort_censor_stats")
+      DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+
       # Save location cohorts
       cohortsFolder <- cohortSettings$cohortsFolder
       if (is.null(cohortsFolder)) {
@@ -60,7 +60,7 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
       ParallelLogger::logInfo("Insert cohort of interest into the cohort table")
       
       # TODO: add error messages if cohorts not there etc.
-      for (i in 4: nrow(cohortsToCreate)) {
+      for (i in 1:nrow(cohortsToCreate)) {
         if (!is.na(cohortsToCreate$atlasId[i]) & cohortsToCreate$atlasId[i] != "") { # If atlasId is not NA/empty -> standard ATLAS definition
           writeLines(paste0("Creating ATLAS cohort: ", cohortsToCreate$cohortName[i]))
           
@@ -129,7 +129,8 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
                                         target_database_schema = dataSettings$cohortDatabaseSchema,
                                         target_cohort_table = dataSettings$cohortTable,
                                         target_cohort_id = cohortsToCreate$cohortId[i],
-                                        concept_set = concept_set)
+                                        concept_set = concept_set,
+                                        include_descendants = cohortSettings$includeDescendants)
           DatabaseConnector::executeSql(connection, sql)
           
         } else {
@@ -185,7 +186,7 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
   }
   
   # Check if all cohorts have non-zero count
-  checkCohorts <- setdiff(cohortsToCreate$cohortId,counts$cohortDefinitionId)
+  checkCohorts <- setdiff(cohortsToCreate$cohortId,counts$cohortId)
   
   if(length(checkCohorts) != 0) {
     warning(paste0("Cohort definition ", paste0(checkCohorts, collapse = ","), " has zero count. "))

@@ -11,7 +11,8 @@ createCohortSettings(
   loadCohorts = FALSE,
   cohortsFolder = NULL,
   baseUrl = NULL,
-  generateCohorts = TRUE
+  generateCohorts = TRUE,
+  includeDescendants = TRUE
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ createCohortSettings(
 Note, there is no trailing '/'. If trailing '/' is used, you may receive an error.}
 
 \item{generateCohorts}{Setting to (re)generate cohortTable in the database.}
+
+\item{includeDescendants}{Whether to include all descendants of Custom cohorts defined using conceptSet.}
 }
 \value{
 

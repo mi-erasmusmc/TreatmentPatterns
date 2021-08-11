@@ -69,6 +69,7 @@ createDataSettings <- function(OMOP_CDM = "TRUE",
 #' @param baseUrl              The base URL for the WebApi instance, for example: "http://server.org:80/WebAPI".
 #'                             Note, there is no trailing '/'. If trailing '/' is used, you may receive an error. 
 #' @param generateCohorts      Setting to (re)generate cohortTable in the database.
+#' @param includeDescendants   Whether to include all descendants of Custom cohorts defined using conceptSet.
 #'
 #' @return
 #' @export
@@ -78,7 +79,8 @@ createCohortSettings <- function(cohortsToCreate_location = NULL,
                                  loadCohorts = FALSE,
                                  cohortsFolder = NULL,
                                  baseUrl = NULL,
-                                 generateCohorts = TRUE) {
+                                 generateCohorts = TRUE,
+                                 includeDescendants = TRUE) {
   
   # If cohortsToCreate_location given, load settings from data
   if (!is.null(cohortsToCreate_location)) {
@@ -127,7 +129,8 @@ createCohortSettings <- function(cohortsToCreate_location = NULL,
                          loadCohorts = loadCohorts,
                          cohortsFolder = cohortsFolder,
                          baseUrl = baseUrl,
-                         generateCohorts = generateCohorts)
+                         generateCohorts = generateCohorts,
+                         includeDescendants = includeDescendants)
   
   return(cohortSettings)
 }
@@ -171,6 +174,50 @@ createCharacterizationSettings <- function(baselineCovariates_location = NULL,
 #' Create pathway settings.
 #'
 #' @param pathwaySettings_location Optional: Location of saved pathwaySettings object.
+#' @param pathwaySettings_list Create (list of pathway settings) with addPathwaySettings()
+#' (e.g.pathwaySettings_list <- addPathwaySettings() or pathwaySettings_list <- list(addPathwaySettings(), addPathwaySettings())). . 
+#' @param targetCohortId Target cohort ID of current study settings.
+#' @param eventCohortIds Event cohort IDs of current study settings.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+createPathwaySettings <- function(pathwaySettings_location = NULL,
+                                  pathwaySettings_list = NULL,
+                                  targetCohortId = NULL,
+                                  eventCohortIds = NULL) {
+  
+  # If pathwaySettings_location given, load settings from data
+  if (!is.null(pathwaySettings_location)) {
+    pathwaySettings <- data.frame(readr::read_csv(pathwaySettings_location, col_types = readr::cols()))
+    
+  } else if (!is.null(pathwaySettings_list)) {
+    pathwaySettings_all <- do.call("rbind", pathwaySettings_list)
+    
+    pathwaySettings <- data.table::transpose(pathwaySettings_all)
+    colnames(pathwaySettings) <- paste0("analysis", 1:ncol(pathwaySettings))
+    pathwaySettings <- cbind(param = colnames(pathwaySettings_all), pathwaySettings)
+    
+  } else if (!is.null(targetCohortId) & !is.null(eventCohortIds)) {
+    # TODO: check if input numeric
+    
+    pathwaySettings_default <- addPathwaySettings(targetCohortId = targetCohortId,
+                                                  eventCohortIds = eventCohortIds)
+    
+    pathwaySettings <- data.table::transpose(pathwaySettings_default)
+    colnames(pathwaySettings) <- paste0("analysis", 1:ncol(pathwaySettings))
+    pathwaySettings <- cbind(param = colnames(pathwaySettings_default), pathwaySettings)
+  } else {
+    stop("input missing, isert 1) pathwaySettings_location, 2) pathwaySettings_list, or 3) targetCohortId and eventCohortIds")
+  }
+  
+  return(pathwaySettings)
+}
+
+
+#' Add set of pathway settings.
+#'
 #' @param studyName Name identifying the set of study parameters.
 #' @param targetCohortId Target cohort ID of current study settings.
 #' @param eventCohortIds Event cohort IDs of current study settings.
@@ -189,56 +236,46 @@ createCharacterizationSettings <- function(baselineCovariates_location = NULL,
 #'
 #' @return
 #' @export
-#'
-#' @examples
-createPathwaySettings <- function(pathwaySettings_location = NULL,
-                                  studyName = c("default"),
-                                  targetCohortId,
-                                  eventCohortIds,
-                                  includeTreatmentsPriorToIndex = 0,
-                                  minEraDuration = 0,
-                                  splitEventCohorts = "",
-                                  eraCollapseSize = 0,
-                                  combinationWindow = 30, 
-                                  minStepDuration = 30,
-                                  filterTreatments = "First",
-                                  maxPathLength = 5, 
-                                  minCellCount = 0,
-                                  minCellMethod = "Remove",
-                                  groupCombinations = 10,
-                                  addNoPaths = FALSE) {
+addPathwaySettings <- function(studyName = c("default"),
+                               targetCohortId,
+                               eventCohortIds,
+                               includeTreatmentsPriorToIndex = 0,
+                               minEraDuration = 0,
+                               splitEventCohorts = "",
+                               eraCollapseSize = 0,
+                               combinationWindow = 30, 
+                               minStepDuration = 30,
+                               filterTreatments = "First",
+                               maxPathLength = 5, 
+                               minCellCount = 0,
+                               minCellMethod = "Remove",
+                               groupCombinations = 10,
+                               addNoPaths = FALSE) {
   
-  # If pathwaySettings_location given, load settings from data
-  if (!is.null(pathwaySettings_location)) {
-    pathwaySettings <- data.frame(readr::read_csv(pathwaySettings_location, col_types = readr::cols()))
-  } else {
-    
-    # TODO: think about how to easily add one/ multiple pathwaySettings easily
-    temp <- data.frame(studyName = c("default", "analysis1"),
-                       targetCohortId = c(1,1),
-                       eventCohortIds = c("10,11,12,13,14","10,11,12,13,14"),
-                       includeTreatmentsPriorToIndex = c(0,0),
-                       minEraDuration = c(0,5),
-                       splitEventCohorts = c("",""),
-                       eraCollapseSize = c(0,30),
-                       combinationWindow = c(30,30), 
-                       minStepDuration = c(30,30),
-                       filterTreatments = c("First","Changes"),
-                       maxPathLength = c(5,5), 
-                       minCellCount = c(0,5),
-                       minCellMethod = c("Remove","Adjust"),
-                       groupCombinations = c(10,10),
-                       addNoPaths = c(FALSE, TRUE))    
-    
-    pathwaySettings <- data.table::transpose(temp)
-    colnames(pathwaySettings) <- paste0("analysis", 1:ncol(pathwaySettings))
-    pathwaySettings <- cbind(param = colnames(temp), pathwaySettings)
-    
-  }
+  # TODO: check targetCohortId and eventCohortIds given
   
-  return(pathwaySettings)
+  # TODO: remove spaces from file / arguments
+  
+  # TODO: if a parameter changed -> change name default
+  
+  settings <- data.frame(studyName = studyName,
+                         targetCohortId = targetCohortId,
+                         eventCohortIds = paste(eventCohortIds, collapse = ","),
+                         includeTreatmentsPriorToIndex = includeTreatmentsPriorToIndex,
+                         minEraDuration = minEraDuration,
+                         splitEventCohorts = splitEventCohorts,
+                         eraCollapseSize = eraCollapseSize,
+                         combinationWindow = combinationWindow, 
+                         minStepDuration = minStepDuration,
+                         filterTreatments = filterTreatments,
+                         maxPathLength = maxPathLength, 
+                         minCellCount = minCellCount,
+                         minCellMethod = minCellMethod,
+                         groupCombinations = groupCombinations,
+                         addNoPaths = addNoPaths)    
+  
+  return(settings)
 }
-
 
 #' Create save settings.
 #'

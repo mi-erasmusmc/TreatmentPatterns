@@ -155,7 +155,7 @@ server <- function(input, output, session) {
           
           info <- summary_counts[[input$dataset2[[j]]]][[input$population2]]
           title_plot <- paste0(names(which(included_databases == input$dataset2[[j]])), " (N = ", info$number_target[info$year == input$year2], " , Treated % = ", info$perc[info$year == input$year2], ")")
-          plot_location <- paste0("workingdirectory/output/", input$dataset2[[j]], "/", input$population2,"/", input$dataset2[[j]], "_",input$population2, "_" ,input$year2,"_plot.html")
+          plot_location <- paste0("workingdirectory/", input$dataset2[[j]], "/", input$population2,"/", input$dataset2[[j]], "_",input$population2, "_" ,input$year2,"_plot.html")
           
           cols_ <- append(cols_,list(column(width = floor(8/n_cols), offset = 0, tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=400, height=400, scrolling = "no", frameborder = "no")))));
         }
@@ -171,7 +171,7 @@ server <- function(input, output, session) {
           
           info <- summary_counts[[input$dataset2]][[input$population2[[j]]]]
           title_plot <- paste0(names(which(all_studynames == input$population2[[j]])), " (N = ", info$number_target[info$year == input$year2], " , Treated % = ", info$perc[info$year == input$year2], ")")
-          plot_location <- paste0("workingdirectory/output/",input$dataset2 ,"/",input$population2[[j]], "/", input$dataset2, "_",input$population2[[j]], "_" ,input$year2,"_plot.html")
+          plot_location <- paste0("workingdirectory/",input$dataset2 ,"/",input$population2[[j]], "/", input$dataset2, "_",input$population2[[j]], "_" ,input$year2,"_plot.html")
           
           cols_ <- append(cols_,list(column(width = floor(8/n_cols), offset = 0, tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=400, height=400, scrolling = "no", frameborder = "no")))));
         }
@@ -187,7 +187,7 @@ server <- function(input, output, session) {
           
           info <- summary_counts[[input$dataset2]][[input$population2]]
           title_plot <- paste0(names(which(all_years == input$year2[[j]])), " (N = ", info$number_target[info$year == input$year2[[j]]], " , Treated % = ", info$perc[info$year == input$year2[[j]]], ")")
-          plot_location <- paste0("workingdirectory/output/",input$dataset2, "/", input$population2, "/", input$dataset2, "_",input$population2, "_" ,input$year2[[j]],"_plot.html")
+          plot_location <- paste0("workingdirectory/",input$dataset2, "/", input$population2, "/", input$dataset2, "_",input$population2, "_" ,input$year2[[j]],"_plot.html")
           
           cols_ <- append(cols_,list(column(width = floor(8/n_cols), offset = 0, tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=400, height=400, scrolling = "no", frameborder = "no")))));
         }
@@ -205,7 +205,7 @@ server <- function(input, output, session) {
   })
   
   output$sunburstlegend <- renderUI({
-    legend <- tags$iframe(seamless="seamless", src=paste0("workingdirectory/output/", included_databases[[1]], "/", input$population2[[1]], "/legend.html"), height=600, scrolling = "no", frameborder = "no")
+    legend <- tags$iframe(seamless="seamless", src=paste0("workingdirectory/", included_databases[[1]], "/", input$population2[[1]], "/legend.html"), height=600, scrolling = "no", frameborder = "no")
     return(legend)
   })
   
@@ -214,7 +214,7 @@ server <- function(input, output, session) {
     
     info <- summary_counts[[input$dataset34]][[input$population345]]
     title_plot <- paste0(names(which(included_databases == input$dataset34)), " (N = ", info$number_target[info$year == "all"], " , Treated % = ", info$perc[info$year == "all"], ")")
-    plot_location <- paste0("workingdirectory/output/", input$dataset34, "/",input$population345, "/sankeydiagram_", input$dataset34, "_",input$population345, "_all.html")
+    plot_location <- paste0("workingdirectory/", input$dataset34, "/",input$population345, "/sankeydiagram_", input$dataset34, "_",input$population345, "_all.html")
     plot <- tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=800, height=800, scrolling = "no", frameborder = "no"))
     
     return(plot)

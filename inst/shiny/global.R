@@ -1,31 +1,34 @@
 library(shiny)
 library(shinydashboard)
-library(shinymanager)
 library(reshape2)
 library(ggplot2)
 library(data.table)
 library(DT)
 
-if (exists("shinySettings")) { # run via launchShinyApplication
-  setwd(shinySettings$shinyFilesLocation)
-} else { # allow to run from folder directly (select root folder of output) -> problem sunburst support files missing
-  setwd("/Volumes/USB DISK/TreatmentPatterns new set up example") # TODO: remove option and throw error?
+if (exists("shinySettings")) { # run via TreatmentPatterns::launchShinyApplication
+  setwd(file.path(shinySettings$zipFolder, "output"))
+} else { 
+  if (exists("pathResultsDirectory")) {
+    setwd(pathResultsDirectory)
+  } else {
+    stop("Define location of results folder in pathResultsDirectory (folder ~/output including the different database results)")
+  }
 }
 
-local <- file.path(getwd(), "output")
+local <- file.path(getwd())
 addResourcePath("workingdirectory", getwd())
 
 # Fixing the labels
 included_databases <- list.dirs(local, recursive = FALSE, full.names = FALSE)
-included_databases <- included_databases[included_databases != "sunburst"]
 names(included_databases) <- included_databases # optional: change with own custom names
 included_databases <- as.list(included_databases) 
 
 # Import settings
 pathway_settings <- data.frame(readr::read_csv(file.path(local, included_databases[[1]],"settings", "pathway_settings.csv"), col_types = readr::cols()))
+cohorts <- data.frame(readr::read_csv(file.path(local, included_databases[[1]],"settings", "cohorts_to_create.csv"), col_types = readr::cols()))
 
 all_targetcohorts <- unique(as.numeric(pathway_settings[pathway_settings$param == "targetCohortId",-1]))
-names(all_targetcohorts) <- paste0("targetcohort ",all_targetcohorts) # optional: change with own custom names
+names(all_targetcohorts) <- sapply(all_targetcohorts, function(c) cohorts$cohortName[cohorts$cohortId == c])
 all_targetcohorts <- as.list(all_targetcohorts)
 
 all_studynames <- unique(as.character(pathway_settings[pathway_settings$param == "studyName",-1]))

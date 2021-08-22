@@ -34,7 +34,7 @@ This table will hold the target and event cohorts used in this study.}
 \item{OMOP-CDM}{Format of database 'Observational Medical Outcomes Partnership Common Data Model' = TRUE or 'Other' = FALSE.}
 }
 \value{
-
+Object dataSettings.
 }
 \description{
 Create data settings.

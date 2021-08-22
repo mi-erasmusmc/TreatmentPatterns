@@ -22,7 +22,7 @@ createPathwaySettings(
 \item{eventCohortIds}{Event cohort IDs of current study settings.}
 }
 \value{
-
+Object pathwaySettings.
 }
 \description{
 Create pathway settings.

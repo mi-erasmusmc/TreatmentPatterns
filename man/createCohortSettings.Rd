@@ -18,11 +18,13 @@ createCohortSettings(
 \arguments{
 \item{cohortsToCreate_location}{Optional: Location of saved cohortsToCreate object.}
 
-\item{targetCohorts}{Data frame containing the study population of interest (cohortId, cohortName, atlasId, conceptSet).}
+\item{targetCohorts}{Data frame containing the study population of interest (cohortId = "Unique ID number", cohortName = "Descriptive name cohort", optional: atlasId = "Cohort ID ATLAS", optional: conceptSet = "Concept set to use with SQL template").}
 
-\item{eventCohorts}{Data frame containing the events of interest (cohortId, cohortName, atlasId, conceptSet).}
+\item{eventCohorts}{Data frame containing the events of interest (cohortId = "Unique ID number", cohortName = "Descriptive name cohort", optional: atlasId = "Cohort ID ATLAS", optional: conceptSet = "Concept set to use with SQL template").}
 
 \item{loadCohorts}{Setting to retrieve cohort definitions with atlasId from ATLAS WebApi.}
+
+\item{cohortsFolder}{Location where cohort definitions are stored (SQL/JSON files).}
 
 \item{baseUrl}{The base URL for the WebApi instance, for example: "http://server.org:80/WebAPI".
 Note, there is no trailing '/'. If trailing '/' is used, you may receive an error.}
@@ -32,7 +34,7 @@ Note, there is no trailing '/'. If trailing '/' is used, you may receive an erro
 \item{includeDescendants}{Whether to include all descendants of Custom cohorts defined using conceptSet.}
 }
 \value{
-
+Object cohortSettings.
 }
 \description{
 Create cohort settings.

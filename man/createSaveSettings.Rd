@@ -7,8 +7,8 @@
 createSaveSettings(
   databaseName = "unknown_name",
   rootFolder = getwd(),
-  outputFolder = paste0(rootFolder, "/output"),
-  tempFolder = paste0(rootFolder, "/temp")
+  outputFolder = file.path(rootFolder, "output"),
+  tempFolder = file.path(rootFolder, "temp")
 )
 }
 \arguments{
@@ -19,6 +19,9 @@ createSaveSettings(
 \item{outputFolder}{Name of local folder to place results; make sure to use forward slashes (/).}
 
 \item{tempFolder}{Name of local folder to place intermediate results (not to be shared); make sure to use forward slashes (/).}
+}
+\value{
+Object saveSettings.
 }
 \description{
 Create save settings.

@@ -5,9 +5,10 @@ This R package contains the resources for performing a treatment pathway analysi
 ## Features
 
 - Extracts the necessary data from a database in OMOP CDM format or directly imports the cohorts from a csv file.
-- Performs baseline characterization of the study population of interest (based on [CohortDiganostics](https://github.com/ohdsi/cohortdiagnostics), only for databases in OMOP CDM format).
+- Performs baseline characterization of the study population of interest (based on [CohortDiagnostics](https://github.com/ohdsi/cohortdiagnostics), only for databases in OMOP CDM format).
 - Treatment pathways are constructed consisting of specified events of interest (e.g. prescriptions of drugs, therapies, other treatments) for specified target cohorts (study populations of interest).
 - Aggregate output statistics are generated to describe the treatment sequence observed in the study population of interest including sunburst plots, Sankey diagrams, percentage(s) of patients treated (with a certain treatment), and average duration of event cohorts. 
+- The results can be explored in an interactive Shiny application.
 
 
 ## Screenshots
@@ -43,9 +44,12 @@ This R package contains the resources for performing a treatment pathway analysi
 
 ## User Documentation
 Available documentation includes:
-- Vignette: [Designing a study using the TreatmentPatterns package](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/DesigningStudy.pdf)
-- Vignette: [Executing a study using the TreatmentPatterns package](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/ExecutingStudy.pdf)
+- Vignette: [Perform a study using the TreatmentPatterns package](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatternsStudy.pdf)
 - Package manual: [TreatmentPatterns.pdf](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatterns_0.2.0.pdf)
+
+## Package Structure
+<img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/package.png"/>
+
 
 ## Support
 We use the <a href="https://github.com/mi-erasmusmc/TreatmentPatterns/issues">GitHub issue tracker</a> for all bugs/issues/enhancements.

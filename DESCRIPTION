@@ -1,7 +1,7 @@
 Package: TreatmentPatterns
 Type: Package
 Title: A package to analyse real-world treatment patterns of a study population of interest
-Version: 0.2.2
+Version: 0.2.3
 Author: Aniek F Markus 
 Maintainer: Aniek F Markus <a.markus@erasmusmc.nl>
 Description: This package gives insight in treatment patterns, the following tasks are performed sequentially:

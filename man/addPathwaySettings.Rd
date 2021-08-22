@@ -5,7 +5,7 @@
 \title{Add set of pathway settings.}
 \usage{
 addPathwaySettings(
-  studyName = c("default"),
+  studyName = "name_unknown",
   targetCohortId,
   eventCohortIds,
   includeTreatmentsPriorToIndex = 0,
@@ -29,29 +29,29 @@ addPathwaySettings(
 
 \item{eventCohortIds}{Event cohort IDs of current study settings.}
 
-\item{includeTreatmentsPriorToIndex}{# Number of days prior to the index date of the target cohort that event cohorts are allowed to start}
+\item{includeTreatmentsPriorToIndex}{Number of days prior to the index date of the target cohort that event cohorts are allowed to start}
 
-\item{minEraDuration}{# Minimum time an event era should last to be included in analysis}
+\item{minEraDuration}{Minimum time an event era should last to be included in analysis}
 
-\item{splitEventCohorts}{# Specify event cohort to split in acute (< 30 days) and therapy (>= 30 days)}
+\item{splitEventCohorts}{Specify event cohort to split in acute (< 30 days) and therapy (>= 30 days)}
 
-\item{eraCollapseSize}{# Window of time between which two eras of the same event cohort are collapsed into one era}
+\item{eraCollapseSize}{Window of time between which two eras of the same event cohort are collapsed into one era}
 
-\item{combinationWindow}{# Window of time two event cohorts need to overlap to be considered a combination treatment}
+\item{combinationWindow}{Window of time two event cohorts need to overlap to be considered a combination treatment}
 
-\item{minStepDuration}{# Minimum time an event era before or after a generated combination treatment should last to be included in analysis}
+\item{minStepDuration}{Minimum time an event era before or after a generated combination treatment should last to be included in analysis}
 
-\item{filterTreatments}{# Select first occurrence of / changes between / all event cohorts}
+\item{filterTreatments}{Select first occurrence of / changes between / all event cohorts}
 
-\item{maxPathLength}{# Maximum number of steps included in treatment pathway (max 5)}
+\item{maxPathLength}{Maximum number of steps included in treatment pathway (max 5)}
 
-\item{minCellCount}{# Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis}
+\item{minCellCount}{Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis}
 
-\item{minCellMethod}{# Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount}
+\item{minCellMethod}{Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount}
 
-\item{groupCombinations}{# Select to group all non-fixed combinations in one category 'other’ in the sunburst plot}
+\item{groupCombinations}{Select to group all non-fixed combinations in one category 'other’ in the sunburst plot}
 
-\item{addNoPaths}{# Select to include untreated persons without treatment pathway in the sunburst plot}
+\item{addNoPaths}{Select to include untreated persons without treatment pathway in the sunburst plot}
 }
 \value{
 

@@ -17,14 +17,14 @@ createCharacterizationSettings(
 )
 }
 \arguments{
-\item{baselineCovariates_location}{Optional: Location of saved baselieCovariates object.}
+\item{baselineCovariates_location}{Optional: Location of saved baselineCovariates object.}
 
-\item{baselineCovariates}{Data frame containing the baseline characteristics of interest (covariateName, covariateId).}
+\item{baselineCovariates}{Data frame containing the baseline characteristics of interest (covariateName = "Descriptive name covariate", covariateId = "Unique ID number referring to covariate from FeatureExtraction or 'Custom' (see explanation below)"), covariateId can be "custom" if SQL code is}
 
 \item{standardCovariateSettings}{An object of type covariateSettings as created using the createCovariateSettings function in the FeatureExtraction package.}
 }
 \value{
-
+Object characterizationSettings.
 }
 \description{
 Create characterization settings (optional, only for OMOP-CDM data ).

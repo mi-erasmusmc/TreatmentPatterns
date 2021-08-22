@@ -6,38 +6,39 @@
 #'
 #' @return
 #' @export
-launchResultsExplorer <- function(saveSettings = NULL, zipFolder) {
-  # ensure_installed("shiny")
-  # ensure_installed("shinydashboard")
-  # ensure_installed("shinymanager")
-  # ensure_installed("reshape2")
-  # ensure_installed("ggplot2")
-  # ensure_installed("data.table")
-  # ensure_installed("DT")
-  # ensure_installed("R.utils")
-  
-  # TODO: test if this works
-  if (!is.null(saveSettings)) {
-    zipFolder <- saveSettings$rootFolder
-  }
-  
-  appDir <- file.path(system.file(package = "TreatmentPatterns"), "shiny")
-  shinyFilesLocation <- file.path(zipFolder, "filesShiny")
+launchResultsExplorer <- function(saveSettings = NULL, zipFolder = NULL) {
+  ensure_installed("shiny")
+  ensure_installed("shinydashboard")
+  ensure_installed("reshape2")
+  ensure_installed("ggplot2")
+  ensure_installed("data.table")
+  ensure_installed("DT")
 
-  unzipFiles(zipFolder, unzipMainFolder = file.path(shinyFilesLocation, "output"))
-  addSunburstFiles(filesLocation = shinyFilesLocation)
-  
-  shinySettings <- list(
-    shinyFilesLocation = shinyFilesLocation
+  # Check if inputs correct
+  if (is.null(zipFolder) & !is.null(saveSettings)) {
+    if (!class(saveSettings)%in%c('saveSettings')){
+      stop('Incorrect class for saveSettings')
+    } else {
+      zipFolder <- saveSettings$rootFolder
+    }
+  } else if (is.null(zipFolder) & is.null(saveSettings)) {
+    stop('Input zipFolder or saveSettings')
+  }
+
+  if(length(list.dirs(file.path(zipFolder, "output"), recursive = FALSE, full.names = FALSE))==0) {
+    print("Unzip files in zipFolder and move to output folder")
+    unzipFiles(zipFolder, unzipMainFolder = file.path(zipFolder, "output"))
+  } else (
+    print("Output folder is not empty, existing files used, please empty to use files from zipFolder")
   )
+
+  shinySettings <- list(zipFolder = zipFolder)
+  
   .GlobalEnv$shinySettings <- shinySettings
   on.exit(rm("shinySettings", envir = .GlobalEnv))
   
+  appDir <- file.path(system.file(package = "TreatmentPatterns"), "shiny")
   shiny::runApp(appDir = appDir)
-}
-
-addSunburstFiles <- function(filesLocation) {
-  R.utils::copyDirectory(file.path(from = system.file(package = "TreatmentPatterns"), "shiny", "sunburst"), to = file.path(filesLocation,"sunburst"))
 }
 
 # Borrowed and adapted function from CohortDiagnostics.

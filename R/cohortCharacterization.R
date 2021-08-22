@@ -8,6 +8,19 @@
 #' @export
 cohortCharacterization <- function(dataSettings, characterizationSettings, saveSettings) {
   
+  # Check if inputs correct
+  if(!class(dataSettings)%in%c('dataSettings')){
+    stop('Incorrect class for dataSettings')
+  } 
+  
+  if(!class(characterizationSettings)%in%c('characterizationSettings')){
+    stop('Incorrect class for characterizationSettings')
+  } 
+  
+  if(!class(saveSettings)%in%c('saveSettings')){
+    stop('Incorrect class for saveSettings')
+  } 
+  
   # Check if directory exists and create if necessary
   if (!file.exists(file.path(saveSettings$outputFolder, "characterization")))
     dir.create(file.path(saveSettings$outputFolder, "characterization"), recursive = TRUE)
@@ -29,7 +42,7 @@ cohortCharacterization <- function(dataSettings, characterizationSettings, saveS
   
   # Add custom features
   baselineCovariates <- characterizationSettings$baselineCovariates
-  customCovariates <- baselineCovariates[baselineCovariates$covariateId == "", ]
+  customCovariates <- baselineCovariates[baselineCovariates$covariateId == "Custom", ]
   
   if (nrow(customCovariates) != 0) {
     for (c in 1:length(customCovariates$covariateName)) {

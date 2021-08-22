@@ -9,6 +9,19 @@
 #' @export
 createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
   
+  # Check if inputs correct
+  if(!class(dataSettings)%in%c('dataSettings')){
+    stop('Incorrect class for dataSettings')
+  } 
+  
+  if(!class(cohortSettings)%in%c('cohortSettings')){
+    stop('Incorrect class for cohortSettings')
+  } 
+  
+  if(!class(saveSettings)%in%c('saveSettings')){
+    stop('Incorrect class for saveSettings')
+  } 
+  
   # Check if directory exists and create if necessary
   if (!file.exists(file.path(saveSettings$outputFolder, "settings")))
     dir.create(file.path(saveSettings$outputFolder, "settings"), recursive = TRUE)
@@ -50,7 +63,7 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
                                     cohort_censor_stats_table = "cohort_censor_stats")
       DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
 
-      # Save location cohorts
+      # Load (and save) location cohorts
       cohortsFolder <- cohortSettings$cohortsFolder
       if (is.null(cohortsFolder)) {
         cohortsFolder <- file.path(saveSettings$outputFolder, "cohorts")
@@ -171,7 +184,9 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
     # Required columns: cohortId, personId, startDate, endDate
     data <- data.table(readr::read_csv(dataSettings$cohortLocation), col_types = list("d", "d", "D", "D"))
     
-    # TODO: check if file contains required columns
+    if (!all(c("cohortId", "personId", "startDate", "endDate") %in% colnames(data))) {
+      stop('Incorrect input for cohorts')
+    }
     
     # Check number of subjects per cohort
     ParallelLogger::logInfo("Counting cohorts")

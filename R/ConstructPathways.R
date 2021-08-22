@@ -8,6 +8,19 @@
 #' @export
 constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   
+  # Check if inputs correct
+  if(!class(dataSettings)%in%c('dataSettings')){
+    stop('Incorrect class for dataSettings')
+  } 
+  
+  if(!class(pathwaySettings)%in%c('pathwaySettings')){
+    stop('Incorrect class for pathwaySettings')
+  } 
+  
+  if(!class(saveSettings)%in%c('saveSettings')){
+    stop('Incorrect class for saveSettings')
+  } 
+  
   # Load already created cohorts
   if (dataSettings$OMOP_CDM) {
     
@@ -26,6 +39,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   colnames(full_cohorts) <- c("cohort_id", "person_id", "start_date", "end_date")   
   
   # Save pathway settings
+  pathwaySettings <- pathwaySettings$all_settings
   write.csv(pathwaySettings, file.path(saveSettings$outputFolder, "settings", "pathway_settings.csv"), row.names = FALSE)
   
   # For all different pathway settings
@@ -44,7 +58,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     # Select cohorts included
     targetCohortId <- pathwaySettings[pathwaySettings$param == "targetCohortId",s]
     eventCohortIds <- pathwaySettings[pathwaySettings$param == "eventCohortIds",s]
-    eventCohortIds <- unlist(strsplit(eventCohortIds, split = ";"))
+    eventCohortIds <- unlist(strsplit(eventCohortIds, split = c(";|,")))
     
     # Analysis settings
     includeTreatmentsPriorToIndex <- as.integer(pathwaySettings[pathwaySettings$param == "includeTreatmentsPriorToIndex",s])
@@ -67,6 +81,8 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
       # Apply pathway settings to create treatment pathways
       ParallelLogger::logInfo("Construct treatment pathways, this may take a while for larger datasets.")
       writeLines(paste0("Original number of rows: ", nrow(treatment_history)))
+      
+      # TODO: check what happens if treatment_history zero or few rows (throw errors)
       
       treatment_history <- doEraDuration(treatment_history, minEraDuration)
       treatment_history <- doSplitEventCohorts(treatment_history, splitEventCohorts, saveSettings$outputFolder)
@@ -135,7 +151,7 @@ doCreateTreatmentHistory <- function(current_cohorts, targetCohortId, eventCohor
   targetCohort$index_year <- as.numeric(format(targetCohort$start_date, "%Y"))
   
   # Select event cohorts for target cohort and merge with start/end date and index year
-  eventCohorts <- current_cohorts[current_cohorts$cohort_id %in% unlist(strsplit(eventCohortIds, split = ",")),,]
+  eventCohorts <- current_cohorts[current_cohorts$cohort_id %in% eventCohortIds,,]
   current_cohorts <- merge(x = eventCohorts, y = targetCohort, by = c("person_id"), all.x = TRUE)
   
   # Only keep event cohorts after target cohort start date
@@ -213,7 +229,6 @@ doSplitEventCohorts <- function(treatment_history, splitEventCohorts, outputFold
       
       labels <- labels[cohortId != as.integer(c),]
       labels <- rbind(labels, new1, new2)
-      
     }
     
     # Save new labels cohorts
@@ -396,7 +411,8 @@ doFilterTreatments <- function(treatment_history, filterTreatments) {
       
     } else if (filterTreatments == "Changes") {
       # Group all rows per person for which previous treatment is same
-      treatment_history <- treatment_history[, group:=rleid(person_id,event_cohort_id)]
+      tryCatch(treatment_history <- treatment_history[, group:=rleid(person_id,event_cohort_id)],
+               error = function(e){print(paste0("Check if treatment_history contains sufficient records: ", e))})
       
       # Remove all rows with same sequential treatments
       treatment_history <- treatment_history[,.(event_start_date=min(event_start_date), event_end_date=max(event_end_date), duration_era=sum(duration_era)), by = .(person_id,index_year,event_cohort_id,group)]

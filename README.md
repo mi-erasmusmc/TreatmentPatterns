@@ -45,7 +45,7 @@ This R package contains the resources for performing a treatment pathway analysi
 ## User Documentation
 Available documentation includes:
 - Vignette: [Perform a study using the TreatmentPatterns package](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatternsStudy.pdf)
-- Package manual: [TreatmentPatterns.pdf](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatterns_0.2.0.pdf)
+- Package manual: [TreatmentPatterns.pdf](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatterns_0.2.3.pdf)
 
 ## Package Structure
 <img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/package.png"/>

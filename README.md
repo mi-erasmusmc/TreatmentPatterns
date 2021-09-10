@@ -5,7 +5,7 @@ This R package contains the resources for performing a treatment pathway analysi
 ## Features
 
 - Extracts the necessary data from a database in OMOP CDM format or directly imports the cohorts from a csv file.
-- Performs baseline characterization of the study population of interest (based on [CohortDiagnostics](https://github.com/ohdsi/cohortdiagnostics), only for databases in OMOP CDM format).
+- Performs baseline characterization of the study population of interest (only for databases in OMOP CDM format).
 - Treatment pathways are constructed consisting of specified events of interest (e.g. prescriptions of drugs, therapies, other treatments) for specified target cohorts (study populations of interest).
 - Aggregate output statistics are generated to describe the treatment sequence observed in the study population of interest including sunburst plots, Sankey diagrams, percentage(s) of patients treated (with a certain treatment), and average duration of event cohorts. 
 - The results can be explored in an interactive Shiny application.
@@ -54,5 +54,5 @@ Available documentation includes:
 ## Support
 We use the <a href="https://github.com/mi-erasmusmc/TreatmentPatterns/issues">GitHub issue tracker</a> for all bugs/issues/enhancements.
 
-### Development status
-TreatmentPatterns is under development.
+## Development status
+Under development, this is a beta-version of the TreatmentPatterns package.

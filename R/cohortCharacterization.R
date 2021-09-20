@@ -75,7 +75,11 @@ cohortCharacterization <- function(dataSettings, characterizationSettings, saveS
   colnames(characterization) <- c("cohortId", "covariateId", "mean", "sd", "databaseId") 
   
   if (characterizationSettings$returnCovariates == "all") {
-    characterization <- characterization
+    
+    names <- readr::read_csv(file.path(saveSettings$outputFolder, "characterization", "covariate_ref.csv"), col_types = list("c", "c", "i", "i"))
+    colnames(names) <- c("covariateId", "covariateName", "analysisId", "conceptId") 
+    characterization <- merge(characterization, names[,c("covariateId","covariateName")], by = "covariateId")
+    
   } else if (characterizationSettings$returnCovariates == "selection") {
     characterization <- merge(baselineCovariates[,c("covariateId", "covariateName")], characterization, by = "covariateId")
   } else {

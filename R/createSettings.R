@@ -146,6 +146,8 @@ createCohortSettings <- function(cohortsToCreate_location = NULL,
 #' @param baselineCovariates_location Optional: Location of saved baselineCovariates object.
 #' @param baselineCovariates Data frame containing the baseline characteristics of interest (covariateName = "Descriptive name covariate", covariateId = "Unique ID number referring to covariate from FeatureExtraction or 'Custom' (see explanation below)"), covariateId can be "custom" if SQL code is 
 #' @param standardCovariateSettings An object of type covariateSettings as created using the createCovariateSettings function in the FeatureExtraction package.
+#' @param returnCovariates Return "all" features or only "selection" of features
+#' @param minCellCount Minimum number of persons with a specific baseline covariate to be included in analysis
 #'
 #' @return Object characterizationSettings.
 #' @export
@@ -159,6 +161,7 @@ createCharacterizationSettings <- function(baselineCovariates_location = NULL,
                                                                                                                   useConditionGroupEraAnyTimePrior = TRUE,
                                                                                                                   useConditionGroupEraLongTerm = TRUE,
                                                                                                                   useCharlsonIndex = TRUE),
+                                           returnCovariates = "all",
                                            minCellCount = 5) {
   
   # If baselineCovariates_location given, load settings from data
@@ -180,6 +183,7 @@ createCharacterizationSettings <- function(baselineCovariates_location = NULL,
   
   characterizationSettings <- list(baselineCovariates = baselineCovariates,
                                    standardCovariateSettings = standardCovariateSettings,
+                                   returnCovariates = returnCovariates,
                                    minCellCount = minCellCount)
   class(characterizationSettings) <- 'characterizationSettings'
   

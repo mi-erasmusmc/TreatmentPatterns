@@ -73,7 +73,14 @@ cohortCharacterization <- function(dataSettings, characterizationSettings, saveS
   # Selection of standard results
   characterization <- readr::read_csv(file.path(saveSettings$outputFolder, "characterization", "covariate_value.csv"), col_types = list("i", "c", "d", "d", "c"))
   colnames(characterization) <- c("cohortId", "covariateId", "mean", "sd", "databaseId") 
-  characterization <- merge(baselineCovariates[,c("covariateId", "covariateName")], characterization, by = "covariateId")
+  
+  if (characterizationSettings$returnCovariates == "all") {
+    characterization <- characterization
+  } else if (characterizationSettings$returnCovariates == "selection") {
+    characterization <- merge(baselineCovariates[,c("covariateId", "covariateName")], characterization, by = "covariateId")
+  } else {
+    stop("characterizationSettings$returnCovariates should be 'all' or 'selection'")
+  }
   
   # Add cohort counts
   characterization <- rbind(characterization, cbind(covariateId = "Custom", covariateName = "Number of persons", cohortId = cohortCounts$cohortId, mean = cohortCounts$cohortEntries, sd = NA, databaseId = saveSettings$databaseName))

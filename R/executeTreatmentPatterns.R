@@ -29,7 +29,7 @@ executeTreatmentPatterns <- function(dataSettings,
                                      runCohortCharacterization = TRUE, # Optional, only for OMOP-CDM data
                                      runConstructPathways = TRUE,
                                      runGenerateOutput = TRUE,
-                                     launchShiny = FALSE)
+                                     launchShiny = TRUE)
 {
   # Check if directory exists and create if necessary
   if (!file.exists(file.path(saveSettings$outputFolder)))

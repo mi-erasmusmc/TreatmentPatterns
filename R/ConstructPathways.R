@@ -64,6 +64,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     includeTreatmentsPriorToIndex <- as.integer(pathwaySettings[pathwaySettings$param == "includeTreatmentsPriorToIndex",s])
     minEraDuration <-  as.integer(pathwaySettings[pathwaySettings$param == "minEraDuration",s])
     splitEventCohorts <-  pathwaySettings[pathwaySettings$param == "splitEventCohorts",s] 
+    splitTime <-  pathwaySettings[pathwaySettings$param == "splitTime",s] 
     eraCollapseSize <-  as.integer(pathwaySettings[pathwaySettings$param == "eraCollapseSize",s])
     combinationWindow <-  as.integer(pathwaySettings[pathwaySettings$param == "combinationWindow",s]) 
     minStepDuration <-  as.integer(pathwaySettings[pathwaySettings$param == "minStepDuration",s]) 
@@ -85,7 +86,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
       # TODO: check what happens if treatment_history zero or few rows (throw errors)
       
       treatment_history <- doEraDuration(treatment_history, minEraDuration)
-      treatment_history <- doSplitEventCohorts(treatment_history, splitEventCohorts, saveSettings$outputFolder)
+      treatment_history <- doSplitEventCohorts(treatment_history, splitEventCohorts, splitTime, saveSettings$outputFolder)
       treatment_history <- doEraCollapse(treatment_history, eraCollapseSize)
       treatment_history <- doCombinationWindow(treatment_history, combinationWindow, minStepDuration)
       treatment_history <- doFilterTreatments(treatment_history, filterTreatments)
@@ -199,36 +200,40 @@ doStepDuration <- function(treatment_history, minStepDuration) {
 
 # Input:
 # treatment_history Dataframe with event cohorts of the target cohort in different rows.
-# splitEventCohorts Specify event cohort to split in acute (< 30 days) and therapy (>= 30 days).
+# splitEventCohorts Specify event cohort to split in acute (< X days) and therapy (>= X days).
+# splitTime Specify number of days (X) at which each of the split event cohorts should be split in acute and therapy
 # outputFolder Name of local folder to place results; make sure to use forward slashes (/).
 #
 # Output: Updated dataframe, with specified event cohorts now split in two different event cohorts (acute and therapy).
-doSplitEventCohorts <- function(treatment_history, splitEventCohorts, outputFolder) {
+doSplitEventCohorts <- function(treatment_history, splitEventCohorts, splitTime, outputFolder) {
   
   if (!is.na(splitEventCohorts)) {
     # Load in labels cohorts
     labels <- data.table(readr::read_csv(file.path(outputFolder, "settings", "cohorts_to_create.csv"), col_types = list("c","c","c","i","c")))
     
-    for (c in splitEventCohorts) {
+    for (c in 1:length(splitEventCohorts)) {
+      cohort <- splitEventCohorts[c]
+      cutoff <- splitTime[c]
+      
       # Label as acute
-      treatment_history[event_cohort_id == c & duration_era < 30, "event_cohort_id"] <- as.integer(paste0(c,1))
+      treatment_history[event_cohort_id == cohort & duration_era < cutoff, "event_cohort_id"] <- as.integer(paste0(cohort,1))
       
       # Label as therapy
-      treatment_history[event_cohort_id == c & duration_era >= 30, "event_cohort_id"] <- as.integer(paste0(c,2))
+      treatment_history[event_cohort_id == cohort & duration_era >= cutoff, "event_cohort_id"] <- as.integer(paste0(cohort,2))
       
       # Add new labels
-      original <- labels[cohortId == as.integer(c),]
+      original <- labels[cohortId == as.integer(cohort),]
       
-      new1 <- original
-      new1$cohortId <- as.integer(paste0(c,1))
-      new1$cohortName <- paste0(new1$cohortName, " (acute)")
+      acute <- original
+      acute$cohortId <- as.integer(paste0(cohort,1))
+      acute$cohortName <- paste0(acute$cohortName, " (acute)")
       
-      new2 <- original
-      new2$cohortId <- as.integer(paste0(c,2))
-      new2$cohortName <- paste0(new2$cohortName, " (therapy)")
+      therapy <- original
+      therapy$cohortId <- as.integer(paste0(cohort,2))
+      therapy$cohortName <- paste0(therapy$cohortName, " (therapy)")
       
-      labels <- labels[cohortId != as.integer(c),]
-      labels <- rbind(labels, new1, new2)
+      labels <- labels[cohortId != as.integer(cohort),]
+      labels <- rbind(labels, acute, therapy)
     }
     
     # Save new labels cohorts

@@ -194,7 +194,7 @@ createCharacterizationSettings <- function(baselineCovariates_location = NULL,
 #'
 #' @param pathwaySettings_location Optional: Location of saved pathwaySettings object.
 #' @param pathwaySettings_list Create (list of pathway settings) with addPathwaySettings()
-#' (e.g.pathwaySettings_list <- addPathwaySettings() or pathwaySettings_list <- list(addPathwaySettings(), addPathwaySettings())). . 
+#' (e.g.pathwaySettings_list = addPathwaySettings() or pathwaySettings_list = list(addPathwaySettings(), addPathwaySettings())).
 #' @param targetCohortId Target cohort ID of current study settings.
 #' @param eventCohortIds Event cohort IDs of current study settings.
 #'
@@ -247,7 +247,8 @@ createPathwaySettings <- function(pathwaySettings_location = NULL,
 #' @param eventCohortIds Event cohort IDs of current study settings.
 #' @param includeTreatmentsPriorToIndex Number of days prior to the index date of the target cohort that event cohorts are allowed to start
 #' @param minEraDuration  Minimum time an event era should last to be included in analysis
-#' @param splitEventCohorts Specify event cohort to split in acute (< 30 days) and therapy (>= 30 days)
+#' @param splitEventCohorts Specify event cohort to split in acute (< X days) and therapy (>= X days)
+#' @param splitTime Specify number of days (X) at which each of the split event cohorts should be split in acute and therapy
 #' @param eraCollapseSize  Window of time between which two eras of the same event cohort are collapsed into one era
 #' @param combinationWindow Window of time two event cohorts need to overlap to be considered a combination treatment
 #' @param minStepDuration Minimum time an event era before or after a generated combination treatment should last to be included in analysis
@@ -266,12 +267,13 @@ addPathwaySettings <- function(studyName = "name_unknown", # c("default")
                                includeTreatmentsPriorToIndex = 0,
                                minEraDuration = 0,
                                splitEventCohorts = "",
-                               eraCollapseSize = 0,
+                               splitTime = 30,
+                               eraCollapseSize = 30,
                                combinationWindow = 30, 
                                minStepDuration = 30,
                                filterTreatments = "First",
                                maxPathLength = 5, 
-                               minCellCount = 0,
+                               minCellCount = 5,
                                minCellMethod = "Remove",
                                groupCombinations = 10,
                                addNoPaths = FALSE) {
@@ -295,6 +297,7 @@ addPathwaySettings <- function(studyName = "name_unknown", # c("default")
                          includeTreatmentsPriorToIndex = includeTreatmentsPriorToIndex,
                          minEraDuration = minEraDuration,
                          splitEventCohorts = splitEventCohorts,
+                         splitTime = splitTime,
                          eraCollapseSize = eraCollapseSize,
                          combinationWindow = combinationWindow, 
                          minStepDuration = minStepDuration,

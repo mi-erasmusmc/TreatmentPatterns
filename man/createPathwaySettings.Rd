@@ -15,7 +15,7 @@ createPathwaySettings(
 \item{pathwaySettings_location}{Optional: Location of saved pathwaySettings object.}
 
 \item{pathwaySettings_list}{Create (list of pathway settings) with addPathwaySettings()
-(e.g.pathwaySettings_list <- addPathwaySettings() or pathwaySettings_list <- list(addPathwaySettings(), addPathwaySettings())). .}
+(e.g.pathwaySettings_list = addPathwaySettings() or pathwaySettings_list = list(addPathwaySettings(), addPathwaySettings())).}
 
 \item{targetCohortId}{Target cohort ID of current study settings.}
 

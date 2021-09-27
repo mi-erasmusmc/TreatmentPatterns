@@ -14,7 +14,7 @@ addInfo <- function(item, infoId) {
 
 # Shiny ui function
 ui <- dashboardPage(
-  dashboardHeader(title = "Pathways Results",
+  dashboardHeader(title = "TreatmentPatterns",
                   tags$li(div(img(src = 'logo.png',
                                   title = "OHDSI PLP", height = "40px", width = "40px"),
                               style = "padding-top:0px; padding-bottom:0px;"),
@@ -103,14 +103,13 @@ ui <- dashboardPage(
           "This web-based application provides an interactive platform to explore the results of the TreatmentPatterns R Package. 
           This R package contains the resources for performing a treatment pathway analysis of a study population of interest."
         ),
-        # HTML("<li>R study package: <a href=\"...\">GitHub</a></li>"),
-        # HTML("<li>The study is registered: <a href=\"...\">...</a></li>"),
+        HTML("<li>R package: <a href=\"https://github.com/mi-erasmusmc/TreatmentPatterns\">GitHub</a></li>"),
         h3("Background"),
-        p("Clinical guidelines are available for a wide range of conditions. However, there is often a lack of knowledge on how these guidelines are followed in practice. This package gives insight in treatment patterns to help understand and address current research gaps in clinical care by utilizing the powerful analytical tools developed by the Observational Health Data Sciences and Informatics (OHDSI) community."),
+        p("There is a lack of real-world evidence on how patients with specific medical conditions are treated in the real-world. Understanding current treatment practices is important to efficiently spend resources to improve clinical practice. This package gives insight in treatment patterns to help understand and address current research gaps in clinical care by utilizing the powerful analytical tools developed by the Observational Health Data Sciences and Informatics (OHDSI) community."),
         h3("Methods"),
         p("This study will describe the treatment pathway consisting of specified events of interest (e.g. prescriptions of drugs, therapies, other treatments) for specified target cohorts (study populations of interest). For each of the target cohorts, a sunburst diagram (and more) is produced to describe the treatment sequence observed in the target population."),
         h3("Development Status"),
-        p("The results presented in this application are not final yet and should be treated as such (no definite conclusions can be drawn based upon this and the results should not be distributed further)")
+        p("The results presented in this application are not final yet and should be treated as such (no definite conclusions can be drawn based upon this and the results should not be distributed further).")
       ),
       
       tabItem(
@@ -133,7 +132,7 @@ ui <- dashboardPage(
       ),
       
       tabItem(tabName = "pathways",
-              column(width = 9, 
+              column(width = 8, 
                      box(
                        title = "Treatment Pathways", width = 30, status = "primary",
                        htmlOutput("sunburstplots"))),
@@ -156,7 +155,7 @@ ui <- dashboardPage(
                   textOutput("figureSummaryPathwayTitleYears"),
                   plotOutput("figureSummaryPathwayYears", height = "450px"),
                   textOutput("figureSummaryPathwayTitleLayers"),
-                  plotOutput("figureSummaryPathwayLayers", height = "450px"),
+                  plotOutput("figureSummaryPathwayLayers", height = "450px")
               )
       ),
       

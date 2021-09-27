@@ -11,12 +11,13 @@ addPathwaySettings(
   includeTreatmentsPriorToIndex = 0,
   minEraDuration = 0,
   splitEventCohorts = "",
-  eraCollapseSize = 0,
+  splitTime = 30,
+  eraCollapseSize = 30,
   combinationWindow = 30,
   minStepDuration = 30,
   filterTreatments = "First",
   maxPathLength = 5,
-  minCellCount = 0,
+  minCellCount = 5,
   minCellMethod = "Remove",
   groupCombinations = 10,
   addNoPaths = FALSE
@@ -33,7 +34,9 @@ addPathwaySettings(
 
 \item{minEraDuration}{Minimum time an event era should last to be included in analysis}
 
-\item{splitEventCohorts}{Specify event cohort to split in acute (< 30 days) and therapy (>= 30 days)}
+\item{splitEventCohorts}{Specify event cohort to split in acute (< X days) and therapy (>= X days)}
+
+\item{splitTime}{Specify number of days (X) at which each of the split event cohorts should be split in acute and therapy}
 
 \item{eraCollapseSize}{Window of time between which two eras of the same event cohort are collapsed into one era}
 

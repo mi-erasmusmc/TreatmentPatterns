@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette describes how to execute a custom treatment patterns study in five steps:
+This vignette describes how to perform a treatment patterns study in five steps:
 
 - Step 0: installation
 - Step 1: define target/event cohorts (cohortSettings)
@@ -33,10 +33,10 @@ In this vignette we will use an example describing the treatment patterns of hyp
 
 2. In R, use the following commands to download and install TreatmentPatterns:
 
-  ```r
-  install.packages("remotes")
-  remotes::install_github("mi-erasmusmc/TreatmentPatterns")
-  ```
+```r
+install.packages("remotes")
+remotes::install_github("mi-erasmusmc/TreatmentPatterns")
+```
 
 # Step 1: define target/event cohorts (cohortSettings)
 
@@ -44,9 +44,10 @@ The package works with cohorts, you need to define (at least one) target and (mu
 
 - Target cohort (= study population) is a set of patients who satisfy one or more inclusion criteria for a duration of time. When defining the target cohort it might be desirable to request a minimum follow up time after the index date to have sufficient information on treatment history. The index date of the target cohort is the point in time from which treatments of interest will be included in treatment pathways.
 
-- Event cohort(s) (= treatment(s) of interest). You need to define a cohort for each treatment of interest (e.g. prescriptions of drugs, therapies, other treatments).
+- Event cohort(s) (= treatment(s) of interest). You need to define a cohort for each treatment of interest (e.g. prescriptions of drugs, therapies, other treatments) that should be included in the treatment pathway.
 
-Cohorts can be generated based on a definition in ATLAS (https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html) or imported directly in the package from a csv file. These cohorts have the form: 
+Cohorts can be generated based on a definition in ATLAS (https://ohdsi.github.io/TheBookOfOhdsi/Cohorts.html) or imported directly in the package from a csv file. Cohorts have the following columns: 
+
 ```{r, fig.show='hold', echo=FALSE}
 library('knitr')
 table <- data.frame("Unique ID number","Unique person ID number","Entry date cohort", "Exit date cohort")
@@ -59,50 +60,55 @@ Note that there are multiple ways of defining target/event cohorts. For the exam
 ### Example: target cohort - Hypertension
 
 Cohort Entry Events:
-
-People with continuous observation of 365 days before and 1,095 days after event
-may enter the cohort when observing any of the following: drug eras of 'Hypertension drugs'.
+  
+  People with continuous observation of 365 days before and 1,095 days after event
+may enter the cohort when observing any of the following: drug eras of
+'Hypertension drugs'.
 
 Limit cohort entry events to the earliest event per person.
 
 Inclusion Criteria:
-
-1. Hypertension diagnosis: Entry events having at least 1 condition occurrence of
+  
+  1. Hypertension diagnosis: Entry events having at least 1 condition occurrence of
 'Hypertension diagnosis', starting anytime up to 30 days after cohort entry start date;
 allow events outside observation period.
 
-2. Index year: Entry events with the following event criteria: starting after December 31, 2009.
+2. Index year: Entry events with the following event criteria: starting after
+December 31, 2009.
 
 # Here we use the moment of drug exposure as index date,
 # alternatively the moment of diagnosis could be used.
 # This is a study design choice.
+```
 
+```{r tidy=FALSE,eval=FALSE}
 ### Example: event cohort - Hydrochlorothiazide 
 
 Cohort Entry Events:
-
-People enter the cohort when observing any of the following: drug exposures of 'Hydrochlorothiazide'.
+  
+  People enter the cohort when observing any of the following: drug exposures of
+'Hydrochlorothiazide'.
 
 Limit cohort entry events to the earliest event per person.
 
 Cohort Exit:
-
-The cohort end date will be based on a continuous exposure to 'Hydrochlorothiazide':
-allowing 0 days between exposures, adding 0 days after exposure ends, and using days
+  
+  The cohort end date will be based on a continuous exposure to 'Hydrochlorothiazide':
+  allowing 0 days between exposures, adding 0 days after exposure ends, and using days
 supply and exposure end date for exposure duration.
 
 Cohort Eras:
+  
+  Entry events will be combined into cohort eras if they are within 30 days of each other.
 
-Entry events will be combined into cohort eras if they are within 30 days of each other.
-
-### The other event cohorts (metorolol, amlodipine, lisinopril, losartan) are defined similarly 
+### The other event cohorts (metorolol, amlodipine, lisinopril, losartan) are defined
+### similarly 
 ```
+
 
 # Step 2: (optional, only for OMOP-CDM data) specify baseline characteristics of interest (characterizationSettings)
 
-Determine which covariates are of interest for baseline characterization and select these from the large set of pre-defined covariates as defined by *standardCovariateSettings* (as defined by createCovariateSettings function in FeatureExtraction package) or create (a) custom covariate(s) using SQL. 
-
-Define an object selecting which covariates we want to present in the summary. When using a characteristic of interest from FeatureExtraction we need to make sure it is included in *standardCovariateSettings*. For the example in this vignette we use the following default characteristics:
+Determine which covariates are of interest for baseline characterization and select these from the large set of pre-defined covariates as defined by *standardCovariateSettings* (as defined by createCovariateSettings function in FeatureExtraction package) or create (a) custom covariate(s) using SQL. One can choose to present "all" or only "selected" covariates as specified in *baselineCovariates*. When using a characteristic of interest from FeatureExtraction we need to make sure it is included in *standardCovariateSettings*. For the example in this vignette we use the following default characteristics in *baselineCovariates*:
 
 ```{r, fig.show='hold', echo=FALSE}
 library('knitr')
@@ -112,15 +118,31 @@ table <- data.frame(covariateName = c('Male', 'Age',
 kable(table)
 ```
 
+Code examples:
+```{r tidy=FALSE,eval=FALSE}
+# default return all covariates of standardCovariateSettings
+characterizationSettings <- createCharacterizationSettings()
+
+# return selection of covariates in default baselineCovariates (male, age, ccomorbidity index score)
+characterizationSettings <- createCharacterizationSettings(returnCovariates = "selection")
+
+characterizationSettings <-
+  createCharacterizationSettings(baselineCovariates =
+                                   data.frame(covariateName = c('Male', 'Age', 
+                                                                'Charlson comorbidity index score'),
+                                              covariateId = c(8507001, 1002, 1901)),
+                                 returnCovariates = "selection")
+```
+
 
 # Step 3: specify settings to construct treatment pathways (pathwaySettings)
 
-These settings allow the user to influence how the events of interest should be processed to form treatment pathways. See the table below for a list of parameters, with default values and description. For the example in this vignette we use the default settings:
+The settings below are part of *pathwaySettings* and allow the user to influence how the events of interest should be processed to form treatment pathways. For the example in this vignette we used the default settings:
 
-```{r, fig.show='hold', echo=FALSE}
+```{r, fig.show='hold', echo=FALSE, fig.cap="Table with a list of parameters for *pathwaySettings*, with default values and description."}
 library('knitr')
-table <- data.frame(c("studyName", "targetCohortId", "eventCohortIds", "includeTreatmentsPriorToIndex", "minEraDuration","splitEventCohorts","eraCollapseSize", "combinationWindow","minStepDuration","filterTreatments","maxPathLength","minCellCount", "minCellMethod","groupCombinations","addNoPaths"),c("default","1",'"10,11,12,13,14"',"0", "0","","0","30","30","First","5","0","Remove","10","FALSE"),
-                    c("Unique name identifying the set of study parameters below", "Select one study population", "Select all treatments of interest", "Number of days prior to the index date of the target cohort that event cohorts are allowed to start", "Minimum time an event era should last to be included in analysis", "Specify event cohort to split in acute (< 30 days) and therapy (>= 30 days)", "Window of time between which two eras of the same event cohort are collapsed into one era", "Window of time two event cohorts need to overlap to be considered a combination treatment", "Minimum time an event era before or after a generated combination treatment should last to be included in analysis", "Select first occurrences of / changes between / all event cohorts", "Maximum number of steps included in treatment pathway", "Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis", "Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount", "Select to group all non-fixed combinations in one category 'other’ in the sunburst plot", "Select to include untreated persons without treatment pathway in the sunburst plot"))
+table <- data.frame(c("studyName", "targetCohortId", "eventCohortIds", "includeTreatments- \n PriorToIndex", "minEraDuration","splitEventCohorts", "splitTime", "eraCollapseSize", "combinationWindow","minStepDuration","filterTreatments","maxPathLength","minCellCount", "minCellMethod","groupCombinations","addNoPaths"),c("default","1","10,11,12,13,14","0", "0","","30","0","30","30","First","5","0","Remove","10","FALSE"),
+                    c("Unique name identifying the set of study parameters below", "Select one study population", "Select all treatments of interest", "Number of days prior to the index date of the target cohort that event cohorts are allowed to start", "Minimum time an event era should last to be included in analysis", "Specify event cohort to split in acute (< X days) and therapy (>= X days)", "Specify number of days (X) at which each of the split event cohorts should be split in acute and therapy", "Window of time between which two eras of the same event cohort are collapsed into one era", "Window of time two event cohorts need to overlap to be considered a combination treatment", "Minimum time an event era before or after a generated combination treatment should last to be included in analysis", "Select first occurrences of / changes between / all event cohorts", "Maximum number of steps included in treatment pathway", "Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis", "Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount", "Select to group all non-fixed combinations in one category 'other’ in the sunburst plot", "Select to include untreated persons without treatment pathway in the sunburst plot"))
 colnames(table) <- c("param", "values", "description")
 kable(table)
 ```
@@ -130,12 +152,32 @@ library(knitr)
 knitr::include_graphics("pathwaysettings.jpg")
 ```
 
-Adjust these parameters according to the needs of your study.
+Adjust the default parameters according to the needs of your study. It is possible to add multiple studies at the same time by specifying different sets of pathway settings with *addPathwaySettings*. 
+
+Code examples:
+```{r tidy=FALSE,eval=FALSE}
+# use all default settings, only specify targetCohortId and eventCohortIds (mandatory)
+pathwaySettings <- createPathwaySettings(targetCohortId = 1, eventCohortIds = c(10, 11, 12, 13, 14))
+
+pathwaySettings <- createPathwaySettings(addPathwaySettings(studyName = c("default"),
+                                                            targetCohortId = 1,
+                                                            eventCohortIds = c(10, 11, 12, 13, 14)))
+
+# specify different sets of pathway settings, with adjusted settings
+pathwaySettings <- createPathwaySettings(addPathwaySettings(studyName = c("default"),
+                                                            targetCohortId = 1,
+                                                            eventCohortIds = c(10, 11, 12, 13, 14)),
+                                         addPathwaySettings(studyName = c("mineraduration"),
+                                                            targetCohortId = 1,
+                                                            eventCohortIds = c(10, 11, 12, 13, 14),
+                                                            minEraDuration = 5))
+
+```
 
 
 # Step 4: execute study
 
-A complete treatment patterns study can be run with the following command after defining the setting objects (see Package manual for functions to create these): 
+The complete treatment patterns study can be run with the following command after defining the setting objects (see Package manual for functions to create these): 
 ```{r tidy=FALSE,eval=FALSE}
 TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
                                             cohortSettings = cohortSettings,
@@ -146,10 +188,10 @@ TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
 
 There are two main approaches to define setting objects:
 
-A) by using function arguments when calling package functions (recommended for beginners) or,
+A) by using function arguments when calling package functions (recommended) or,
 B) by referring to pre-specified setting files in a folder.
 
-We give the code for both approaches for databases in 'OMOP CDM' and 'other' format for the example in this vignette. Try to run these examples to become familiar with the package. 
+We give the code for both approaches for databases in 'OMOP CDM' and 'other' format for the example in this vignette. One can try to run these examples to become familiar with the package. 
 
 ### OMOP CDM format - approach A) Using function arguments when calling package functions
 
@@ -168,23 +210,25 @@ dataSettings <- createDataSettings(OMOP_CDM = TRUE,
                                    cohortTable = "treatmentpatterns_cohorts")
 
 cohortSettings <-
-  createCohortSettings(targetCohorts = data.frame(cohortId = c(1),
-                                                  atlasId = c(1777380),
-                                                  cohortName = c('Hypertension'),
-                                                  conceptSet = ""),
-                       eventCohorts = data.frame(cohortId = c(10, 11, 12, 13, 14),
-                                                 atlasId = c(1777381,1777382, 1777383, 1777384, 1777385),
-                                                 cohortName = c('Hydrochlorothiazide', 'Metorolol',
-                                                                'Amlodipine', 'Lisinopril', 'Losartan'),
-                                                 conceptSet = c("", "", "", "", "")),
-                       baseUrl = "http://api.ohdsi.org:8080/WebAPI",
-                       loadCohorts = TRUE)
+  createCohortSettings(
+    targetCohorts = data.frame(cohortId = c(1),
+                               atlasId = c(1777380),
+                               cohortName = c('Hypertension'),
+                               conceptSet = ""),
+    eventCohorts = data.frame(cohortId = c(10, 11, 12, 13, 14),
+                              atlasId = c(1777381,1777382, 1777383, 1777384, 1777385),
+                              cohortName = c('Hydrochlorothiazide', 'Metorolol',
+                                             'Amlodipine', 'Lisinopril', 'Losartan'),
+                              conceptSet = c("", "", "", "", "")),
+    baseUrl = "http://api.ohdsi.org:8080/WebAPI",
+    loadCohorts = TRUE)
 
 characterizationSettings <-
   createCharacterizationSettings(baselineCovariates =
                                    data.frame(covariateName = c('Male', 'Age', 
                                                                 'Charlson comorbidity index score'),
-                                              covariateId = c(8507001, 1002, 1901)))
+                                              covariateId = c(8507001, 1002, 1901)),
+                                 returnCovariates = "selection")
 
 pathwaySettings <- createPathwaySettings(targetCohortId = 1, eventCohortIds = c(10, 11, 12, 13, 14))
 
@@ -215,17 +259,19 @@ dataSettings <- createDataSettings(OMOP_CDM = TRUE,
                                    cohortTable = "treatmentpatterns_cohorts")
 
 cohortSettings <-
-  createCohortSettings(cohortsToCreate_location =
-                         file.path(system.file(package = "TreatmentPatterns"),
-                                   "examples", "OMOP CDM", "inst", "settings", "cohorts_to_create.csv"),
-                       cohortsFolder = file.path(system.file(package = "TreatmentPatterns"),
-                                                 "examples", "OMOP CDM", "inst", "cohorts"))
+  createCohortSettings(
+    cohortsToCreate_location =
+      file.path(system.file(package = "TreatmentPatterns"),
+                "examples", "OMOP CDM", "inst", "settings", "cohorts_to_create.csv"),
+    cohortsFolder = file.path(system.file(package = "TreatmentPatterns"),
+                              "examples", "OMOP CDM", "inst", "cohorts"))
 
 characterizationSettings <-
   createCharacterizationSettings(baselineCovariates_location =
                                    file.path(system.file(package = "TreatmentPatterns"),
                                              "examples", "OMOP CDM", "inst", "settings", 
-                                             "characterization_settings.csv"))
+                                             "characterization_settings.csv"),
+                                 returnCovariates = "selection")
 
 pathwaySettings <-
   createPathwaySettings(pathwaySettings_location =
@@ -262,13 +308,14 @@ dataSettings <- createDataSettings(OMOP_CDM = FALSE,
                                                "cohorts", "input_cohorts.csv"))
 
 cohortSettings <-
-  createCohortSettings(targetCohorts = data.frame(cohortId = c(1),
-                                                  cohortName = c('Hypertension')),
-                       eventCohorts = data.frame(cohortId = c(10, 11, 12, 13, 14),
-                                                 cohortName = c('Hydrochlorothiazide', 'Metorolol',
-                                                                'Amlodipine', 'Lisinopril', 'Losartan')),
-                       cohortsFolder = file.path(system.file(package = "TreatmentPatterns"),
-                                                 "examples", "other format", "inst", "cohorts"))
+  createCohortSettings(
+    targetCohorts = data.frame(cohortId = c(1),
+                               cohortName = c('Hypertension')),
+    eventCohorts = data.frame(cohortId = c(10, 11, 12, 13, 14),
+                              cohortName = c('Hydrochlorothiazide', 'Metorolol',
+                                             'Amlodipine', 'Lisinopril', 'Losartan')),
+    cohortsFolder = file.path(system.file(package = "TreatmentPatterns"),
+                              "examples", "other format", "inst", "cohorts"))
 
 pathwaySettings <- createPathwaySettings(targetCohortId = 1, eventCohortIds = c(10, 11, 12, 13, 14))
 
@@ -291,16 +338,18 @@ dataSettings <-createDataSettings(OMOP_CDM = FALSE,
                                                              "cohorts", "input_cohorts.csv"))
 
 cohortSettings <-
-  createCohortSettings(cohortsToCreate_location =
-                         file.path(system.file(package = "TreatmentPatterns"),
-                                   "examples", "other format", "inst", "settings", "cohorts_to_create.csv"),
-                       cohortsFolder = file.path(system.file(package = "TreatmentPatterns"),
-                                                 "examples", "other format", "inst", "cohorts"))
+  createCohortSettings(
+    cohortsToCreate_location =
+      file.path(system.file(package = "TreatmentPatterns"),
+                "examples", "other format", "inst", "settings", "cohorts_to_create.csv"),
+    cohortsFolder = file.path(system.file(package = "TreatmentPatterns"),
+                              "examples", "other format", "inst", "cohorts"))
 
 pathwaySettings <-
-  createPathwaySettings(pathwaySettings_location =
-                          file.path(system.file(package = "TreatmentPatterns"),
-                                    "examples", "other format", "inst", "settings", "pathway_settings.csv"))
+  createPathwaySettings(
+    pathwaySettings_location =
+      file.path(system.file(package = "TreatmentPatterns"),
+                "examples", "other format", "inst", "settings", "pathway_settings.csv"))
 
 saveSettings <- createSaveSettings(databaseName = "IPCI")
 
@@ -320,13 +369,12 @@ Format of files, see examples:
 
 # Step 5: check out results
 
-
 - The results are combined in an automatically generated zip file per database
 
 - Select the folder containing the zip files and run the Shiny App for an interactive visualization of the results:
 ```{r tidy=FALSE,eval=FALSE}
 TreatmentPatterns::launchResultsExplorer(saveSettings = saveSettings)
-TreatmentPatterns::launchResultsExplorer(zipFolder = ...)
+TreatmentPatterns::launchResultsExplorer(zipFolder = saveSettings$rootFolder)
 ```
 
 - Share zip folder with results
@@ -349,10 +397,9 @@ createSunburstPlot(data, folder = paste0(getwd(), "/output"),
 
 Alternatively custom cohorts can be created using a concept set and template. In the package there is a cohort template available for drugs (inst/SQL/CohortDrugTemplate.sql). This template identifies all drug exposures of the concept set till the end of a continuous exposure with a maximum persistence window of 30 days. If you want to make use of this option, you need to specify the concepts set for each cohort of interest and specify whether or not to *includeDescendants*. 
 
-
 ## C) Custom covariates (advanced - step 2)
 
-If desired, one can add custom covariates for characterization. An example template: 
+If desired, one can add custom covariates for characterization. An example template is given below: 
 
 ```{r tidy=FALSE,eval=FALSE}
 SELECT @covariateId AS covariate_id,
@@ -372,3 +419,4 @@ AND covariate.condition_start_date <= target.cohort_start_date
 {@aggregated} ? {GROUP BY cohort_definition_id}
 ```
 
+The custom covariates need to be specified in *baselineCovariates* with covariateId = "Custom".

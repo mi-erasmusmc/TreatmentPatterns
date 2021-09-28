@@ -148,6 +148,8 @@ ui <- dashboardPage(
       
       tabItem(tabName = "summarypathway",
               box(width = 6,
+                  textOutput("tableTreatedPatientsTitle"),
+                  dataTableOutput("tableTreatedPatients"),
                   textOutput("tableSummaryPathwayTitle"),
                   dataTableOutput("tableSummaryPathway")
               ),

@@ -121,6 +121,8 @@ createCohortSettings <- function(cohortsToCreate_location = NULL,
   
   # Order columns
   cohortsToCreate <- cohortsToCreate[,c('cohortId', 'cohortName', 'cohortType', 'atlasId', 'conceptSet')] # col_types = list("i","c","c","i","c")
+  cohortsToCreate$cohortId <- as.integer(cohortsToCreate$cohortId)
+  cohortsToCreate$atlasId <- as.integer(cohortsToCreate$atlasId)
   
   if (!loadCohorts & is.null(cohortsFolder)) {
     warning("cohortsFolder missing, location is assumed to be saveSettings$outputFolder/cohorts")
@@ -321,7 +323,7 @@ addPathwaySettings <- function(studyName = "name_unknown", # c("default")
 #' @return  Object saveSettings.
 #' @export
 createSaveSettings <- function(databaseName = "unknown_name",
-                               rootFolder = getwd(),
+                               rootFolder,
                                outputFolder = file.path(rootFolder, "output"),
                                tempFolder = file.path(rootFolder, "temp")) {
   

@@ -224,6 +224,24 @@ server <- function(input, output, session) {
   })
   
   # Treated patients tab
+  output$tableTreatedPatientsTitle <- renderText({paste0("Table with the % of patients treated of target population in each treatment layer in the entire study period.")})
+  
+  output$tableTreatedPatients <- renderDataTable({
+    table <- summary_treated[[input$dataset34]][[input$population345]]
+    
+    # Change row labels
+    table$index_year <- sapply(stringr::str_extract(table$index_year, "\\d+"), function(l) names(layers[as.integer(l)]))
+    
+    # Change column names    
+    colnames(table) <- c("Treatment layer", "% Treated")
+
+    # Round numbers
+    table <- round_df(table, 1)  
+    row.names(table) <- NULL
+    
+    return(table)
+  }, options = list(pageLength = 5))
+
   output$tableSummaryPathwayTitle <- renderText({paste0("Table with a) the % of treated patients with each treatment group somewhere in the full pathway and b) the % of patients with each treatment group as '", tolower(names(which(layers == input$layer3))), "' of the patients receiving a '", tolower(names(which(layers == input$layer3))), "'. Both include patients in '", tolower(names(which(all_years == input$year3))), "'.") })
   
   output$tableSummaryPathway <- renderDataTable({

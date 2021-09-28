@@ -159,18 +159,20 @@ Code examples:
 # use all default settings, only specify targetCohortId and eventCohortIds (mandatory)
 pathwaySettings <- createPathwaySettings(targetCohortId = 1, eventCohortIds = c(10, 11, 12, 13, 14))
 
-pathwaySettings <- createPathwaySettings(addPathwaySettings(studyName = c("default"),
-                                                            targetCohortId = 1,
-                                                            eventCohortIds = c(10, 11, 12, 13, 14)))
+pathwaySettings <- createPathwaySettings
+pathwaySettings_list =list(addPathwaySettings(studyName = c("default"),
+                                              targetCohortId = 1,
+                                              eventCohortIds = c(10, 11, 12, 13, 14))))
 
 # specify different sets of pathway settings, with adjusted settings
-pathwaySettings <- createPathwaySettings(addPathwaySettings(studyName = c("default"),
-                                                            targetCohortId = 1,
-                                                            eventCohortIds = c(10, 11, 12, 13, 14)),
-                                         addPathwaySettings(studyName = c("mineraduration"),
-                                                            targetCohortId = 1,
-                                                            eventCohortIds = c(10, 11, 12, 13, 14),
-                                                            minEraDuration = 5))
+pathwaySettings <- createPathwaySettings(
+  pathwaySettings_list = list(addPathwaySettings(studyName = c("default"),
+                                                 targetCohortId = 1,
+                                                 eventCohortIds = c(10, 11, 12, 13, 14)),
+                              addPathwaySettings(studyName = c("mineraduration"),
+                                                 targetCohortId = 1,
+                                                 eventCohortIds = c(10, 11, 12, 13, 14),
+                                                 minEraDuration = 5)))
 
 ```
 
@@ -232,7 +234,7 @@ characterizationSettings <-
 
 pathwaySettings <- createPathwaySettings(targetCohortId = 1, eventCohortIds = c(10, 11, 12, 13, 14))
 
-saveSettings <- createSaveSettings(databaseName = "IPCI")
+saveSettings <- createSaveSettings(databaseName = "IPCI", rootFolder = getwd())
 
 TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
                                             cohortSettings = cohortSettings,
@@ -278,7 +280,7 @@ pathwaySettings <-
                           file.path(system.file(package = "TreatmentPatterns"),
                                     "examples", "OMOP CDM", "inst", "settings", "pathway_settings.csv"))
 
-saveSettings <- createSaveSettings(databaseName = "IPCI")
+saveSettings <- createSaveSettings(databaseName = "IPCI", rootFolder = getwd())
 
 TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
                                             cohortSettings = cohortSettings,
@@ -319,7 +321,7 @@ cohortSettings <-
 
 pathwaySettings <- createPathwaySettings(targetCohortId = 1, eventCohortIds = c(10, 11, 12, 13, 14))
 
-saveSettings <- createSaveSettings(databaseName = "IPCI")
+saveSettings <- createSaveSettings(databaseName = "IPCI", rootFolder = getwd())
 
 TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
                                             cohortSettings = cohortSettings,
@@ -351,7 +353,7 @@ pathwaySettings <-
       file.path(system.file(package = "TreatmentPatterns"),
                 "examples", "other format", "inst", "settings", "pathway_settings.csv"))
 
-saveSettings <- createSaveSettings(databaseName = "IPCI")
+saveSettings <- createSaveSettings(databaseName = "IPCI", rootFolder = getwd())
 
 TreatmentPatterns::executeTreatmentPatterns(dataSettings = dataSettings,
                                             cohortSettings = cohortSettings,

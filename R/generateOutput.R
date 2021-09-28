@@ -16,7 +16,7 @@ generateOutput <- function(saveSettings) {
   
   # For all different pathway settings
   settings <- colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
-
+  
   for (s in settings) {
     studyName <- pathwaySettings[pathwaySettings$param == "studyName",s]
     
@@ -61,7 +61,7 @@ generateOutput <- function(saveSettings) {
       # Treatment pathways sunburst plot 
       outputSunburstPlot(data = treatment_pathways[[1]], outputFolder = saveSettings$outputFolder, databaseName = saveSettings$databaseName, studyName = studyName, eventCohortIds = eventCohortIds, addNoPaths = addNoPaths)
       outputSunburstPlot(data = treatment_pathways[[2]], outputFolder = saveSettings$outputFolder, databaseName = saveSettings$databaseName, studyName = studyName, eventCohortIds = eventCohortIds, addNoPaths = addNoPaths)
-   
+      
     }
   }
   
@@ -323,11 +323,18 @@ doMinCellCount <- function(file_noyear, file_withyear, outputFolder, tempFolder,
   ParallelLogger::logInfo(paste("Remove ", sum(file_withyear$freq < minCellCount), " paths with too low frequency (with year)"))
   file_withyear <- file_withyear[freq >= minCellCount,]
   
-  summary_counts <- readr::read_csv(file.path(tempFolder, studyName, paste0(databaseName, "_", studyName, "_summary_cnt.csv")), col_types = list("c", "i"))
+  summary_counts <- readr::read_csv(file.path(tempFolder, studyName, paste0(databaseName, "_", studyName, "_summary_cnt.csv")), col_types = list("c", "d"))
   summary_counts <- rbind(summary_counts, c("Total number of pathways (after minCellCount)", sum(file_noyear$freq)))
   
   for (y in unique(file_withyear$index_year)) {
     summary_counts <- rbind(summary_counts, c(paste0("Number of pathways (after minCellCount) in ", y), sum(file_withyear$freq[file_withyear$index_year == y])))
+  }
+
+  sumAll <- as.integer(summary_counts[summary_counts$index_year == "Number of persons in target cohort NA", "N"])
+  for (l in layers) {
+    sumAllNotNA <- sum(file_noyear$freq[!is.na(file_noyear[,..l])])
+    percAllNotNA <- sumAllNotNA * 100.0 / sumAll
+    summary_counts <- rbind(summary_counts, c(paste0("Percentage treated (after minCellCount) in ", l), percAllNotNA))
   }
   
   write.table(summary_counts,file=file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_summary_cnt.csv")), sep = ",", row.names = FALSE, col.names = TRUE)
@@ -360,7 +367,7 @@ outputSunburstPlot <- function(data, outputFolder, databaseName, studyName, even
     
     # Create legend once
     createLegend(studyName, outputFolder, databaseName)
-      
+    
   } else {
     # For file_withyear compute per year
     years <- unlist(unique(data[,"index_year"]))
@@ -436,7 +443,7 @@ createSunburstPlot <- function(data, outcomes = NULL, folder = NULL, file_name =
     # Replace @name
     html <- sub("@name", title, html)
   }
- 
+  
   # Replace @insert_data
   html <- sub("@insert_data", json, html)
   
@@ -460,7 +467,7 @@ inputSunburstPlot <- function(data, outputFolder, databaseName, studyName, addNo
   transformed_file <- data.frame(path=transformed_file, freq=data$freq, stringsAsFactors = FALSE)
   
   if (addNoPaths) {
-    summary_counts <- readr::read_csv(file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_summary_cnt.csv")), col_types = list("c","i"))
+    summary_counts <- readr::read_csv(file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_summary_cnt.csv")), col_types = list("c","d"))
     
     if (index_year == "all") {
       noPath <- as.integer(summary_counts[summary_counts$index_year == "Number of persons in target cohort NA", "N"]) - sum(transformed_file$freq)
@@ -482,7 +489,7 @@ inputSunburstPlot <- function(data, outputFolder, databaseName, studyName, addNo
 
 # Help function to transform data in csv format to required JSON format for HTML.
 transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
- 
+  
   # Add bitwise numbers to define combination treatments
   bitwiseNumbers <- sapply(1:length(outcomes), function(o) {2^(o-1)})
   linking <- data.frame(outcomes,bitwiseNumbers)
@@ -528,7 +535,7 @@ transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
 
 # Help function to create hierarchical data structure.
 buildHierarchy <- function(csv) {
-
+  
   root = list("name" = "root", "children" = list())
   
   # Create nested structure of lists 
@@ -614,7 +621,7 @@ createLegend <- function(studyName, outputFolder, databaseName) {
   # Replace @insert_data
   input_plot <- readLines(file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_all_input.txt")))
   html <- sub("@insert_data", input_plot, html)
-
+  
   # Save HTML file as sunburst_@studyName
   write.table(html, 
               file=file.path(outputFolder, studyName, "legend.html"), 
@@ -656,7 +663,7 @@ outputSankeyDiagram <- function(data, outputFolder, databaseName, studyName, gro
   links <- as.data.frame(rbind(results1,results2))
   
   # Draw sankey network
-  plot <- googleVis::gvisSankey(links, from = "source", to = "target", weight = "value", chartid = 1)
+  plot <- googleVis::gvisSankey(links, from = "source", to = "target", weight = "value", chartid = 1, options = list(sankey = "{node: { colors: ['#B5482A'], width: 5}}"))
   
   write.table(plot$html$chart, 
               file=file.path(outputFolder, studyName, paste0("sankeydiagram_", databaseName, "_", studyName,"_all.html")), 

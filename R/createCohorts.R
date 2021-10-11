@@ -182,7 +182,7 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
     
     # Load cohorts in from file
     # Required columns: cohortId, personId, startDate, endDate
-    data <- data.table(readr::read_csv(dataSettings$cohortLocation), col_types = list("d", "d", "D", "D"))
+    data <- data.table(readr::read_csv(dataSettings$cohortLocation, col_types = list("d", "d", "D", "D")))
     
     if (!all(c("cohortId", "personId", "startDate", "endDate") %in% colnames(data))) {
       stop('Incorrect input for cohorts')
@@ -192,16 +192,16 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
     ParallelLogger::logInfo("Counting cohorts")
     counts <- data.frame(cohortDefinitionId = cohortsToCreate$cohortId)
     counts$cohortCount <- sapply(counts$cohortDefinitionId, function(c) {
-      length(data$person_id[data$cohortId == c]) 
+      length(data$personId[data$cohortId == c]) 
     })
     counts$personCount <- sapply(counts$cohortDefinitionId, function(c) {
-      length(unique(data$person_id[data$cohortId == c]))
+      length(unique(data$personId[data$cohortId == c]))
     })
     write.csv(counts, file.path(saveSettings$outputFolder, "cohort_counts.csv"), row.names = FALSE)
   }
   
   # Check if all cohorts have non-zero count
-  checkCohorts <- setdiff(cohortsToCreate$cohortId,counts$cohortId)
+  checkCohorts <- setdiff(cohortsToCreate$cohortId,counts$cohortDefinitionId)
   
   if(length(checkCohorts) != 0) {
     warning(paste0("Cohort definition ", paste0(checkCohorts, collapse = ","), " has zero count. "))

@@ -287,6 +287,15 @@ doMinCellCount <- function(file_noyear, file_withyear, outputFolder, tempFolder,
   
   layers <- as.vector(colnames(file_noyear)[!grepl("index_year|freq", colnames(file_noyear))])
   
+  # Calculate percentage treated before minCellCount
+  summary_counts <- readr::read_csv(file.path(tempFolder, studyName, paste0(databaseName, "_", studyName, "_summary_cnt.csv")), col_types = list("c", "d"))
+  sumAll <- as.integer(summary_counts[summary_counts$index_year == "Number of persons in target cohort NA", "N"])
+  for (l in layers) {
+    sumAllNotNA <- sum(file_noyear$freq[!is.na(file_noyear[,..l])])
+    percAllNotNA <- sumAllNotNA * 100.0 / sumAll
+    summary_counts <- rbind(summary_counts, c(paste0("Percentage treated (before minCellCount) in ", l), percAllNotNA))
+  }
+  
   # Apply minCellCount by adjusting to other most similar path (removing last treatment in path) or else remove complete path
   if (minCellMethod == "Adjust") {
     col <- ncol(file_noyear) - 1
@@ -323,20 +332,11 @@ doMinCellCount <- function(file_noyear, file_withyear, outputFolder, tempFolder,
   ParallelLogger::logInfo(paste("Remove ", sum(file_withyear$freq < minCellCount), " paths with too low frequency (with year)"))
   file_withyear <- file_withyear[freq >= minCellCount,]
   
-  summary_counts <- readr::read_csv(file.path(tempFolder, studyName, paste0(databaseName, "_", studyName, "_summary_cnt.csv")), col_types = list("c", "d"))
-  summary_counts <- rbind(summary_counts, c("Total number of pathways (after minCellCount)", sum(file_noyear$freq)))
-  
+  # Add updated counts after minCellCount
+  summary_counts <- rbind(summary_counts, c("Number of pathways (after minCellCount) in NA", sum(file_noyear$freq)))
   for (y in unique(file_withyear$index_year)) {
     summary_counts <- rbind(summary_counts, c(paste0("Number of pathways (after minCellCount) in ", y), sum(file_withyear$freq[file_withyear$index_year == y])))
   }
-
-  sumAll <- as.integer(summary_counts[summary_counts$index_year == "Number of persons in target cohort NA", "N"])
-  for (l in layers) {
-    sumAllNotNA <- sum(file_noyear$freq[!is.na(file_noyear[,..l])])
-    percAllNotNA <- sumAllNotNA * 100.0 / sumAll
-    summary_counts <- rbind(summary_counts, c(paste0("Percentage treated (after minCellCount) in ", l), percAllNotNA))
-  }
-  
   write.table(summary_counts,file=file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_summary_cnt.csv")), sep = ",", row.names = FALSE, col.names = TRUE)
   
   write.csv(file_noyear, file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_file_noyear.csv")), row.names = FALSE)
@@ -449,7 +449,7 @@ createSunburstPlot <- function(data, outcomes = NULL, folder = NULL, file_name =
   
   # Save HTML file
   write.table(html, 
-              file = file.path(folder, paste0(file_name,"_plot.html")), 
+              file = file.path(folder, paste0(file_name,"_sunburstplot.html")), 
               quote = FALSE,
               col.names = FALSE,
               row.names = FALSE)
@@ -666,7 +666,7 @@ outputSankeyDiagram <- function(data, outputFolder, databaseName, studyName, gro
   plot <- googleVis::gvisSankey(links, from = "source", to = "target", weight = "value", chartid = 1, options = list(sankey = "{node: { colors: ['#B5482A'], width: 5}}"))
   
   write.table(plot$html$chart, 
-              file=file.path(outputFolder, studyName, paste0("sankeydiagram_", databaseName, "_", studyName,"_all.html")), 
+              file=file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_all_sankeydiagram.html")), 
               quote = FALSE,
               col.names = FALSE,
               row.names = FALSE)

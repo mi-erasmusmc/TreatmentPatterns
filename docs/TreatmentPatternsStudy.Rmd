@@ -54,6 +54,8 @@ table <- data.frame("Unique ID number","Unique person ID number","Entry date coh
 colnames(table) <- c("cohortId", "personId", "startDate", "endDate")
 kable(table)
 ```
+Date format: yyyy-mm-dd.
+
 
 Note that there are multiple ways of defining target/event cohorts. For the example in this vignette, we defined the following target and event cohorts:
 ```{r tidy=FALSE,eval=FALSE}

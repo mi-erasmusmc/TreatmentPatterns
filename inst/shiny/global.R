@@ -5,7 +5,7 @@ library(ggplot2)
 library(data.table)
 library(DT)
 
-if (exists("shinySettings")) { # run via TreatmentPatterns::launchShinyApplication
+if (exists("shinySettings")) { # run via TreatmentPatterns::launchResultsExplorer
   setwd(file.path(shinySettings$zipFolder, "output"))
 } else { 
   if (exists("pathResultsDirectory")) {
@@ -70,7 +70,7 @@ suppressWarnings({
   for (d in included_databases) {
     
     # Load characterization for entire database
-    characterization[[d]]  <- read.csv(paste0(local, "/", d, "/characterization/characterization.csv"))
+    try(characterization[[d]]  <- read.csv(paste0(local, "/", d, "/characterization/characterization.csv")), silent = TRUE)
     
     # Load remaining file per study population
     summary_counts_d <- list()
@@ -88,17 +88,17 @@ suppressWarnings({
         # Load summary counts
         file <- read.csv(paste0(local, "/", d, "/", s, "/", d , "_", s, "_summary_cnt.csv"))
         transformed_file <- data.table(year = character(), number_target = integer(), number_pathways = integer())
-        transformed_file <- rbind(transformed_file, list("all", file$N[file$index_year == "Number of persons in target cohort NA"], file$N[file$index_year == "Total number of pathways (after minCellCount)"]))
+        transformed_file <- rbind(transformed_file, list("all", file$N[file$index_year == "Number of persons in target cohort NA"], file$N[file$index_year == "Number of pathways (before minCellCount) in NA"]))
         
         for (y in all_years[-c(1)]) {
-          try(transformed_file <- rbind(transformed_file, list(y, file$N[file$index_year == paste0("Number of persons in target cohort ", y)], file$N[file$index_year == paste0("Number of pathways (after minCellCount) in ", y)])), silent = TRUE)
+          try(transformed_file <- rbind(transformed_file, list(y, file$N[file$index_year == paste0("Number of persons in target cohort ", y)], file$N[file$index_year == paste0("Number of pathways (before minCellCount) in ", y)])), silent = TRUE)
         }
         
         transformed_file$perc <- round(transformed_file$number_pathways * 100.0 / transformed_file$number_target,1)
         summary_counts_d[[s]] <- transformed_file
         
         # Load percentage treated
-        summary_treated_d[[s]] <- file[grep("Percentage treated", file$index_year),]
+        summary_treated_d[[s]] <- file[grep("Percentage treated (before minCellCount)", file$index_year),]
         
       }, silent = TRUE)
   

@@ -351,10 +351,10 @@ server <- function(input, output, session) {
     
     # Get the data
     data <- duration[[input$dataset34]][[input$population345]]
-    
+  
     # Rename
     data <- reshape2::dcast(data, event_cohort_name ~ event_seq, value.var = "AVG_DURATION")
-    colnames(data) <- c("Treatment group", as.character(names(layers)), "Overall")
+    colnames(data) <- c("Treatment group", sapply(colnames(data)[2:(ncol(data)-1)], function(l) names(layers[as.integer(l)])), "Overall")
     
     # Sort
     data  <- data[order(match(data$`Treatment group`,orderEventCohorts)),]
@@ -375,7 +375,7 @@ server <- function(input, output, session) {
     
     # Rename
     data <- reshape2::dcast(data, event_cohort_name ~ event_seq, value.var = "AVG_DURATION")
-    colnames(data) <- c("Treatment group", as.character(names(layers)), "Overall")
+    colnames(data) <- c("Treatment group", sapply(colnames(data)[2:(ncol(data)-1)], function(l) names(layers[as.integer(l)])), "Overall")
     
     # Transform data type
     data_matrix <- data.matrix(data, rownames.force = NA)

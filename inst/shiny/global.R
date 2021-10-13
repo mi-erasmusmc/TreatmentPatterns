@@ -98,7 +98,7 @@ suppressWarnings({
         summary_counts_d[[s]] <- transformed_file
         
         # Load percentage treated
-        summary_treated_d[[s]] <- file[grep("Percentage treated (before minCellCount)", file$index_year),]
+        summary_treated_d[[s]] <- file[grep("Percentage treated", file$index_year),] 
         
       }, silent = TRUE)
   

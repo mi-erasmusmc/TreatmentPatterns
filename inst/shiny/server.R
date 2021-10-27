@@ -103,7 +103,7 @@ server <- function(input, output, session) {
       
       # Multiply all numbers between 0-1 by 100 to get percentages (not age in years, number of persons, charlson comorbidity index score)
       data$mean[data$mean <= 1 & data$mean > 0 & !grepl("age in years|number of persons|charlson", tolower(data$covariateName))] <-  data$mean[data$mean <= 1 & data$mean > 0 & !grepl("age in years|number of persons|charlson", tolower(data$covariateName))] * 100
-   
+      
       # Remove duplicate rows
       data <- unique(data)
       
@@ -234,14 +234,14 @@ server <- function(input, output, session) {
     
     # Change column names    
     colnames(table) <- c("Treatment layer", "% Treated")
-
+    
     # Round numbers
     table <- round_df(table, 1)  
     row.names(table) <- NULL
     
     return(table)
   }, options = list(pageLength = 5))
-
+  
   output$tableSummaryPathwayTitle <- renderText({paste0("Table with a) the % of treated patients with each treatment group somewhere in the full pathway and b) the % of patients with each treatment group as '", tolower(names(which(layers == input$layer3))), "' of the patients receiving a '", tolower(names(which(layers == input$layer3))), "'. Both include patients in '", tolower(names(which(all_years == input$year3))), "'.") })
   
   output$tableSummaryPathway <- renderDataTable({
@@ -293,9 +293,15 @@ server <- function(input, output, session) {
     }
     
     # Plot
-    ggplot(plot.data) +
-      geom_line(mapping = aes(x = Year, y = Percentage, group = `Treatment group`, colour = `Treatment group`))  + 
-      labs (x = "Years", y = "Percentage (%)", title = "") 
+    if (length(unique(plot.data$Year))==1) {
+      ggplot(plot.data) +
+        geom_point(mapping = aes(x = Year, y = Percentage, group = `Treatment group`, colour = `Treatment group`))  + 
+        labs (x = "Years", y = "Percentage (%)", title = "") 
+    } else {
+      ggplot(plot.data) +
+        geom_line(mapping = aes(x = Year, y = Percentage, group = `Treatment group`, colour = `Treatment group`))  + 
+        labs (x = "Years", y = "Percentage (%)", title = "") 
+    }
   })
   
   
@@ -343,7 +349,7 @@ server <- function(input, output, session) {
     
   })
   
- 
+  
   # Duration tab
   output$tableDurationTitle <- renderText({"Table with average druation of treatments in each treatment layer per treatment group (in days)." })
   
@@ -351,7 +357,7 @@ server <- function(input, output, session) {
     
     # Get the data
     data <- duration[[input$dataset34]][[input$population345]]
-  
+    
     # Rename
     data <- reshape2::dcast(data, event_cohort_name ~ event_seq, value.var = "AVG_DURATION")
     colnames(data) <- c("Treatment group", sapply(colnames(data)[2:(ncol(data)-1)], function(l) names(layers[as.integer(l)])), "Overall")

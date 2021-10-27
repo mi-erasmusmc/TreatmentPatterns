@@ -49,7 +49,7 @@ createDataSettings <- function(OMOP_CDM = "TRUE",
   }
   
   # Change relative path to absolute path 
-  cohortLocation <- stringr::str_replace(cohortLocation, pattern = "^.", replacement = getwd())
+  cohortLocation <- stringr::str_replace(cohortLocation, pattern = "^[.]", replacement = getwd())
   
   dataSettings <- list(OMOP_CDM = OMOP_CDM,
                        connectionDetails = connectionDetails,
@@ -255,6 +255,7 @@ createPathwaySettings <- function(pathwaySettings_location = NULL,
 #' @param studyName Name identifying the set of study parameters.
 #' @param targetCohortId Target cohort ID of current study settings.
 #' @param eventCohortIds Event cohort IDs of current study settings.
+#' @param includeTreatments Include treatments starting ('startDate') or ending ('endDate') after target cohort start date
 #' @param periodPriorToIndex Number of days prior to the index date of the target cohort that event cohorts are allowed to start
 #' @param minEraDuration  Minimum time an event era should last to be included in analysis
 #' @param splitEventCohorts Specify event cohort to split in acute (< X days) and therapy (>= X days)
@@ -340,9 +341,9 @@ createSaveSettings <- function(databaseName = "unknown_name",
   outputFolder <- file.path(outputFolder, databaseName)
   
   # Change relative path to absolute path 
-  rootFolder <- stringr::str_replace(rootFolder, pattern = "^.", replacement = getwd())
-  outputFolder <- stringr::str_replace(outputFolder, pattern = "^.", replacement = getwd())
-  tempFolder <- stringr::str_replace(tempFolder, pattern = "^.", replacement = getwd())
+  rootFolder <- stringr::str_replace(rootFolder, pattern = "^[.]", replacement = getwd())
+  outputFolder <- stringr::str_replace(outputFolder, pattern = "^[.]", replacement = getwd())
+  tempFolder <- stringr::str_replace(tempFolder, pattern = "^[.]", replacement = getwd())
   
   saveSettings <- list(databaseName = databaseName,
                        rootFolder = rootFolder,

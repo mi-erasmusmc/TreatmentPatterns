@@ -147,6 +147,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
 # targetCohortId Target cohort ID of current study settings.
 # eventCohortIds Event cohort IDs of current study settings.
 # periodPriorToIndex Number of days prior to the index date of the target cohort that event cohorts are allowed to start
+# includeTreatments Include treatments starting ('startDate') or ending ('endDate') after target cohort start date
 #
 # Output: Updated dataframe, including only event cohorts after target cohort start date and with added index year, duration, gap same columns.
 doCreateTreatmentHistory <- function(current_cohorts, targetCohortId, eventCohortIds, periodPriorToIndex, includeTreatments) {
@@ -162,9 +163,9 @@ doCreateTreatmentHistory <- function(current_cohorts, targetCohortId, eventCohor
   # Only keep event cohorts starting (startDate) or ending (endDate) after target cohort start date
   if (includeTreatments == "startDate") {
     current_cohorts <- current_cohorts[current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days") <= current_cohorts$start_date.x & current_cohorts$start_date.x < current_cohorts$end_date.y,]
-  } else if (includeTreatments == "endDate") { # TODO: test this!
+  } else if (includeTreatments == "endDate") {
     current_cohorts <- current_cohorts[current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days") <= current_cohorts$end_date.x & current_cohorts$start_date.x < current_cohorts$end_date.y,]
-    current_cohorts[current_cohorts$start_date.x < current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days")] <- current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days")
+    current_cohorts$start_date.x <- pmax(current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days"), current_cohorts$start_date.x)
   } else {
     warning("includeTreatments input incorrect, return all event cohorts ('includeTreatments')")
     current_cohorts <- current_cohorts[current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days") <= current_cohorts$start_date.x & current_cohorts$start_date.x < current_cohorts$end_date.y,]

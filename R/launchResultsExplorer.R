@@ -20,27 +20,30 @@ launchResultsExplorer <- function(saveSettings = NULL, zipFolder = NULL, outputF
     if (!class(saveSettings)%in%c('saveSettings')){
       stop('Incorrect class for saveSettings')
     } else {
-      outputFolder <- file.path(saveSettings$rootFolder, "output")
+      outputFolder <- stringr::str_remove(saveSettings$outputFolder, pattern = paste0("/", saveSettings$databaseName))
     }
   } else if (!is.null(zipFolder)) {
     if (length(list.dirs(file.path(zipFolder, "output"), recursive = FALSE, full.names = FALSE))==0) {
-      print("Unzip files in zipFolder and move to outputFolder")
+      print("Unzip files in zipFolder and move to /output")
       unzipFiles(zipFolder, unzipMainFolder = file.path(zipFolder, "output"))
+      outputFolder <- file.path(zipFolder, "output")
     } else if (dir.exists(file.path(zipFolder, "output"))) {
-      print("Files already unzipped, use existing results in outputFolder")
+      print("Files already unzipped, use existing results in /output")
       outputFolder <- file.path(zipFolder, "output")
     } }
-    else if (is.null(outputFolder) & is.null(zipFolder) & is.null(saveSettings)) {
-      stop('Input outputFolder, zipFolder or saveSettings')
-    }
-    
-    shinySettings <- list(outputFolder = outputFolder)
-    
-    .GlobalEnv$shinySettings <- shinySettings
-    on.exit(rm("shinySettings", envir = .GlobalEnv))
-    
-    appDir <- file.path(system.file(package = "TreatmentPatterns"), "shiny")
-    shiny::runApp(appDir = appDir)
+  else if (is.null(outputFolder) & is.null(zipFolder) & is.null(saveSettings)) {
+    stop('Input outputFolder, zipFolder or saveSettings')
+  }
+  
+  outputFolder <- stringr::str_replace(outputFolder, pattern =  "^[.]", replacement = getwd())
+  
+  shinySettings <- list(outputFolder = outputFolder)
+  
+  .GlobalEnv$shinySettings <- shinySettings
+  on.exit(rm("shinySettings", envir = .GlobalEnv))
+  
+  appDir <- file.path(system.file(package = "TreatmentPatterns"), "shiny")
+  shiny::runApp(appDir = appDir)
 }
 
 # Borrowed and adapted function from CohortDiagnostics.

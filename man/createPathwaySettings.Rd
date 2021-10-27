@@ -8,7 +8,8 @@ createPathwaySettings(
   pathwaySettings_location = NULL,
   pathwaySettings_list = NULL,
   targetCohortId = NULL,
-  eventCohortIds = NULL
+  eventCohortIds = NULL,
+  ...
 )
 }
 \arguments{

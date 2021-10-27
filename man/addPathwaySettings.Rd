@@ -8,13 +8,14 @@ addPathwaySettings(
   studyName = "name_unknown",
   targetCohortId,
   eventCohortIds,
-  includeTreatmentsPriorToIndex = 0,
+  includeTreatments = "startDate",
+  periodPriorToIndex = 0,
   minEraDuration = 0,
   splitEventCohorts = "",
   splitTime = 30,
   eraCollapseSize = 30,
   combinationWindow = 30,
-  minStepDuration = 30,
+  minPostCombinationDuration = 30,
   filterTreatments = "First",
   maxPathLength = 5,
   minCellCount = 5,
@@ -30,7 +31,7 @@ addPathwaySettings(
 
 \item{eventCohortIds}{Event cohort IDs of current study settings.}
 
-\item{includeTreatmentsPriorToIndex}{Number of days prior to the index date of the target cohort that event cohorts are allowed to start}
+\item{periodPriorToIndex}{Number of days prior to the index date of the target cohort that event cohorts are allowed to start}
 
 \item{minEraDuration}{Minimum time an event era should last to be included in analysis}
 
@@ -42,9 +43,9 @@ addPathwaySettings(
 
 \item{combinationWindow}{Window of time two event cohorts need to overlap to be considered a combination treatment}
 
-\item{minStepDuration}{Minimum time an event era before or after a generated combination treatment should last to be included in analysis}
+\item{minPostCombinationDuration}{Minimum time an event era before or after a generated combination treatment should last to be included in analysis}
 
-\item{filterTreatments}{Select first occurrence of / changes between / all event cohorts}
+\item{filterTreatments}{Select first occurrence of ("First") / changes between ("Changes') / all event cohorts ("All")}
 
 \item{maxPathLength}{Maximum number of steps included in treatment pathway (max 5)}
 

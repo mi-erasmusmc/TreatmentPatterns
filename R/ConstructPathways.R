@@ -34,7 +34,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   } else {
     # Get cohorts from csv file
     # Required columns: cohortId, personId, startDate, endDate
-    full_cohorts <- data.table::as.data.table(readr::read_csv(dataSettings$cohortLocation), col_types = list("d", "d", "D", "D"))
+    full_cohorts <- data.table::as.data.table(readr::read_csv(dataSettings$cohortLocation, col_types = list("d", "d", "D", "D")))
   }
   colnames(full_cohorts) <- c("cohort_id", "person_id", "start_date", "end_date")   
   
@@ -61,14 +61,16 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     eventCohortIds <- unlist(strsplit(eventCohortIds, split = c(";|,")))
     
     # Analysis settings
-    includeTreatmentsPriorToIndex <- as.integer(pathwaySettings[pathwaySettings$param == "includeTreatmentsPriorToIndex",s])
+    includeTreatments <- pathwaySettings[pathwaySettings$param == "includeTreatments",s]
+    periodPriorToIndex <- as.integer(pathwaySettings[pathwaySettings$param == "periodPriorToIndex",s])
     minEraDuration <-  as.integer(pathwaySettings[pathwaySettings$param == "minEraDuration",s])
     splitEventCohorts <-  pathwaySettings[pathwaySettings$param == "splitEventCohorts",s] 
     splitTime <-  pathwaySettings[pathwaySettings$param == "splitTime",s] 
     eraCollapseSize <-  as.integer(pathwaySettings[pathwaySettings$param == "eraCollapseSize",s])
     combinationWindow <-  as.integer(pathwaySettings[pathwaySettings$param == "combinationWindow",s]) 
-    minStepDuration <-  as.integer(pathwaySettings[pathwaySettings$param == "minStepDuration",s]) 
+    minPostCombinationDuration <-  as.integer(pathwaySettings[pathwaySettings$param == "minPostCombinationDuration",s]) 
     filterTreatments <-  pathwaySettings[pathwaySettings$param == "filterTreatments",s]
+    maxPathLength <- as.integer(pathwaySettings[pathwaySettings$param == "maxPathLength",s])
     
     # Select subset of full cohort including only data for the current target cohort
     select_people <- full_cohorts$person_id[full_cohorts$cohort_id == targetCohortId]
@@ -77,7 +79,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     if (nrow(current_cohorts) != 0) {
       
       # Preprocess the target/event cohorts to create treatment history
-      treatment_history <- doCreateTreatmentHistory(current_cohorts, targetCohortId, eventCohortIds, includeTreatmentsPriorToIndex)
+      treatment_history <- doCreateTreatmentHistory(current_cohorts, targetCohortId, eventCohortIds, periodPriorToIndex, includeTreatments)
       
       # Apply pathway settings to create treatment pathways
       ParallelLogger::logInfo("Construct treatment pathways, this may take a while for larger datasets.")
@@ -88,13 +90,15 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
       treatment_history <- doEraDuration(treatment_history, minEraDuration)
       treatment_history <- doSplitEventCohorts(treatment_history, splitEventCohorts, splitTime, saveSettings$outputFolder)
       treatment_history <- doEraCollapse(treatment_history, eraCollapseSize)
-      treatment_history <- doCombinationWindow(treatment_history, combinationWindow, minStepDuration)
+      treatment_history <- doCombinationWindow(treatment_history, combinationWindow, minPostCombinationDuration)
       treatment_history <- doFilterTreatments(treatment_history, filterTreatments)
       
       # Add event_seq number to determine order of treatments in pathway
       ParallelLogger::logInfo("Adding drug sequence number.")
       treatment_history <- treatment_history[order(person_id, event_start_date, event_end_date),]
       treatment_history[, event_seq:=seq_len(.N), by= .(person_id)]
+      
+      treatment_history <- doMaxPathLength(treatment_history, maxPathLength)
       
       # Add event_cohort_name (instead of only event_cohort_id)
       ParallelLogger::logInfo("Adding concept names.")
@@ -142,10 +146,10 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
 # current_cohorts Dataframe with target and event cohorts of current study settings.
 # targetCohortId Target cohort ID of current study settings.
 # eventCohortIds Event cohort IDs of current study settings.
-# includeTreatmentsPriorToIndex Number of days prior to the index date of the target cohort that event cohorts are allowed to start
+# periodPriorToIndex Number of days prior to the index date of the target cohort that event cohorts are allowed to start
 #
 # Output: Updated dataframe, including only event cohorts after target cohort start date and with added index year, duration, gap same columns.
-doCreateTreatmentHistory <- function(current_cohorts, targetCohortId, eventCohortIds, includeTreatmentsPriorToIndex) {
+doCreateTreatmentHistory <- function(current_cohorts, targetCohortId, eventCohortIds, periodPriorToIndex, includeTreatments) {
   
   # Add index year column based on start date target cohort
   targetCohort <- current_cohorts[current_cohorts$cohort_id %in% targetCohortId,,]
@@ -155,12 +159,20 @@ doCreateTreatmentHistory <- function(current_cohorts, targetCohortId, eventCohor
   eventCohorts <- current_cohorts[current_cohorts$cohort_id %in% eventCohortIds,,]
   current_cohorts <- merge(x = eventCohorts, y = targetCohort, by = c("person_id"), all.x = TRUE)
   
-  # Only keep event cohorts after target cohort start date
-  current_cohorts <- current_cohorts[current_cohorts$start_date.y - as.difftime(includeTreatmentsPriorToIndex, unit="days") <= current_cohorts$start_date.x & current_cohorts$start_date.x < current_cohorts$end_date.y,]
+  # Only keep event cohorts starting (startDate) or ending (endDate) after target cohort start date
+  if (includeTreatments == "startDate") {
+    current_cohorts <- current_cohorts[current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days") <= current_cohorts$start_date.x & current_cohorts$start_date.x < current_cohorts$end_date.y,]
+  } else if (includeTreatments == "endDate") { # TODO: test this!
+    current_cohorts <- current_cohorts[current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days") <= current_cohorts$end_date.x & current_cohorts$start_date.x < current_cohorts$end_date.y,]
+    current_cohorts[current_cohorts$start_date.x < current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days")] <- current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days")
+  } else {
+    warning("includeTreatments input incorrect, return all event cohorts ('includeTreatments')")
+    current_cohorts <- current_cohorts[current_cohorts$start_date.y - as.difftime(periodPriorToIndex, unit="days") <= current_cohorts$start_date.x & current_cohorts$start_date.x < current_cohorts$end_date.y,]
+  }
   
   # Remove unnecessary columns
-  current_cohorts <- current_cohorts[,c("person_id","index_year", "cohort_id.x", "start_date.x", "end_date.x")]
-  colnames(current_cohorts) <- c("person_id","index_year", "event_cohort_id", "event_start_date", "event_end_date")
+  current_cohorts <- current_cohorts[,c("person_id", "index_year", "cohort_id.x", "start_date.x", "end_date.x")]
+  colnames(current_cohorts) <- c("person_id", "index_year", "event_cohort_id", "event_start_date", "event_end_date")
   
   # Calculate duration and gap same
   current_cohorts[,duration_era:=difftime(event_end_date, event_start_date, units = "days")]
@@ -188,12 +200,12 @@ doEraDuration <- function(treatment_history, minEraDuration) {
 
 # Input:
 # treatment_history Dataframe with event cohorts of the target cohort in different rows.
-# minStepDuration Minimum time an event era before or after a generated combination treatment should last to be included in analysis.
+# minPostCombinationDuration Minimum time an event era before or after a generated combination treatment should last to be included in analysis.
 #
-# Output: Updated dataframe, rows with duration_era < minStepDuration filtered out.
-doStepDuration <- function(treatment_history, minStepDuration) {
-  treatment_history <- treatment_history[(is.na(check_duration) | duration_era >= minStepDuration),]
-  ParallelLogger::logInfo(print(paste0("After minStepDuration: ", nrow(treatment_history))))
+# Output: Updated dataframe, rows with duration_era < minPostCombinationDuration filtered out.
+doStepDuration <- function(treatment_history, minPostCombinationDuration) {
+  treatment_history <- treatment_history[(is.na(check_duration) | duration_era >= minPostCombinationDuration),]
+  ParallelLogger::logInfo(print(paste0("After minPostCombinationDuration: ", nrow(treatment_history))))
   
   return(treatment_history)
 }
@@ -275,11 +287,11 @@ doEraCollapse <- function(treatment_history, eraCollapseSize) {
 # Input:
 # treatment_history Dataframe with event cohorts of the target cohort in different rows.
 # combinationWindow Window of time two event cohorts need to overlap to be considered a combination treatment.
-# minStepDuration Minimum time an event era before or after a generated combination treatment should last to be included in analysis.
+# minPostCombinationDuration Minimum time an event era before or after a generated combination treatment should last to be included in analysis.
 #
 # Output:
 # Updated dataframe, where overlapping event cohorts are modified according to rules defined for switching / combinations.
-doCombinationWindow <- function(treatment_history, combinationWindow, minStepDuration) {
+doCombinationWindow <- function(treatment_history, combinationWindow, minPostCombinationDuration) {
   
   time1 <- Sys.time()
   
@@ -314,30 +326,30 @@ doCombinationWindow <- function(treatment_history, combinationWindow, minStepDur
     treatment_history[,event_cohort_id_previous:=shift(event_cohort_id, type = "lag"),by=person_id]
     
     # Case: switch
-    # Change end treatment_history of previous row -> no minStepDuration
+    # Change end treatment_history of previous row -> no minPostCombinationDuration
     treatment_history[shift(switch, type = "lead")==1,event_end_date:=event_start_date_next]
     
     # Case: combination_FRFS
-    # Add a new row with start date (r) and end date (r-1) as combination (copy current row + change end date + update concept id) -> no minStepDuration
+    # Add a new row with start date (r) and end date (r-1) as combination (copy current row + change end date + update concept id) -> no minPostCombinationDuration
     add_rows_FRFS <- treatment_history[combination_FRFS==1,]
     add_rows_FRFS[,event_end_date:=event_end_date_previous]
     add_rows_FRFS[,event_cohort_id:=paste0(event_cohort_id, "+", event_cohort_id_previous)]
     
-    # Change end date of previous row -> check minStepDuration
+    # Change end date of previous row -> check minPostCombinationDuration
     treatment_history[shift(combination_FRFS, type = "lead")==1,c("event_end_date","check_duration"):=list(event_start_date_next, 1)]
     
-    # Change start date of current row -> check minStepDuration 
+    # Change start date of current row -> check minPostCombinationDuration 
     treatment_history[combination_FRFS==1,c("event_start_date", "check_duration"):=list(event_end_date_previous,1)]
     
     # Case: combination_LRFS
-    # Change current row to combination -> no minStepDuration
+    # Change current row to combination -> no minPostCombinationDuration
     treatment_history[combination_LRFS==1,event_cohort_id:=paste0(event_cohort_id, "+", event_cohort_id_previous)]
     
-    # Add a new row with end date (r) and end date (r-1) to split drug era (copy previous row + change end date) -> check minStepDuration 
+    # Add a new row with end date (r) and end date (r-1) to split drug era (copy previous row + change end date) -> check minPostCombinationDuration 
     add_rows_LRFS <- treatment_history[shift(combination_LRFS, type = "lead")==1,]
     add_rows_LRFS[,c("event_start_date", "check_duration"):=list(event_end_date_next,1)]
     
-    # Change end date of previous row -> check minStepDuration 
+    # Change end date of previous row -> check minPostCombinationDuration 
     treatment_history[shift(combination_LRFS, type = "lead")==1,c("event_end_date", "check_duration"):=list(event_start_date_next,1)]
     
     # Combine all rows and remove helper columns
@@ -348,7 +360,7 @@ doCombinationWindow <- function(treatment_history, combinationWindow, minStepDur
     treatment_history[,duration_era:=difftime(event_end_date, event_start_date, units = "days")]
     
     # Check duration drug eras before/after generated combination treatments
-    treatment_history <- doStepDuration(treatment_history, minStepDuration)
+    treatment_history <- doStepDuration(treatment_history, minPostCombinationDuration)
     
     # Preparations for next iteration
     treatment_history <- treatment_history[,c("person_id", "index_year", "event_cohort_id", "event_start_date", "event_end_date", "duration_era")]
@@ -393,7 +405,7 @@ selectRowsCombinationWindow <- function(treatment_history) {
 
 # Input:
 # treatment_history Dataframe with event cohorts of the target cohort in different rows.
-# filterTreatments Select first occurrence of / changes between / all event cohorts.
+# filterTreatments Select first occurrence of ('First') / changes between ('Changes') / all event cohorts ('All').
 #
 # Updated dataframe, where the desired event cohorts are maintained for the visualizations.
 doFilterTreatments <- function(treatment_history, filterTreatments) {
@@ -422,10 +434,28 @@ doFilterTreatments <- function(treatment_history, filterTreatments) {
       # Remove all rows with same sequential treatments
       treatment_history <- treatment_history[,.(event_start_date=min(event_start_date), event_end_date=max(event_end_date), duration_era=sum(duration_era)), by = .(person_id,index_year,event_cohort_id,group)]
       treatment_history[,group:=NULL]
+    } else {
+      warning("filterTreatments input incorrect, return all event cohorts ('All')")
     }
   }
   
   ParallelLogger::logInfo(print(paste0("After filterTreatments: ", nrow(treatment_history))))
+  
+  return(treatment_history)
+}
+
+
+# Input:
+# treatment_history Dataframe with event cohorts of the target cohort in different rows.
+# maxPathLength Maximum number of steps included in treatment pathway.
+#
+# Updated dataframe, where the desired event cohorts are maintained for the visualizations.
+doMaxPathLength <- function(treatment_history, maxPathLength) {
+  
+  # Apply maxPathLength
+  treatment_history <- treatment_history[event_seq <= maxPathLength,]
+  
+  ParallelLogger::logInfo(print(paste0("After maxPathLength: ", nrow(treatment_history))))
   
   return(treatment_history)
 }

@@ -15,19 +15,23 @@
 #' @return                     Object dataSettings.
 #' @export
 createDataSettings <- function(OMOP_CDM = "TRUE",
-                               connectionDetails = DatabaseConnector::createConnectionDetails(dbms = Sys.getenv('dbms'),
-                                                                                              server = Sys.getenv('server'),
-                                                                                              user = Sys.getenv('user'),
-                                                                                              password = Sys.getenv('password'),
-                                                                                              port = Sys.getenv('port')),
+                               connectionDetails = NULL,
                                cdmDatabaseSchema = NULL,
                                cohortDatabaseSchema = NULL,
                                cohortTable = "treatmentpatterns_cohorts",
                                cohortLocation = NULL) {
   
   if (OMOP_CDM) {
+    if (is.null(connectionDetails)) {
+      connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = Sys.getenv('dbms'),
+                                                                      server = Sys.getenv('server'),
+                                                                      user = Sys.getenv('user'),
+                                                                      password = Sys.getenv('password'),
+                                                                      port = Sys.getenv('port'))
+    }
+    
     tryCatch(connection <- DatabaseConnector::connect(connectionDetails = connectionDetails),
-             error = function(e){print(paste0("Problem with database connection: ", e))})
+             error = function(e){print(paste0("Problem with database connection (check connection details): ", e))})
     on.exit(DatabaseConnector::disconnect(connection))
     
     if (is.null(cdmDatabaseSchema)) {
@@ -43,6 +47,9 @@ createDataSettings <- function(OMOP_CDM = "TRUE",
       stop('Need to specify cohortLocation.')  
     }
   }
+  
+  # Change relative path to absolute path 
+  cohortLocation <- stringr::str_replace(cohortLocation, pattern = "^.", replacement = getwd())
   
   dataSettings <- list(OMOP_CDM = OMOP_CDM,
                        connectionDetails = connectionDetails,
@@ -88,7 +95,7 @@ createCohortSettings <- function(cohortsToCreate_location = NULL,
     if (!is.data.frame(targetCohorts) | !all(c("cohortId", "cohortName") %in% colnames(targetCohorts))) {
       stop('Incorrect input for targetCohorts')
     }
-      
+    
     if (!is.data.frame(eventCohorts) | !all(c("cohortId", "cohortName") %in% colnames(eventCohorts))) {
       stop('Incorrect input for eventCohorts')
     }
@@ -205,7 +212,8 @@ createCharacterizationSettings <- function(baselineCovariates_location = NULL,
 createPathwaySettings <- function(pathwaySettings_location = NULL,
                                   pathwaySettings_list = NULL,
                                   targetCohortId = NULL,
-                                  eventCohortIds = NULL) {
+                                  eventCohortIds = NULL,
+                                  ...) {
   
   # If pathwaySettings_location given, load settings from data
   if (!is.null(pathwaySettings_location)) {
@@ -226,7 +234,7 @@ createPathwaySettings <- function(pathwaySettings_location = NULL,
   } else if (!is.null(targetCohortId) & !is.null(eventCohortIds)) {
     pathwaySettings_default <- addPathwaySettings(studyName = c("default"),
                                                   targetCohortId = targetCohortId,
-                                                  eventCohortIds = eventCohortIds)
+                                                  eventCohortIds = eventCohortIds, ...)
     
     pathwaySettings <- data.table::transpose(pathwaySettings_default)
     colnames(pathwaySettings) <- paste0("analysis", 1:ncol(pathwaySettings))
@@ -247,14 +255,14 @@ createPathwaySettings <- function(pathwaySettings_location = NULL,
 #' @param studyName Name identifying the set of study parameters.
 #' @param targetCohortId Target cohort ID of current study settings.
 #' @param eventCohortIds Event cohort IDs of current study settings.
-#' @param includeTreatmentsPriorToIndex Number of days prior to the index date of the target cohort that event cohorts are allowed to start
+#' @param periodPriorToIndex Number of days prior to the index date of the target cohort that event cohorts are allowed to start
 #' @param minEraDuration  Minimum time an event era should last to be included in analysis
 #' @param splitEventCohorts Specify event cohort to split in acute (< X days) and therapy (>= X days)
 #' @param splitTime Specify number of days (X) at which each of the split event cohorts should be split in acute and therapy
 #' @param eraCollapseSize  Window of time between which two eras of the same event cohort are collapsed into one era
 #' @param combinationWindow Window of time two event cohorts need to overlap to be considered a combination treatment
-#' @param minStepDuration Minimum time an event era before or after a generated combination treatment should last to be included in analysis
-#' @param filterTreatments  Select first occurrence of / changes between / all event cohorts
+#' @param minPostCombinationDuration Minimum time an event era before or after a generated combination treatment should last to be included in analysis
+#' @param filterTreatments  Select first occurrence of ("First") / changes between ("Changes') / all event cohorts ("All")
 #' @param maxPathLength Maximum number of steps included in treatment pathway (max 5)
 #' @param minCellCount Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis
 #' @param minCellMethod Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount
@@ -266,13 +274,14 @@ createPathwaySettings <- function(pathwaySettings_location = NULL,
 addPathwaySettings <- function(studyName = "name_unknown", # c("default")
                                targetCohortId,
                                eventCohortIds,
-                               includeTreatmentsPriorToIndex = 0,
+                               includeTreatments = "startDate",
+                               periodPriorToIndex = 0,
                                minEraDuration = 0,
                                splitEventCohorts = "",
                                splitTime = 30,
                                eraCollapseSize = 30,
                                combinationWindow = 30, 
-                               minStepDuration = 30,
+                               minPostCombinationDuration = 30,
                                filterTreatments = "First",
                                maxPathLength = 5, 
                                minCellCount = 5,
@@ -284,7 +293,7 @@ addPathwaySettings <- function(studyName = "name_unknown", # c("default")
     stop("targetCohortId should be numeric value")
   }
   # TODO: check if analysis also works with multiple targetCohortIds at once
-    
+  
   if (!length(eventCohortIds)>0 | !is.numeric(eventCohortIds)) {
     stop("eventCohortIds should be numeric values")
   }
@@ -296,13 +305,14 @@ addPathwaySettings <- function(studyName = "name_unknown", # c("default")
   settings <- data.frame(studyName = studyName,
                          targetCohortId = targetCohortId,
                          eventCohortIds = paste(eventCohortIds, collapse = ","),
-                         includeTreatmentsPriorToIndex = includeTreatmentsPriorToIndex,
+                         includeTreatments = includeTreatments,
+                         periodPriorToIndex = periodPriorToIndex,
                          minEraDuration = minEraDuration,
                          splitEventCohorts = splitEventCohorts,
                          splitTime = splitTime,
                          eraCollapseSize = eraCollapseSize,
                          combinationWindow = combinationWindow, 
-                         minStepDuration = minStepDuration,
+                         minPostCombinationDuration = minPostCombinationDuration,
                          filterTreatments = filterTreatments,
                          maxPathLength = maxPathLength, 
                          minCellCount = minCellCount,
@@ -328,6 +338,11 @@ createSaveSettings <- function(databaseName = "unknown_name",
                                tempFolder = file.path(rootFolder, "temp")) {
   
   outputFolder <- file.path(outputFolder, databaseName)
+  
+  # Change relative path to absolute path 
+  rootFolder <- stringr::str_replace(rootFolder, pattern = "^.", replacement = getwd())
+  outputFolder <- stringr::str_replace(outputFolder, pattern = "^.", replacement = getwd())
+  tempFolder <- stringr::str_replace(tempFolder, pattern = "^.", replacement = getwd())
   
   saveSettings <- list(databaseName = databaseName,
                        rootFolder = rootFolder,

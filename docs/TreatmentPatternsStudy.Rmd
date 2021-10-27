@@ -143,8 +143,8 @@ The settings below are part of *pathwaySettings* and allow the user to influence
 
 ```{r, fig.show='hold', echo=FALSE, fig.cap="Table with a list of parameters for *pathwaySettings*, with default values and description."}
 library('knitr')
-table <- data.frame(c("studyName", "targetCohortId", "eventCohortIds", "includeTreatments- \n PriorToIndex", "minEraDuration","splitEventCohorts", "splitTime", "eraCollapseSize", "combinationWindow","minStepDuration","filterTreatments","maxPathLength","minCellCount", "minCellMethod","groupCombinations","addNoPaths"),c("default","1","10,11,12,13,14","0", "0","","30","0","30","30","First","5","0","Remove","10","FALSE"),
-                    c("Unique name identifying the set of study parameters below", "Select one study population", "Select all treatments of interest", "Number of days prior to the index date of the target cohort that event cohorts are allowed to start", "Minimum time an event era should last to be included in analysis", "Specify event cohort to split in acute (< X days) and therapy (>= X days)", "Specify number of days (X) at which each of the split event cohorts should be split in acute and therapy", "Window of time between which two eras of the same event cohort are collapsed into one era", "Window of time two event cohorts need to overlap to be considered a combination treatment", "Minimum time an event era before or after a generated combination treatment should last to be included in analysis", "Select first occurrences of / changes between / all event cohorts", "Maximum number of steps included in treatment pathway", "Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis", "Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount", "Select to group all non-fixed combinations in one category 'other’ in the sunburst plot", "Select to include untreated persons without treatment pathway in the sunburst plot"))
+table <- data.frame(c("studyName", "targetCohortId", "eventCohortIds", "periodPriorToIndex", "minEraDuration","splitEventCohorts", "splitTime", "eraCollapseSize", "combinationWindow","minPostCombinationDuration","filterTreatments","maxPathLength","minCellCount", "minCellMethod","groupCombinations","addNoPaths"),c("default","1","10,11,12,13,14","0", "0","","30","30","30","30","First","5","5","Remove","10","FALSE"),
+                    c("Unique name identifying the set of study parameters below", "Select one study population", "Select all treatments of interest", "Number of days prior to the index date of the target cohort that event cohorts are allowed to start", "Minimum time an event era should last to be included in analysis", "Specify event cohort to split in acute (< X days) and therapy (>= X days)", "Specify number of days (X) at which each of the split event cohorts should be split in acute and therapy", "Window of time between which two eras of the same event cohort are collapsed into one era", "Window of time two event cohorts need to overlap to be considered a combination treatment", "Minimum time an event era before or after a generated combination treatment should last to be included in analysis", "Select first occurrence of ('First') / changes between ('Changes') / all event cohorts ('All')", "Maximum number of steps included in treatment pathway", "Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis", "Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount", "Select to group all non-fixed combinations in one category 'other’ in the sunburst plot", "Select to include untreated persons without treatment pathway in the sunburst plot"))
 colnames(table) <- c("param", "values", "description")
 kable(table)
 ```
@@ -154,14 +154,14 @@ library(knitr)
 knitr::include_graphics("pathwaysettings.jpg")
 ```
 
-Adjust the default parameters according to the needs of your study. It is possible to add multiple studies at the same time by specifying different sets of pathway settings with *addPathwaySettings*. 
+Adjust the default parameters according to the needs of your study. It is possible to add multiple studies at the same time by specifying different sets of pathway settings with *addPathwaySettings*. Note: only when multiple settings are run at the same time, the results will be displayed together in the shiny application.
 
 Code examples:
 ```{r tidy=FALSE,eval=FALSE}
 # use all default settings, only specify targetCohortId and eventCohortIds (mandatory)
 pathwaySettings <- createPathwaySettings(targetCohortId = 1, eventCohortIds = c(10, 11, 12, 13, 14))
 
-pathwaySettings <- createPathwaySettings
+pathwaySettings <- createPathwaySettings(
 pathwaySettings_list =list(addPathwaySettings(studyName = c("default"),
                                               targetCohortId = 1,
                                               eventCohortIds = c(10, 11, 12, 13, 14))))

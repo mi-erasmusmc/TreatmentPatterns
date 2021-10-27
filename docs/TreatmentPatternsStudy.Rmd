@@ -378,6 +378,7 @@ Format of files, see examples:
 - Select the folder containing the zip files and run the Shiny App for an interactive visualization of the results:
 ```{r tidy=FALSE,eval=FALSE}
 TreatmentPatterns::launchResultsExplorer(saveSettings = saveSettings)
+TreatmentPatterns::launchResultsExplorer(outputFolder = file.path(saveSettings$rootFolder, "output"))
 TreatmentPatterns::launchResultsExplorer(zipFolder = saveSettings$rootFolder)
 ```
 

@@ -6,12 +6,12 @@ library(data.table)
 library(DT)
 
 if (exists("shinySettings")) { # run via TreatmentPatterns::launchResultsExplorer
-  setwd(file.path(shinySettings$zipFolder, "output"))
+  setwd(shinySettings$outputFolder)
 } else { 
   if (exists("pathResultsDirectory")) {
     setwd(pathResultsDirectory)
   } else {
-    stop("Define location of results folder in pathResultsDirectory (folder ~/output including the different database results)")
+    stop("Define location of outputFolder in pathResultsDirectory (folder ~/output including the different database results)")
   }
 }
 

@@ -158,7 +158,7 @@ doCreateTreatmentHistory <- function(current_cohorts, targetCohortId, eventCohor
   
   # Select event cohorts for target cohort and merge with start/end date and index year
   eventCohorts <- current_cohorts[current_cohorts$cohort_id %in% eventCohortIds,,]
-  current_cohorts <- merge(x = eventCohorts, y = targetCohort, by = c("person_id"), all.x = TRUE)
+  current_cohorts <- merge(x = eventCohorts, y = targetCohort, by = c("person_id"), all.x = TRUE, allow.cartesian = TRUE)
   
   # Only keep event cohorts starting (startDate) or ending (endDate) after target cohort start date
   if (includeTreatments == "startDate") {

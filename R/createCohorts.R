@@ -135,7 +135,7 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
           concept_set <- paste0("(", concept_set, ")")
           
           # Insert concept set in SQL template to create cohort
-          sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"), "SQL", "CohortDrugTemplate.sql"),
+          sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"), "SQL", "CohortDrugProcedureTemplate.sql"),
                                         dbms = dataSettings$connectionDetails$dbms,
                                         cdm_database_schema = dataSettings$cdmDatabaseSchema,
                                         vocabulary_database_schema = dataSettings$cdmDatabaseSchema,
@@ -190,18 +190,18 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
     
     # Check number of subjects per cohort
     ParallelLogger::logInfo("Counting cohorts")
-    counts <- data.frame(cohortDefinitionId = cohortsToCreate$cohortId)
-    counts$cohortCount <- sapply(counts$cohortDefinitionId, function(c) {
+    counts <- data.frame(cohortId = cohortsToCreate$cohortId)
+    counts$cohortCount <- sapply(counts$cohortId, function(c) {
       length(data$personId[data$cohortId == c]) 
     })
-    counts$personCount <- sapply(counts$cohortDefinitionId, function(c) {
+    counts$personCount <- sapply(counts$cohortId, function(c) {
       length(unique(data$personId[data$cohortId == c]))
     })
     write.csv(counts, file.path(saveSettings$outputFolder, "cohort_counts.csv"), row.names = FALSE)
   }
   
   # Check if all cohorts have non-zero count
-  checkCohorts <- setdiff(cohortsToCreate$cohortId,counts$cohortDefinitionId)
+  checkCohorts <- setdiff(cohortsToCreate$cohortId,counts$cohortId)
   
   if(length(checkCohorts) != 0) {
     warning(paste0("Cohort definition ", paste0(checkCohorts, collapse = ","), " has zero count. "))

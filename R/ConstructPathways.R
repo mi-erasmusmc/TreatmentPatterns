@@ -115,26 +115,29 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
       write.csv(treatment_history, file.path(tempFolder_s, paste0(saveSettings$databaseName, "_", studyName, "_event_seq_processed.csv")), row.names = FALSE) 
       
       # Save the treatment pathways
-      treatment_pathways <- as.data.table(reshape2::dcast(data = treatment_history, person_id + index_year ~ event_seq, value.var = "event_cohort_name"))
-      colnames(treatment_pathways)[3:ncol(treatment_pathways)] <- paste0("event_cohort_name", colnames(treatment_pathways)[3:ncol(treatment_pathways)])
-      
-      layers <- c(colnames(treatment_pathways))[3:min(7,ncol(treatment_pathways))] # max first 5
-      treatment_pathways <- treatment_pathways[, .(freq=length((person_id))), by = c(layers, "index_year")]
-      write.csv(treatment_pathways, file.path(tempFolder_s, paste0(saveSettings$databaseName, "_", studyName, "_paths.csv")), row.names = FALSE) 
-      
-      # Calculate counts of the number of persons in target cohort / with pathways, in total / per year
-      targetCohort <- current_cohorts[current_cohorts$cohort_id %in% targetCohortId,,]
-      targetCohort$index_year <- as.numeric(format(targetCohort$start_date, "%Y"))
-      counts_targetcohort <- data.table::rollup(targetCohort, .N, by = c("index_year"))
-      counts_targetcohort$index_year <- paste0("Number of persons in target cohort ", counts_targetcohort$index_year)
-      
-      counts_pathways <- rollup(treatment_pathways, sum(freq), by = c("index_year"))
-      counts_pathways$index_year <- paste0("Number of pathways (before minCellCount) in ", counts_pathways$index_year)
-      
-      colnames(counts_pathways) <- colnames(counts_targetcohort)
-      counts <- rbind(counts_targetcohort, counts_pathways)
-      
-      write.csv(counts, file.path(tempFolder_s, paste0(saveSettings$databaseName, "_", studyName, "_summary_cnt.csv")), row.names = FALSE)
+      if (nrow(treatment_history) != 0) {
+        treatment_pathways <- as.data.table(reshape2::dcast(data = treatment_history, person_id + index_year ~ event_seq, value.var = "event_cohort_name"))
+        colnames(treatment_pathways)[3:ncol(treatment_pathways)] <- paste0("event_cohort_name", colnames(treatment_pathways)[3:ncol(treatment_pathways)])
+        
+        layers <- c(colnames(treatment_pathways))[3:min(7,ncol(treatment_pathways))] # max first 5
+        treatment_pathways <- treatment_pathways[, .(freq=length((person_id))), by = c(layers, "index_year")]
+        write.csv(treatment_pathways, file.path(tempFolder_s, paste0(saveSettings$databaseName, "_", studyName, "_paths.csv")), row.names = FALSE) 
+        
+        # Calculate counts of the number of persons in target cohort / with pathways, in total / per year
+        targetCohort <- current_cohorts[current_cohorts$cohort_id %in% targetCohortId,,]
+        targetCohort$index_year <- as.numeric(format(targetCohort$start_date, "%Y"))
+        counts_targetcohort <- data.table::rollup(targetCohort, .N, by = c("index_year"))
+        counts_targetcohort$index_year <- paste0("Number of persons in target cohort ", counts_targetcohort$index_year)
+        
+        counts_pathways <- rollup(treatment_pathways, sum(freq), by = c("index_year"))
+        counts_pathways$index_year <- paste0("Number of pathways (before minCellCount) in ", counts_pathways$index_year)
+        
+        colnames(counts_pathways) <- colnames(counts_targetcohort)
+        counts <- rbind(counts_targetcohort, counts_pathways)
+        
+        write.csv(counts, file.path(tempFolder_s, paste0(saveSettings$databaseName, "_", studyName, "_summary_cnt.csv")), row.names = FALSE) 
+        
+      }
     }
   }
   

@@ -177,7 +177,13 @@ percentageGroupTreated <- function(data, eventCohortIds, groupCombinations, outp
   })
   
   # Add rows for total, fixed combinations, all combinations
-  result <- rbind(result, c("Fixed combinations",colSums(result[grepl("\\&", result$outcomes), layers]), NA), c("All combinations",colSums(result[grepl("Other|\\+|\\&", result$outcomes), layers]), NA), c("Monotherapy",colSums(result[!grepl("Other|\\+|\\&", result$outcomes), layers]), NA))
+  if (length(layers) == 1) {
+    result <- rbind(result, c("Fixed combinations",sum(result[grepl("\\&", result$outcomes), layers]), NA), c("All combinations",sum(result[grepl("Other|\\+|\\&", result$outcomes), layers]), NA), c("Monotherapy",sum(result[!grepl("Other|\\+|\\&", result$outcomes), layers]), NA))
+    
+  } else {
+    result <- rbind(result, c("Fixed combinations",colSums(result[grepl("\\&", result$outcomes), layers]), NA), c("All combinations",colSums(result[grepl("Other|\\+|\\&", result$outcomes), layers]), NA), c("Monotherapy",colSums(result[!grepl("Other|\\+|\\&", result$outcomes), layers]), NA))
+    
+  }
   
   result$ALL_LAYERS[result$outcomes == "Fixed combinations"] <- sum(sapply(1:nrow(data), function(r) ifelse(any(grepl("\\&", data[r,])), data[r,freq], 0))) * 100.0 / paths_all
   result$ALL_LAYERS[result$outcomes == "All combinations"] <- sum(sapply(1:nrow(data), function(r) ifelse(any(grepl("Other|\\+|\\&", data[r,])), data[r,freq], 0))) * 100.0 / paths_all
@@ -344,34 +350,37 @@ outputSunburstPlot <- function(data, outputFolder, databaseName, studyName, even
   cohorts <- readr::read_csv(file.path(outputFolder, "settings", "cohorts_to_create.csv"), col_types = list("i", "c", "c", "c", "c"))
   outcomes <- c(cohorts$cohortName[cohorts$cohortId %in% eventCohortIds], "Other")
   
-  if (is.null(data$index_year)) {
-    # For file_noyear compute once
-    data <- inputSunburstPlot(data, outputFolder, databaseName, studyName, addNoPaths, index_year = 'all')
+  if (nrow(data) != 0) {
     
-    createSunburstPlot(data, outcomes, folder = outputFolder, file_name = file.path(studyName, paste0(databaseName, "_", studyName, "_all")), shiny = TRUE)
-    
-    # Create legend once
-    createLegend(studyName, outputFolder, databaseName)
-    
-  } else {
-    # For file_withyear compute per year
-    years <- unlist(unique(data[,"index_year"]))
-    
-    for (y in years) {
-      subset_data <- data[index_year == as.character(y),]
-      if (nrow(subset_data) != 0) {
-        subset_data <- inputSunburstPlot(subset_data, outputFolder, databaseName, studyName, addNoPaths, index_year = y)
-        
-        createSunburstPlot(subset_data, outcomes, folder = outputFolder, file_name = file.path(studyName, paste0(databaseName, "_", studyName, "_", y)), shiny = TRUE)
-        
-      } else {
-        ParallelLogger::logInfo(warning(paste0("Subset of data is empty for study settings ", studyName, " in year ", y)))
-      }
+    if (is.null(data$index_year)) {
+      # For file_noyear compute once
+      data <- inputSunburstPlot(data, outputFolder, databaseName, studyName, addNoPaths, index_year = 'all')
       
+      createSunburstPlot(data, outcomes, folder = outputFolder, file_name = file.path(studyName, paste0(databaseName, "_", studyName, "_all")), shiny = TRUE)
+      
+      # Create legend once
+      createLegend(studyName, outputFolder, databaseName)
+      
+    } else {
+      # For file_withyear compute per year
+      years <- unlist(unique(data[,"index_year"]))
+      
+      for (y in years) {
+        subset_data <- data[index_year == as.character(y),]
+        if (nrow(subset_data) != 0) {
+          subset_data <- inputSunburstPlot(subset_data, outputFolder, databaseName, studyName, addNoPaths, index_year = y)
+          
+          createSunburstPlot(subset_data, outcomes, folder = outputFolder, file_name = file.path(studyName, paste0(databaseName, "_", studyName, "_", y)), shiny = TRUE)
+          
+        } else {
+          ParallelLogger::logInfo(warning(paste0("Subset of data is empty for study settings ", studyName, " in year ", y)))
+        }
+        
+      }
     }
+    
+    ParallelLogger::logInfo("outputSunburstPlot done")
   }
-  
-  ParallelLogger::logInfo("outputSunburstPlot done")
 }
 
 

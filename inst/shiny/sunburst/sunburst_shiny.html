@@ -7,6 +7,9 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.10.0/d3.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
+        <script src="pdfkit.js"></script>
+	  <script src="blobstream.js"></script>
+	  <script src="source.js"></script>
       <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600">
       <style>
          body {
@@ -46,6 +49,8 @@
          #percentage {
          font-size: 2.5em;
          }
+         
+        iframe#pdf-file    {display:none;position:absolute; right:0; top:0; width:100%; height:100%; box-sizing:border-box; border:0;}
       </style>
    </head>
    <body>
@@ -577,7 +582,48 @@
 			
 			refreshPlot();
          };
+         
+                  // added to create PDFDocument (need to add js files to same folder as .html file)
+         function resetDefaultStyles(doc) {
+  doc.fillColor('black')
+	 .fillOpacity(1)
+	 .strokeColor('black')
+	 .strokeOpacity(1)
+	 .lineWidth(1)
+	 .undash()
+	 .fontSize(12)
+	 .font('Helvetica');
+}
+
+function printFunction(outFileName) {
+	console.log('print to: ' + outFileName)
+	let doc = new PDFDocument({compress: false});
+	let svgs = document.querySelectorAll('#plot > svg');
+	for (let i = 0; i < svgs.length; i++) {
+		doc.fontSize(20).text(svgs[i].id, {underline: true});
+		SVGtoPDF(doc, svgs[i].outerHTML || svgs[i], 0, 0);
+		if (i !== svgs.length - 1) {
+			resetDefaultStyles(doc);
+			doc.addPage();
+		}
+	}
+
+	let stream = doc.pipe(blobStream());
+	stream.on('finish', function() {
+		let blob = stream.toBlob('application/pdf');
+		if (navigator.msSaveOrOpenBlob) {
+			navigator.msSaveOrOpenBlob(blob, outFileName);
+		} else {
+			document.getElementById('pdf-file').style.display = "block";
+			document.getElementById('pdf-file').setAttribute('src', URL.createObjectURL(blob));
+		}
+	});
+	doc.end();
+}
+         
       </script>
+	       <!-- <button onclick="printFunction('resultaat.pdf')"> Print</button>
+<iframe id="pdf-file"></iframe> -->
    </body>
 </html>
 

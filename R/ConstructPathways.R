@@ -93,23 +93,25 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
       treatment_history <- doCombinationWindow(treatment_history, combinationWindow, minPostCombinationDuration)
       treatment_history <- doFilterTreatments(treatment_history, filterTreatments)
       
-      # Add event_seq number to determine order of treatments in pathway
-      ParallelLogger::logInfo("Adding drug sequence number.")
-      treatment_history <- treatment_history[order(person_id, event_start_date, event_end_date),]
-      treatment_history[, event_seq:=seq_len(.N), by= .(person_id)]
-      
-      treatment_history <- doMaxPathLength(treatment_history, maxPathLength)
-      
-      # Add event_cohort_name (instead of only event_cohort_id)
-      ParallelLogger::logInfo("Adding concept names.")
-      treatment_history <- addLabels(treatment_history, saveSettings$outputFolder)
-      
-      # Order the combinations
-      ParallelLogger::logInfo("Ordering the combinations.")
-      combi <- grep("+", treatment_history$event_cohort_name, fixed=TRUE)
-      cohort_names <- strsplit(treatment_history$event_cohort_name[combi], split="+", fixed=TRUE)
-      treatment_history$event_cohort_name[combi] <- sapply(cohort_names, function(x) paste(sort(x), collapse = "+"))
-      treatment_history$event_cohort_name <- unlist(treatment_history$event_cohort_name)
+      if (nrow(treatment_history) != 0) {
+        # Add event_seq number to determine order of treatments in pathway
+        ParallelLogger::logInfo("Adding drug sequence number.")
+        treatment_history <- treatment_history[order(person_id, event_start_date, event_end_date),]
+        treatment_history[, event_seq:=seq_len(.N), by= .(person_id)]
+        
+        treatment_history <- doMaxPathLength(treatment_history, maxPathLength)
+        
+        # Add event_cohort_name (instead of only event_cohort_id)
+        ParallelLogger::logInfo("Adding concept names.")
+        treatment_history <- addLabels(treatment_history, saveSettings$outputFolder)
+        
+        # Order the combinations
+        ParallelLogger::logInfo("Ordering the combinations.")
+        combi <- grep("+", treatment_history$event_cohort_name, fixed=TRUE)
+        cohort_names <- strsplit(treatment_history$event_cohort_name[combi], split="+", fixed=TRUE)
+        treatment_history$event_cohort_name[combi] <- sapply(cohort_names, function(x) paste(sort(x), collapse = "+"))
+        treatment_history$event_cohort_name <- unlist(treatment_history$event_cohort_name)
+      }
       
       # Save the processed treatment history
       write.csv(treatment_history, file.path(tempFolder_s, paste0(saveSettings$databaseName, "_", studyName, "_event_seq_processed.csv")), row.names = FALSE) 

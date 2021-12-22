@@ -31,6 +31,8 @@ addPathwaySettings(
 
 \item{eventCohortIds}{Event cohort IDs of current study settings.}
 
+\item{includeTreatments}{Include treatments starting ('startDate') or ending ('endDate') after target cohort start date}
+
 \item{periodPriorToIndex}{Number of days prior to the index date of the target cohort that event cohorts are allowed to start}
 
 \item{minEraDuration}{Minimum time an event era should last to be included in analysis}

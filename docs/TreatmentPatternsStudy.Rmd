@@ -382,6 +382,8 @@ TreatmentPatterns::launchResultsExplorer(outputFolder = file.path(saveSettings$r
 TreatmentPatterns::launchResultsExplorer(zipFolder = saveSettings$rootFolder)
 ```
 
+- Note: the sunburst plots are only visible on a computer with internet due to JavaScript library dependencies.
+
 - Share zip folder with results
 
 
@@ -397,6 +399,9 @@ createSunburstPlot(data, folder = paste0(getwd(), "/output"),
                    file_name = "example", shiny = FALSE,
                    title = "example sequences.csv")
 ```
+
+Note: the sunburst plots are only visible on a computer with internet due to JavaScript library dependencies.
+
 
 ## B) Custom cohorts (advanced - step 1)
 

@@ -2,6 +2,8 @@
 
 This R package contains the resources for performing a treatment pathway analysis of a study population of interest in observational databases. The package partially relies on the Observational Medical Outcomes Partnership Common Data Model (OMOP CDM), but the main parts of the package are also usable with different data formats.
 
+Preprint is available [here](https://doi.org/10.1101/2022.01.24.22269588).
+
 ## Features
 
 - Extracts the necessary data from a database in OMOP CDM format or directly imports the cohorts from a csv file.

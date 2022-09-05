@@ -29,12 +29,13 @@ executeTreatmentPatterns <- function(dataSettings,
                                      runCohortCharacterization = TRUE, # Optional, only for OMOP-CDM data
                                      runConstructPathways = TRUE,
                                      runGenerateOutput = TRUE,
-                                     launchShiny = FALSE)
+                                     launchShiny = TRUE)
 {
   # Check if directory exists and create if necessary
-  if (!file.exists(file.path(saveSettings$outputFolder)))
+  if (!dir.exists(saveSettings$outputFolder))
     dir.create(file.path(saveSettings$outputFolder), recursive = TRUE)
   
+
   # Add logger
   ParallelLogger::clearLoggers()
   ParallelLogger::addDefaultFileLogger(fileName = file.path(saveSettings$outputFolder, "treatmentpatterns_log.txt"),

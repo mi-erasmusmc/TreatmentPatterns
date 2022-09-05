@@ -16,7 +16,7 @@ generateOutput <- function(saveSettings) {
   
   # For all different pathway settings
   settings <- colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
-
+  
   for (s in settings) {
     studyName <- pathwaySettings[pathwaySettings$param == "studyName",s]
     
@@ -28,7 +28,6 @@ generateOutput <- function(saveSettings) {
     eventCohortIds <- unlist(strsplit(eventCohortIds, split = c(";|,")))
     
     # Result settings
-    maxPathLength <- as.integer(pathwaySettings[pathwaySettings$param == "maxPathLength",s])
     minCellCount <- as.integer(pathwaySettings[pathwaySettings$param == "minCellCount",s]) 
     minCellMethod <- pathwaySettings[pathwaySettings$param == "minCellMethod",s] 
     groupCombinations <- pathwaySettings[pathwaySettings$param == "groupCombinations",s] 
@@ -40,7 +39,7 @@ generateOutput <- function(saveSettings) {
       dir.create(outputFolder_s, recursive = TRUE)
     
     # Transform results for output
-    treatment_pathways <- doMaxPathLength(outputFolder = saveSettings$outputFolder, tempFolder = saveSettings$tempFolder, databaseName = saveSettings$databaseName, studyName = studyName, maxPathLength = maxPathLength, minCellCount = minCellCount)
+    treatment_pathways <- getPathways(outputFolder = saveSettings$outputFolder, tempFolder = saveSettings$tempFolder, databaseName = saveSettings$databaseName, studyName = studyName,  minCellCount = minCellCount)
     
     # TODO: check if conversions to data.table needed here
     
@@ -50,7 +49,7 @@ generateOutput <- function(saveSettings) {
       outputTreatedPatients(data = treatment_pathways[[2]], eventCohortIds = eventCohortIds, groupCombinations = TRUE, outputFolder = saveSettings$outputFolder, outputFile = file.path(outputFolder_s, paste0(saveSettings$databaseName, "_", studyName, "_percentage_groups_treated_withyear.csv")))
       
       # Duration of era's
-      outputDurationEras(outputFolder = saveSettings$outputFolder, tempFolder = saveSettings$tempFolder, databaseName = saveSettings$databaseName, studyName = studyName, eventCohortIds = eventCohortIds, maxPathLength = maxPathLength, groupCombinations = TRUE, minCellCount = minCellCount)
+      outputDurationEras(outputFolder = saveSettings$outputFolder, tempFolder = saveSettings$tempFolder, databaseName = saveSettings$databaseName, studyName = studyName, eventCohortIds = eventCohortIds, groupCombinations = TRUE, minCellCount = minCellCount)
       
       # Save (censored) results file_noyear and file_year
       treatment_pathways <- doMinCellCount(file_noyear = treatment_pathways[[1]], file_withyear = treatment_pathways[[2]], outputFolder = saveSettings$outputFolder, tempFolder = saveSettings$tempFolder, databaseName = saveSettings$databaseName, studyName = studyName, groupCombinations = groupCombinations, minCellCount = minCellCount, minCellMethod = minCellMethod)
@@ -61,7 +60,7 @@ generateOutput <- function(saveSettings) {
       # Treatment pathways sunburst plot 
       outputSunburstPlot(data = treatment_pathways[[1]], outputFolder = saveSettings$outputFolder, databaseName = saveSettings$databaseName, studyName = studyName, eventCohortIds = eventCohortIds, addNoPaths = addNoPaths)
       outputSunburstPlot(data = treatment_pathways[[2]], outputFolder = saveSettings$outputFolder, databaseName = saveSettings$databaseName, studyName = studyName, eventCohortIds = eventCohortIds, addNoPaths = addNoPaths)
-   
+      
     }
   }
   
@@ -72,18 +71,17 @@ generateOutput <- function(saveSettings) {
   ParallelLogger::logInfo("generateOutput done.")
 }
 
-# Apply maxPathLength to transform treatment pathways for generating aggregate output.
+# Get treatment pathways for generating aggregate output.
 #
 # Input:
 # outputFolder Path to the output folder.
 # tempFolder Path to the temp folder.
 # databaseName Name of the database that will appear in the results.
 # studyName Name for the study corresponding to the current settings.
-# maxPathLength Maximum number of steps included in treatment pathway (max 5).
 # minCellCount Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis.
 #
 # Output: List with two dataframes.
-doMaxPathLength <- function(outputFolder, tempFolder, databaseName, studyName, maxPathLength, minCellCount) {
+getPathways <- function(outputFolder, tempFolder, databaseName, studyName, minCellCount) {
   
   # Try to read in paths from constructPathways.R for studyName
   file <- try(data.table(readr::read_csv(file.path(tempFolder, studyName, paste0(databaseName, "_", studyName, "_paths.csv")), col_types = readr::cols())), silent = TRUE)
@@ -92,14 +90,6 @@ doMaxPathLength <- function(outputFolder, tempFolder, databaseName, studyName, m
     ParallelLogger::logInfo(warning(paste0("Data is empty for study settings ", studyName)))
     return (NULL)
   }
-  
-  # Apply maxPathLength and remove unnecessary columns
-  layers <- as.vector(colnames(file)[!grepl("index_year|freq", colnames(file))])
-  layers <- layers[1:min(length(layers),maxPathLength)]
-  
-  columns <- c(layers, "index_year", "freq")
-  
-  file <- file[,..columns]
   
   # Summarize which non-fixed combinations occurring
   findCombinations <- apply(file, 2, function(x) grepl("+", x, fixed = TRUE))
@@ -115,10 +105,9 @@ doMaxPathLength <- function(outputFolder, tempFolder, databaseName, studyName, m
   write.csv(summaryCombinations, file=file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_combinations.csv")), row.names = FALSE)
   
   # Group the resulting treatment paths
+  layers <- as.vector(colnames(file)[!grepl("index_year|freq", colnames(file))])
   file_noyear <- file[,.(freq=sum(freq)), by=layers]
   file_withyear <- file[,.(freq=sum(freq)), by=c(layers, "index_year")]
-  
-  ParallelLogger::logInfo("doMaxPathLength done")
   
   return(list(file_noyear, file_withyear))
 }
@@ -188,7 +177,13 @@ percentageGroupTreated <- function(data, eventCohortIds, groupCombinations, outp
   })
   
   # Add rows for total, fixed combinations, all combinations
-  result <- rbind(result, c("Fixed combinations",colSums(result[grepl("\\&", result$outcomes), layers]), NA), c("All combinations",colSums(result[grepl("Other|\\+|\\&", result$outcomes), layers]), NA), c("Monotherapy",colSums(result[!grepl("Other|\\+|\\&", result$outcomes), layers]), NA))
+  if (length(layers) == 1) {
+    result <- rbind(result, c("Fixed combinations",sum(result[grepl("\\&", result$outcomes), layers]), NA), c("All combinations",sum(result[grepl("Other|\\+|\\&", result$outcomes), layers]), NA), c("Monotherapy",sum(result[!grepl("Other|\\+|\\&", result$outcomes), layers]), NA))
+    
+  } else {
+    result <- rbind(result, c("Fixed combinations",colSums(result[grepl("\\&", result$outcomes), layers]), NA), c("All combinations",colSums(result[grepl("Other|\\+|\\&", result$outcomes), layers]), NA), c("Monotherapy",colSums(result[!grepl("Other|\\+|\\&", result$outcomes), layers]), NA))
+    
+  }
   
   result$ALL_LAYERS[result$outcomes == "Fixed combinations"] <- sum(sapply(1:nrow(data), function(r) ifelse(any(grepl("\\&", data[r,])), data[r,freq], 0))) * 100.0 / paths_all
   result$ALL_LAYERS[result$outcomes == "All combinations"] <- sum(sapply(1:nrow(data), function(r) ifelse(any(grepl("Other|\\+|\\&", data[r,])), data[r,freq], 0))) * 100.0 / paths_all
@@ -203,10 +198,9 @@ percentageGroupTreated <- function(data, eventCohortIds, groupCombinations, outp
 # databaseName Name of the database that will appear in the results.
 # studyName Name for the study corresponding to the current settings.
 # eventCohortIds IDs to refer to event cohorts.
-# maxPathLength Maximum number of steps included in treatment pathway (max 5).
 # groupCombinations Select to group all non-fixed combinations in one category 'other’ in the sunburst plot.
 # minCellCount Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis.
-outputDurationEras <- function(outputFolder, tempFolder, databaseName, studyName, eventCohortIds, maxPathLength, groupCombinations, minCellCount) {
+outputDurationEras <- function(outputFolder, tempFolder, databaseName, studyName, eventCohortIds, groupCombinations, minCellCount) {
   
   # Try to read in treatment history from constructPathways.R for studyName
   file <- data.table(readr::read_csv(file.path(tempFolder, studyName, paste0(databaseName, "_", studyName, "_event_seq_processed.csv")), col_types = list("c", "i", "i", "D", "D", "i", "i", "c")))
@@ -215,9 +209,6 @@ outputDurationEras <- function(outputFolder, tempFolder, databaseName, studyName
   columns <- c("duration_era", "event_seq", "event_cohort_name")
   file <- file[,..columns]
   file$duration_era <- as.numeric(file$duration_era)
-  
-  # Apply maxPathLength
-  file <- file[event_seq <= maxPathLength,]
   
   # Group non-fixed combinations in one group according to groupCobinations
   file <- groupInfrequentCombinations(file, groupCombinations)
@@ -287,6 +278,15 @@ doMinCellCount <- function(file_noyear, file_withyear, outputFolder, tempFolder,
   
   layers <- as.vector(colnames(file_noyear)[!grepl("index_year|freq", colnames(file_noyear))])
   
+  # Calculate percentage treated before minCellCount
+  summary_counts <- readr::read_csv(file.path(tempFolder, studyName, paste0(databaseName, "_", studyName, "_summary_cnt.csv")), col_types = list("c", "d"))
+  sumAll <- as.integer(summary_counts[summary_counts$index_year == "Number of persons in target cohort NA", "N"])
+  for (l in layers) {
+    sumAllNotNA <- sum(file_noyear$freq[!is.na(file_noyear[,..l])])
+    percAllNotNA <- sumAllNotNA * 100.0 / sumAll
+    summary_counts <- rbind(summary_counts, c(paste0("Percentage treated (before minCellCount) in ", l), percAllNotNA))
+  }
+  
   # Apply minCellCount by adjusting to other most similar path (removing last treatment in path) or else remove complete path
   if (minCellMethod == "Adjust") {
     col <- ncol(file_noyear) - 1
@@ -323,13 +323,11 @@ doMinCellCount <- function(file_noyear, file_withyear, outputFolder, tempFolder,
   ParallelLogger::logInfo(paste("Remove ", sum(file_withyear$freq < minCellCount), " paths with too low frequency (with year)"))
   file_withyear <- file_withyear[freq >= minCellCount,]
   
-  summary_counts <- readr::read_csv(file.path(tempFolder, studyName, paste0(databaseName, "_", studyName, "_summary_cnt.csv")), col_types = list("c", "i"))
-  summary_counts <- rbind(summary_counts, c("Total number of pathways (after minCellCount)", sum(file_noyear$freq)))
-  
+  # Add updated counts after minCellCount
+  summary_counts <- rbind(summary_counts, c("Number of pathways (after minCellCount) in NA", sum(file_noyear$freq)))
   for (y in unique(file_withyear$index_year)) {
     summary_counts <- rbind(summary_counts, c(paste0("Number of pathways (after minCellCount) in ", y), sum(file_withyear$freq[file_withyear$index_year == y])))
   }
-  
   write.table(summary_counts,file=file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_summary_cnt.csv")), sep = ",", row.names = FALSE, col.names = TRUE)
   
   write.csv(file_noyear, file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_file_noyear.csv")), row.names = FALSE)
@@ -352,34 +350,37 @@ outputSunburstPlot <- function(data, outputFolder, databaseName, studyName, even
   cohorts <- readr::read_csv(file.path(outputFolder, "settings", "cohorts_to_create.csv"), col_types = list("i", "c", "c", "c", "c"))
   outcomes <- c(cohorts$cohortName[cohorts$cohortId %in% eventCohortIds], "Other")
   
-  if (is.null(data$index_year)) {
-    # For file_noyear compute once
-    data <- inputSunburstPlot(data, outputFolder, databaseName, studyName, addNoPaths, index_year = 'all')
+  if (nrow(data) != 0) {
     
-    createSunburstPlot(data, outcomes, folder = outputFolder, file_name = file.path(studyName, paste0(databaseName, "_", studyName, "_all")), shiny = TRUE)
-    
-    # Create legend once
-    createLegend(studyName, outputFolder, databaseName)
+    if (is.null(data$index_year)) {
+      # For file_noyear compute once
+      data <- inputSunburstPlot(data, outputFolder, databaseName, studyName, addNoPaths, index_year = 'all')
       
-  } else {
-    # For file_withyear compute per year
-    years <- unlist(unique(data[,"index_year"]))
-    
-    for (y in years) {
-      subset_data <- data[index_year == as.character(y),]
-      if (nrow(subset_data) != 0) {
-        subset_data <- inputSunburstPlot(subset_data, outputFolder, databaseName, studyName, addNoPaths, index_year = y)
+      createSunburstPlot(data, outcomes, folder = outputFolder, file_name = file.path(studyName, paste0(databaseName, "_", studyName, "_all")), shiny = TRUE)
+      
+      # Create legend once
+      createLegend(studyName, outputFolder, databaseName)
+      
+    } else {
+      # For file_withyear compute per year
+      years <- unlist(unique(data[,"index_year"]))
+      
+      for (y in years) {
+        subset_data <- data[index_year == as.character(y),]
+        if (nrow(subset_data) != 0) {
+          subset_data <- inputSunburstPlot(subset_data, outputFolder, databaseName, studyName, addNoPaths, index_year = y)
+          
+          createSunburstPlot(subset_data, outcomes, folder = outputFolder, file_name = file.path(studyName, paste0(databaseName, "_", studyName, "_", y)), shiny = TRUE)
+          
+        } else {
+          ParallelLogger::logInfo(warning(paste0("Subset of data is empty for study settings ", studyName, " in year ", y)))
+        }
         
-        createSunburstPlot(subset_data, outcomes, folder = outputFolder, file_name = file.path(studyName, paste0(databaseName, "_", studyName, "_", y)), shiny = TRUE)
-        
-      } else {
-        ParallelLogger::logInfo(warning(paste0("Subset of data is empty for study settings ", studyName, " in year ", y)))
       }
-      
     }
+    
+    ParallelLogger::logInfo("outputSunburstPlot done")
   }
-  
-  ParallelLogger::logInfo("outputSunburstPlot done")
 }
 
 
@@ -420,10 +421,6 @@ createSunburstPlot <- function(data, outcomes = NULL, folder = NULL, file_name =
     file_name <- "sunburst"
   }
   
-  # if (maxPathLength > 5) {
-  #   stop(paste0("MaxPathLength exceeds 5, currently not supported in buildHierarchy function."))
-  # }
-  
   # Load CSV file and convert to JSON
   json <- transformCSVtoJSON(data, outcomes, folder, file_name)
   
@@ -436,13 +433,13 @@ createSunburstPlot <- function(data, outcomes = NULL, folder = NULL, file_name =
     # Replace @name
     html <- sub("@name", title, html)
   }
- 
+  
   # Replace @insert_data
   html <- sub("@insert_data", json, html)
   
   # Save HTML file
   write.table(html, 
-              file = file.path(folder, paste0(file_name,"_plot.html")), 
+              file = file.path(folder, paste0(file_name,"_sunburstplot.html")), 
               quote = FALSE,
               col.names = FALSE,
               row.names = FALSE)
@@ -460,7 +457,7 @@ inputSunburstPlot <- function(data, outputFolder, databaseName, studyName, addNo
   transformed_file <- data.frame(path=transformed_file, freq=data$freq, stringsAsFactors = FALSE)
   
   if (addNoPaths) {
-    summary_counts <- readr::read_csv(file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_summary_cnt.csv")), col_types = list("c","i"))
+    summary_counts <- readr::read_csv(file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_summary_cnt.csv")), col_types = list("c","d"))
     
     if (index_year == "all") {
       noPath <- as.integer(summary_counts[summary_counts$index_year == "Number of persons in target cohort NA", "N"]) - sum(transformed_file$freq)
@@ -482,7 +479,7 @@ inputSunburstPlot <- function(data, outputFolder, databaseName, studyName, addNo
 
 # Help function to transform data in csv format to required JSON format for HTML.
 transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
- 
+  
   # Add bitwise numbers to define combination treatments
   bitwiseNumbers <- sapply(1:length(outcomes), function(o) {2^(o-1)})
   linking <- data.frame(outcomes,bitwiseNumbers)
@@ -528,7 +525,7 @@ transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
 
 # Help function to create hierarchical data structure.
 buildHierarchy <- function(csv) {
-
+  
   root = list("name" = "root", "children" = list())
   
   # Create nested structure of lists 
@@ -614,7 +611,7 @@ createLegend <- function(studyName, outputFolder, databaseName) {
   # Replace @insert_data
   input_plot <- readLines(file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_all_input.txt")))
   html <- sub("@insert_data", input_plot, html)
-
+  
   # Save HTML file as sunburst_@studyName
   write.table(html, 
               file=file.path(outputFolder, studyName, "legend.html"), 
@@ -656,10 +653,10 @@ outputSankeyDiagram <- function(data, outputFolder, databaseName, studyName, gro
   links <- as.data.frame(rbind(results1,results2))
   
   # Draw sankey network
-  plot <- googleVis::gvisSankey(links, from = "source", to = "target", weight = "value", chartid = 1)
+  plot <- googleVis::gvisSankey(links, from = "source", to = "target", weight = "value", chartid = 1, options = list(sankey = "{node: { colors: ['#B5482A'], width: 5}}"))
   
   write.table(plot$html$chart, 
-              file=file.path(outputFolder, studyName, paste0("sankeydiagram_", databaseName, "_", studyName,"_all.html")), 
+              file=file.path(outputFolder, studyName, paste0(databaseName, "_", studyName,"_all_sankeydiagram.html")), 
               quote = FALSE,
               col.names = FALSE,
               row.names = FALSE)

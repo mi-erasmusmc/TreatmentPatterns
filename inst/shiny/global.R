@@ -5,13 +5,13 @@ library(ggplot2)
 library(data.table)
 library(DT)
 
-if (exists("shinySettings")) { # run via TreatmentPatterns::launchShinyApplication
-  setwd(file.path(shinySettings$zipFolder, "output"))
+if (exists("shinySettings")) { # run via TreatmentPatterns::launchResultsExplorer
+  setwd(shinySettings$outputFolder)
 } else { 
   if (exists("pathResultsDirectory")) {
     setwd(pathResultsDirectory)
   } else {
-    stop("Define location of results folder in pathResultsDirectory (folder ~/output including the different database results)")
+    stop("Define location of outputFolder in pathResultsDirectory (folder ~/output including the different database results)")
   }
 }
 
@@ -61,6 +61,7 @@ orderEventCohorts <- c()
 # Load in all results from output folder
 characterization <- list()
 summary_counts <- list()
+summary_treated <- list()
 summary_eventcohorts <- list()
 summary_eventcohorts_year <- list()
 duration <- list()
@@ -69,10 +70,11 @@ suppressWarnings({
   for (d in included_databases) {
     
     # Load characterization for entire database
-    characterization[[d]]  <- read.csv(paste0(local, "/", d, "/characterization/characterization.csv"))
+    try(characterization[[d]]  <- read.csv(paste0(local, "/", d, "/characterization/characterization.csv")), silent = TRUE)
     
     # Load remaining file per study population
     summary_counts_d <- list()
+    summary_treated_d <- list()
     summary_eventcohorts_d <- list()
     summary_eventcohorts_year_d <- list()
     duration_d <- list()
@@ -82,18 +84,24 @@ suppressWarnings({
     
     for (s in available_studies[available_studies != "characterization"]) {
       
-      # Load summary counts
-      try({file <- read.csv(paste0(local, "/", d, "/", s, "/", d , "_", s, "_summary_cnt.csv"))
-      transformed_file <- data.table(year = character(), number_target = integer(), number_pathways = integer())
-      transformed_file <- rbind(transformed_file, list("all", file$N[file$index_year == "Number of persons in target cohort NA"], file$N[file$index_year == "Total number of pathways (after minCellCount)"]))
-      
-      for (y in all_years[-c(1)]) {
-        try(transformed_file <- rbind(transformed_file, list(y, file$N[file$index_year == paste0("Number of persons in target cohort ", y)], file$N[file$index_year == paste0("Number of pathways (after minCellCount) in ", y)])), silent = TRUE)
-      }
-      
-      transformed_file$perc <- round(transformed_file$number_pathways * 100.0 / transformed_file$number_target,1)
-      summary_counts_d[[s]] <- transformed_file}, silent = TRUE)
-      
+      try({
+        # Load summary counts
+        file <- read.csv(paste0(local, "/", d, "/", s, "/", d , "_", s, "_summary_cnt.csv"))
+        transformed_file <- data.table(year = character(), number_target = integer(), number_pathways = integer())
+        transformed_file <- rbind(transformed_file, list("all", file$N[file$index_year == "Number of persons in target cohort NA"], file$N[file$index_year == "Number of pathways (before minCellCount) in NA"]))
+        
+        for (y in all_years[-c(1)]) {
+          try(transformed_file <- rbind(transformed_file, list(y, file$N[file$index_year == paste0("Number of persons in target cohort ", y)], file$N[file$index_year == paste0("Number of pathways (before minCellCount) in ", y)])), silent = TRUE)
+        }
+        
+        transformed_file$perc <- round(transformed_file$number_pathways * 100.0 / transformed_file$number_target,1)
+        summary_counts_d[[s]] <- transformed_file
+        
+        # Load percentage treated
+        summary_treated_d[[s]] <- file[grep("Percentage treated", file$index_year),] 
+        
+      }, silent = TRUE)
+  
       # Load event cohorts classes file for available study settings
       try(summary_eventcohorts_d[[s]] <- read.csv(paste0(local, "/", d, "/", s, "/",d , "_", s, "_percentage_groups_treated_noyear.csv")), silent = TRUE)
       try(summary_eventcohorts_year_d[[s]] <- read.csv(paste0(local, "/", d, "/", s, "/",d , "_", s, "_percentage_groups_treated_withyear.csv")), silent = TRUE)
@@ -103,6 +111,7 @@ suppressWarnings({
     }
     
     summary_counts[[d]] <- summary_counts_d
+    summary_treated[[d]] <- summary_treated_d
     summary_eventcohorts[[d]] <- summary_eventcohorts_d
     summary_eventcohorts_year[[d]] <- summary_eventcohorts_year_d
     duration[[d]] <- duration_d

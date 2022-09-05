@@ -54,7 +54,7 @@ server <- function(input, output, session) {
       return(tagList(one, two, three))
       
     } else if (input$viewer2 == "Compare study settings") {
-      one <- checkboxGroupInput("population2", label = "Study", choices = all_studynames, selected =  all_studynames[[1]])
+      one <- checkboxGroupInput("population2", label = "Study setting", choices = all_studynames, selected =  all_studynames[[1]])
       two <- selectInput("dataset2", label = "Database", choices = included_databases, selected = included_databases[[1]])
       three <- selectInput("year2", label = "Year", choices = all_years, selected = "all")
       return(tagList(one, two, three))
@@ -101,8 +101,11 @@ server <- function(input, output, session) {
       
       data$databaseId <- sapply(data$databaseId, function(d) names(which(included_databases == d)))
       
-      # Multiply all rows by 100 to get percentages (except Age, Charlson comorbidity index score, Number of persons)
-      data$mean[!(data$covariateName %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))] <- data$mean[!(data$covariateName %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))]*100
+      # Multiply all numbers between 0-1 by 100 to get percentages (not age in years, number of persons, charlson comorbidity index score)
+      data$mean[data$mean <= 1 & data$mean > 0 & !grepl("age in years|number of persons|charlson", tolower(data$covariateName))] <-  data$mean[data$mean <= 1 & data$mean > 0 & !grepl("age in years|number of persons|charlson", tolower(data$covariateName))] * 100
+      
+      # Remove duplicate rows
+      data <- unique(data)
       
       # Columns different databases (rows different characteristics)
       table <- reshape2::dcast(data, covariateName ~ databaseId, value.var = "mean")
@@ -115,8 +118,11 @@ server <- function(input, output, session) {
       data$databaseId <- NULL
       data$covariateId <- NULL
       
-      # Multiply all rows by 100 to get percentages (except Age, Charlson comorbidity index score, Number of persons)
-      data$mean[!(data$covariateName %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))] <- data$mean[!(data$covariateName %in% c('Age', 'Charlson comorbidity index score', 'Number of persons'))]*100
+      # Multiply all numbers between 0-1 by 100 to get percentages (not age in years, number of persons, charlson comorbidity index score)
+      data$mean[data$mean <= 1 & data$mean > 0 & !grepl("age in years|number of persons|charlson", tolower(data$covariateName))] <-  data$mean[data$mean <= 1 & data$mean > 0 & !grepl("age in years|number of persons|charlson", tolower(data$covariateName))] * 100
+      
+      # Remove duplicate rows
+      data <- unique(data)
       
       # Rename to study populations
       data$cohortId <- sapply(data$cohortId, function(c) names(all_targetcohorts[c]))
@@ -128,9 +134,6 @@ server <- function(input, output, session) {
     # Sort
     table  <- table[order(match(table$covariateName,orderRows)),]
     row.names(table) <- NULL
-    
-    table$covariateName[table$covariateName == 'Age'] <- 'Age (in years, mean)'
-    table$covariateName[table$covariateName == 'Charlson comorbidity index score'] <- 'Charlson comorbidity index score (mean)'
     
     colnames(table)[1] <- "Covariate name" 
     table <- round_df(table, 1)
@@ -155,7 +158,7 @@ server <- function(input, output, session) {
           
           info <- summary_counts[[input$dataset2[[j]]]][[input$population2]]
           title_plot <- paste0(names(which(included_databases == input$dataset2[[j]])), " (N = ", info$number_target[info$year == input$year2], " , Treated % = ", info$perc[info$year == input$year2], ")")
-          plot_location <- paste0("workingdirectory/", input$dataset2[[j]], "/", input$population2,"/", input$dataset2[[j]], "_",input$population2, "_" ,input$year2,"_plot.html")
+          plot_location <- paste0("workingdirectory/", input$dataset2[[j]], "/", input$population2,"/", input$dataset2[[j]], "_",input$population2, "_" ,input$year2,"_sunburstplot.html")
           
           cols_ <- append(cols_,list(column(width = floor(8/n_cols), offset = 0, tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=400, height=400, scrolling = "no", frameborder = "no")))));
         }
@@ -171,7 +174,7 @@ server <- function(input, output, session) {
           
           info <- summary_counts[[input$dataset2]][[input$population2[[j]]]]
           title_plot <- paste0(names(which(all_studynames == input$population2[[j]])), " (N = ", info$number_target[info$year == input$year2], " , Treated % = ", info$perc[info$year == input$year2], ")")
-          plot_location <- paste0("workingdirectory/",input$dataset2 ,"/",input$population2[[j]], "/", input$dataset2, "_",input$population2[[j]], "_" ,input$year2,"_plot.html")
+          plot_location <- paste0("workingdirectory/",input$dataset2 ,"/",input$population2[[j]], "/", input$dataset2, "_",input$population2[[j]], "_" ,input$year2,"_sunburstplot.html")
           
           cols_ <- append(cols_,list(column(width = floor(8/n_cols), offset = 0, tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=400, height=400, scrolling = "no", frameborder = "no")))));
         }
@@ -187,7 +190,7 @@ server <- function(input, output, session) {
           
           info <- summary_counts[[input$dataset2]][[input$population2]]
           title_plot <- paste0(names(which(all_years == input$year2[[j]])), " (N = ", info$number_target[info$year == input$year2[[j]]], " , Treated % = ", info$perc[info$year == input$year2[[j]]], ")")
-          plot_location <- paste0("workingdirectory/",input$dataset2, "/", input$population2, "/", input$dataset2, "_",input$population2, "_" ,input$year2[[j]],"_plot.html")
+          plot_location <- paste0("workingdirectory/",input$dataset2, "/", input$population2, "/", input$dataset2, "_",input$population2, "_" ,input$year2[[j]],"_sunburstplot.html")
           
           cols_ <- append(cols_,list(column(width = floor(8/n_cols), offset = 0, tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=400, height=400, scrolling = "no", frameborder = "no")))));
         }
@@ -214,14 +217,32 @@ server <- function(input, output, session) {
     
     info <- summary_counts[[input$dataset34]][[input$population345]]
     title_plot <- paste0(names(which(included_databases == input$dataset34)), " (N = ", info$number_target[info$year == "all"], " , Treated % = ", info$perc[info$year == "all"], ")")
-    plot_location <- paste0("workingdirectory/", input$dataset34, "/",input$population345, "/sankeydiagram_", input$dataset34, "_",input$population345, "_all.html")
+    plot_location <- paste0("workingdirectory/", input$dataset34, "/",input$population345, "/", input$dataset34, "_",input$population345, "_all_sankeydiagram.html")
     plot <- tagList(tags$h4(title_plot), tags$iframe(seamless="seamless", src=plot_location, width=800, height=800, scrolling = "no", frameborder = "no"))
     
     return(plot)
   })
   
   # Treated patients tab
-  output$tableSummaryPathwayTitle <- renderText({paste0("Percentage of treated patients with each treatment group in pathway and as '", tolower(names(which(layers == input$layer3))), "' in '", tolower(names(which(all_years == input$year3))), "'.") })
+  output$tableTreatedPatientsTitle <- renderText({paste0("Table with the % of patients treated of target population in each treatment layer in the entire study period.")})
+  
+  output$tableTreatedPatients <- renderDataTable({
+    table <- summary_treated[[input$dataset34]][[input$population345]]
+    
+    # Change row labels
+    table$index_year <- sapply(stringr::str_extract(table$index_year, "\\d+"), function(l) names(layers[as.integer(l)]))
+    
+    # Change column names    
+    colnames(table) <- c("Treatment layer", "% Treated")
+    
+    # Round numbers
+    table <- round_df(table, 1)  
+    row.names(table) <- NULL
+    
+    return(table)
+  }, options = list(pageLength = 5))
+  
+  output$tableSummaryPathwayTitle <- renderText({paste0("Table with a) the % of treated patients with each treatment group somewhere in the full pathway and b) the % of patients with each treatment group as '", tolower(names(which(layers == input$layer3))), "' of the patients receiving a '", tolower(names(which(layers == input$layer3))), "'. Both include patients in '", tolower(names(which(all_years == input$year3))), "'.") })
   
   output$tableSummaryPathway <- renderDataTable({
     
@@ -238,20 +259,20 @@ server <- function(input, output, session) {
     # Select and rename column
     col_name <- paste0("event_cohort_name", input$layer3)
     table <- data[,c("outcomes",  "ALL_LAYERS", col_name)]
-    colnames(table) <- c("Group", "Group in Pathway", names(which(layers == input$layer3)))
+    colnames(table) <- c("Treatment group", "Full pathway", names(which(layers == input$layer3)))
     
     # Round numbers
     table <- round_df(table, 1)  
     
     # Sort
-    table  <- table[order(match(table$Group,orderEventCohorts)),]
+    table  <- table[order(match(table$`Treatment group`,orderEventCohorts)),]
     row.names(table) <- NULL
     
     return(table)
-  }, options = list(pageLength = 22))
+  }, options = list(pageLength = 20))
   
   output$figureSummaryPathwayTitleYears <- renderText({
-    paste0("Figure with percentage of treated patients with each treatment group as '", tolower(names(which(layers == input$layer3))), "' over the different years.")
+    paste0("Figure with the % of patients with each treatment group as '", tolower(names(which(layers == input$layer3))), "' of the patients receiving a '", tolower(names(which(layers == input$layer3))), "' over the different years (= second column of table over time).")
   })
   
   output$figureSummaryPathwayYears <- renderPlot({
@@ -262,23 +283,30 @@ server <- function(input, output, session) {
     col_name <- paste0("event_cohort_name", input$layer3)
     
     plot.data <- data[,c("y", "outcomes", col_name)]
-    colnames(plot.data) <- c("Year", "Group", "Percentage")
+    colnames(plot.data) <- c("Year", "Treatment group", "Percentage")
     
     # Sort
     if (is.null(orderEventCohorts)) {
-      plot.data$Group <- as.factor(plot.data$Group)
+      plot.data$`Treatment group` <- as.factor(plot.data$`Treatment group`)
     } else {
-      plot.data$Group <- factor(plot.data$Group , levels = orderEventCohorts)
+      plot.data$`Treatment group` <- factor(plot.data$`Treatment group` , levels = orderEventCohorts)
     }
     
     # Plot
-    ggplot(plot.data) +
-      geom_line(mapping = aes(x = Year, y = Percentage, group = Group, colour = Group))  + 
-      labs (x = "Years", y = "Percentage (%)", title = "") 
+    if (length(unique(plot.data$Year))==1) {
+      ggplot(plot.data) +
+        geom_point(mapping = aes(x = Year, y = Percentage, group = `Treatment group`, colour = `Treatment group`))  + 
+        labs (x = "Years", y = "Percentage (%)", title = "") 
+    } else {
+      ggplot(plot.data) +
+        geom_line(mapping = aes(x = Year, y = Percentage, group = `Treatment group`, colour = `Treatment group`))  + 
+        labs (x = "Years", y = "Percentage (%)", title = "") 
+    }
   })
   
+  
   output$figureSummaryPathwayTitleLayers <- renderText({
-    paste0("Figure with percentages of treated patients with each treatment group in '", tolower(names(which(all_years == input$year3))) , "' over the different treatment layers.")
+    paste0("Figure with the % of patients with each treatment group over the different layers. This includes patients in '", tolower(names(which(all_years == input$year3))) , "' (= second column of table over treatment layers).")
   })
   
   output$figureSummaryPathwayLayers <- renderPlot({
@@ -299,30 +327,31 @@ server <- function(input, output, session) {
     plot.data <- reshape2::melt(data, id.vars = 'outcomes')
     plot.data$variable <- stringr::str_replace(plot.data$variable, "event_cohort_name", "")
     
-    colnames(plot.data) <- c("Group", "Layer", "Percentage")
+    colnames(plot.data) <- c("Treatment group", "Layer", "Percentage")
     
     # Rename
     plot.data$Layer <- sapply(plot.data$Layer, function(l) names(layers[as.integer(l)]))
     
     # Sort
     if (is.null(orderEventCohorts)) {
-      plot.data$Group <- as.factor(plot.data$Group)
+      plot.data$`Treatment group` <- as.factor(plot.data$`Treatment group`)
     } else {
-      plot.data$Group <- factor(plot.data$Group , levels = orderEventCohorts)
+      plot.data$`Treatment group` <- factor(plot.data$`Treatment group` , levels = orderEventCohorts)
     }
     
     plot.data$Layer <- factor(plot.data$Layer, levels = as.character(names(layers)))
     
     # Plot
     ggplot(plot.data) +
-      geom_line(mapping = aes(x = Layer, y = Percentage, group = Group, colour = Group))  + 
+      geom_line(mapping = aes(x = Layer, y = Percentage, group = `Treatment group`, colour = `Treatment group`))  + 
       labs (x = "Treatment layers", y = "Percentage (%)", title = "") +
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
     
   })
   
+  
   # Duration tab
-  output$tableDurationTitle <- renderText({"Table with duration of treatments in each layer per treatment group (in days)." })
+  output$tableDurationTitle <- renderText({"Table with average druation of treatments in each treatment layer per treatment group (in days)." })
   
   output$tableDuration <- renderDataTable({
     
@@ -331,19 +360,19 @@ server <- function(input, output, session) {
     
     # Rename
     data <- reshape2::dcast(data, event_cohort_name ~ event_seq, value.var = "AVG_DURATION")
-    colnames(data) <- c("Group", as.character(names(layers)), "Overall")
+    colnames(data) <- c("Treatment group", sapply(colnames(data)[2:(ncol(data)-1)], function(l) names(layers[as.integer(l)])), "Overall")
     
     # Sort
-    data  <- data[order(match(data$Group,orderEventCohorts)),]
+    data  <- data[order(match(data$`Treatment group`,orderEventCohorts)),]
     row.names(data) <- NULL
     
     data <- round_df(data, 1)
     data[is.na(data)] <- "NA"
     
     return(data)
-  }, options = list(pageLength = 23))
+  }, options = list(pageLength = 20))
   
-  output$heatmapDurationTitle <- renderText({"Figure with duration of treatments in each layer per treatment group (in days)." })
+  output$heatmapDurationTitle <- renderText({"Figure with average duration of treatments in each treatment layer per treatment group (in days)." })
   
   output$heatmapDuration <- renderPlot({
     
@@ -352,12 +381,12 @@ server <- function(input, output, session) {
     
     # Rename
     data <- reshape2::dcast(data, event_cohort_name ~ event_seq, value.var = "AVG_DURATION")
-    colnames(data) <- c("Group", as.character(names(layers)), "Overall")
+    colnames(data) <- c("Treatment group", sapply(colnames(data)[2:(ncol(data)-1)], function(l) names(layers[as.integer(l)])), "Overall")
     
     # Transform data type
     data_matrix <- data.matrix(data, rownames.force = NA)
     data_matrix <- data_matrix[,-1]
-    rownames(data_matrix) <- data$Group
+    rownames(data_matrix) <- data$`Treatment group`
     
     data_matrix[is.na(data_matrix)] <- 0
     

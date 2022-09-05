@@ -1,7 +1,7 @@
 Package: TreatmentPatterns
 Type: Package
 Title: A package to analyse real-world treatment patterns of a study population of interest
-Version: 0.2.4
+Version: 1.0.0
 Author: Aniek F Markus 
 Maintainer: Aniek F Markus <a.markus@erasmusmc.nl>
 Description: This package gives insight in treatment patterns, the following tasks should be performed sequentially:
@@ -29,11 +29,9 @@ Imports:
     OhdsiSharing,
     R.utils
 Suggests:
-    testthat (>= 3.0.0),
     ROhdsiWebApi
 License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
-Config/testthat/edition: 3

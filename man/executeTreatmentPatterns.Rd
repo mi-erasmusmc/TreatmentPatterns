@@ -19,7 +19,7 @@ executeTreatmentPatterns(
   runCohortCharacterization = TRUE,
   runConstructPathways = TRUE,
   runGenerateOutput = TRUE,
-  launchShiny = FALSE
+  launchShiny = TRUE
 )
 }
 \arguments{

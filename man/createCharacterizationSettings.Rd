@@ -13,6 +13,7 @@ createCharacterizationSettings(
     = TRUE, useDemographicsGender = TRUE, useDemographicsTimeInCohort = TRUE,
     useDemographicsPostObservationTime = TRUE, useConditionGroupEraAnyTimePrior = TRUE,
     useConditionGroupEraLongTerm = TRUE, useCharlsonIndex = TRUE),
+  returnCovariates = "all",
   minCellCount = 5
 )
 }
@@ -22,6 +23,10 @@ createCharacterizationSettings(
 \item{baselineCovariates}{Data frame containing the baseline characteristics of interest (covariateName = "Descriptive name covariate", covariateId = "Unique ID number referring to covariate from FeatureExtraction or 'Custom' (see explanation below)"), covariateId can be "custom" if SQL code is}
 
 \item{standardCovariateSettings}{An object of type covariateSettings as created using the createCovariateSettings function in the FeatureExtraction package.}
+
+\item{returnCovariates}{Return "all" features or only "selection" of features}
+
+\item{minCellCount}{Minimum number of persons with a specific baseline covariate to be included in analysis}
 }
 \value{
 Object characterizationSettings.

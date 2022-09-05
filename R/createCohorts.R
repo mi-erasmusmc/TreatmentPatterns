@@ -135,7 +135,7 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
           concept_set <- paste0("(", concept_set, ")")
           
           # Insert concept set in SQL template to create cohort
-          sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"), "SQL", "CohortDrugTemplate.sql"),
+          sql <- loadRenderTranslateSql(sql = file.path(system.file(package = "TreatmentPatterns"), "SQL", "CohortDrugProcedureTemplate.sql"),
                                         dbms = dataSettings$connectionDetails$dbms,
                                         cdm_database_schema = dataSettings$cdmDatabaseSchema,
                                         vocabulary_database_schema = dataSettings$cdmDatabaseSchema,
@@ -182,7 +182,7 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
     
     # Load cohorts in from file
     # Required columns: cohortId, personId, startDate, endDate
-    data <- data.table(readr::read_csv(dataSettings$cohortLocation), col_types = list("d", "d", "D", "D"))
+    data <- data.table(readr::read_csv(dataSettings$cohortLocation, col_types = list("d", "d", "D", "D")))
     
     if (!all(c("cohortId", "personId", "startDate", "endDate") %in% colnames(data))) {
       stop('Incorrect input for cohorts')
@@ -190,12 +190,12 @@ createCohorts <- function(dataSettings, cohortSettings, saveSettings) {
     
     # Check number of subjects per cohort
     ParallelLogger::logInfo("Counting cohorts")
-    counts <- data.frame(cohortDefinitionId = cohortsToCreate$cohortId)
-    counts$cohortCount <- sapply(counts$cohortDefinitionId, function(c) {
-      length(data$person_id[data$cohortId == c]) 
+    counts <- data.frame(cohortId = cohortsToCreate$cohortId)
+    counts$cohortCount <- sapply(counts$cohortId, function(c) {
+      length(data$personId[data$cohortId == c]) 
     })
-    counts$personCount <- sapply(counts$cohortDefinitionId, function(c) {
-      length(unique(data$person_id[data$cohortId == c]))
+    counts$personCount <- sapply(counts$cohortId, function(c) {
+      length(unique(data$personId[data$cohortId == c]))
     })
     write.csv(counts, file.path(saveSettings$outputFolder, "cohort_counts.csv"), row.names = FALSE)
   }

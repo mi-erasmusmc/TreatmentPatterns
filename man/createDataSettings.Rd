@@ -6,9 +6,7 @@
 \usage{
 createDataSettings(
   OMOP_CDM = "TRUE",
-  connectionDetails = DatabaseConnector::createConnectionDetails(dbms =
-    Sys.getenv("dbms"), server = Sys.getenv("server"), user = Sys.getenv("user"),
-    password = Sys.getenv("password"), port = Sys.getenv("port")),
+  connectionDetails = NULL,
   cdmDatabaseSchema = NULL,
   cohortDatabaseSchema = NULL,
   cohortTable = "treatmentpatterns_cohorts",

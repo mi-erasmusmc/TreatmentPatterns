@@ -4,12 +4,18 @@
 \alias{launchResultsExplorer}
 \title{Processes the zipped result folder(s) and launch the shiny application.}
 \usage{
-launchResultsExplorer(saveSettings = NULL, zipFolder = NULL)
+launchResultsExplorer(
+  saveSettings = NULL,
+  zipFolder = NULL,
+  outputFolder = NULL
+)
 }
 \arguments{
 \item{saveSettings}{Settings object as created by createSaveSettings().}
 
-\item{zipFolder}{Name of local folder containing zip file(s).}
+\item{zipFolder}{Name of local folder containing zip file(s) to move to outputFolder.}
+
+\item{outputFolder}{Name of local folder containing output.}
 }
 \value{
 

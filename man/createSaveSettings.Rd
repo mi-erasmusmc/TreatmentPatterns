@@ -6,7 +6,7 @@
 \usage{
 createSaveSettings(
   databaseName = "unknown_name",
-  rootFolder = getwd(),
+  rootFolder,
   outputFolder = file.path(rootFolder, "output"),
   tempFolder = file.path(rootFolder, "temp")
 )

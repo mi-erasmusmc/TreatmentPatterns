@@ -14,11 +14,14 @@ createSaveSettings(
 \arguments{
 \item{databaseName}{Name of the database that will appear in the results.}
 
-\item{rootFolder}{Name of local folder to place all package output (outputFolder, tempFolder if not given).}
+\item{rootFolder}{Name of local folder to place all package output (outputFolder,
+tempFolder if not given).}
 
-\item{outputFolder}{Name of local folder to place results; make sure to use forward slashes (/).}
+\item{outputFolder}{Name of local folder to place results; make sure to use forward slashes
+(/).}
 
-\item{tempFolder}{Name of local folder to place intermediate results (not to be shared); make sure to use forward slashes (/).}
+\item{tempFolder}{Name of local folder to place intermediate results (not to be shared);
+make sure to use forward slashes (/).}
 }
 \value{
 Object saveSettings.

@@ -17,9 +17,6 @@ launchResultsExplorer(
 
 \item{outputFolder}{Name of local folder containing output.}
 }
-\value{
-
-}
 \description{
 Processes the zipped result folder(s) and launch the shiny application.
 }

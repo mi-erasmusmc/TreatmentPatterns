@@ -8,9 +8,9 @@ createCharacterizationSettings(
   baselineCovariates_location = NULL,
   baselineCovariates = data.frame(covariateName = c("Male", "Age",
     "Charlson comorbidity index score"), covariateId = c(8507001, 1002, 1901)),
- 
-    standardCovariateSettings = FeatureExtraction::createCovariateSettings(useDemographicsAge
-    = TRUE, useDemographicsGender = TRUE, useDemographicsTimeInCohort = TRUE,
+  standardCovariateSettings =
+    FeatureExtraction::createCovariateSettings(useDemographicsAge = TRUE,
+    useDemographicsGender = TRUE, useDemographicsTimeInCohort = TRUE,
     useDemographicsPostObservationTime = TRUE, useConditionGroupEraAnyTimePrior = TRUE,
     useConditionGroupEraLongTerm = TRUE, useCharlsonIndex = TRUE),
   returnCovariates = "all",
@@ -20,13 +20,18 @@ createCharacterizationSettings(
 \arguments{
 \item{baselineCovariates_location}{Optional: Location of saved baselineCovariates object.}
 
-\item{baselineCovariates}{Data frame containing the baseline characteristics of interest (covariateName = "Descriptive name covariate", covariateId = "Unique ID number referring to covariate from FeatureExtraction or 'Custom' (see explanation below)"), covariateId can be "custom" if SQL code is}
+\item{baselineCovariates}{Data frame containing the baseline characteristics of interest
+(covariateName = "Descriptive name covariate", covariateId = "Unique ID
+number referring to covariate from FeatureExtraction or 'Custom' (see
+explanation below)"), covariateId can be "custom" if SQL code is.}
 
-\item{standardCovariateSettings}{An object of type covariateSettings as created using the createCovariateSettings function in the FeatureExtraction package.}
+\item{standardCovariateSettings}{An object of type covariateSettings as created using the
+createCovariateSettings function in the FeatureExtraction package.}
 
 \item{returnCovariates}{Return "all" features or only "selection" of features}
 
-\item{minCellCount}{Minimum number of persons with a specific baseline covariate to be included in analysis}
+\item{minCellCount}{Minimum number of persons with a specific baseline covariate to be
+included in analysis}
 }
 \value{
 Object characterizationSettings.

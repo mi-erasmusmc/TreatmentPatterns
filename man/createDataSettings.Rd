@@ -14,22 +14,27 @@ createDataSettings(
 )
 }
 \arguments{
-\item{connectionDetails}{Only for OMOP-CDM TRUE: An object of type connectionDetails as created using the createConnectionDetails function in the
-DatabaseConnector package.}
+\item{connectionDetails}{Only for OMOP-CDM TRUE: An object of type connectionDetails as created
+using the createConnectionDetails function in the DatabaseConnector
+package.}
 
-\item{cdmDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where your patient-level data resides. Note that for SQL Server, 
-this should include both the database and schema name, for example 'cdm_data.dbo'.}
+\item{cdmDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where your patient-level data
+resides. Note that for SQL Server, this should include both the database
+and schema name, for example 'cdm_data.dbo'.}
 
-\item{cohortDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where intermediate data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
-include both the database and schema name, for example 'cdm_results.dbo'.}
+\item{cohortDatabaseSchema}{Only for OMOP-CDM TRUE: Schema name where intermediate data can be
+stored. You will need to have write priviliges in this schema. Note that
+for SQL Server, this should include both the database and schema name,
+for example cdm_results.dbo'.}
 
-\item{cohortTable}{Only for OMOP-CDM TRUE: The name of the table that will be created in the cohortDatabaseSchema.
-This table will hold the target and event cohorts used in this study.}
+\item{cohortTable}{Only for OMOP-CDM TRUE: The name of the table that will be created in
+the cohortDatabaseSchema. This table will hold the target and event
+cohorts used in this study.}
 
 \item{cohortLocation}{Only for OMOP-CDM FALSE: Location from where cohorts can be loaded.}
 
-\item{OMOP-CDM}{Format of database 'Observational Medical Outcomes Partnership Common Data Model' = TRUE or 'Other' = FALSE.}
+\item{OMOP-CDM}{Format of database 'Observational Medical Outcomes Partnership Common
+Data Model' = TRUE or 'Other' = FALSE.}
 }
 \value{
 Object dataSettings.

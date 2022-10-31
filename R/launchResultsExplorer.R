@@ -5,7 +5,6 @@
 #' @param zipFolder Name of local folder containing zip file(s) to move to outputFolder.
 #' @param outputFolder Name of local folder containing output.
 #'
-#' @return
 #' @export
 launchResultsExplorer <- function(saveSettings = NULL, zipFolder = NULL, outputFolder = NULL) {
   ensure_installed("shiny")

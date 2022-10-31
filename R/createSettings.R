@@ -438,7 +438,6 @@ createPathwaySettings <- function(
 #'     Select to include untreated persons without treatment pathway in the
 #'     sunburst plot
 #'
-#' @return 
 #' @export
 addPathwaySettings <- function(
     studyName = "name_unknown", # c("default")

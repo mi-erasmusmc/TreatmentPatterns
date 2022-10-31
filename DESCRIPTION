@@ -25,9 +25,10 @@ Imports:
     reshape2,
     googleVis,
     RJSONIO,
-    FeatureExtraction,
-    OhdsiSharing,
     R.utils
+Remotes:
+  OHDSI/OhdsiSharing,
+  OHDSI/FeatureExtraction
 Suggests:
     ROhdsiWebApi
 License: Apache License 2.0

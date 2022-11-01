@@ -44,7 +44,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   }
   colnames(full_cohorts) <- c("cohort_id", "person_id", 
                               "start_date", "end_date")   
-  
+
   # Save pathway settings
   pathwaySettings <- pathwaySettings$all_settings
   write.csv(
@@ -54,70 +54,70 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
       "settings",
       "pathway_settings.csv"),
     row.names = FALSE)
-  
+
   # For all different pathway settings
   settings <- colnames(pathwaySettings)[
     grepl("analysis", colnames(pathwaySettings))]
-  
+
   for (s in settings) {
     studyName <- pathwaySettings[pathwaySettings$param == "studyName", s]
-    
+
     # Check if directories exist and create if necessary
     tempFolder_s <- file.path(saveSettings$tempFolder, studyName)
     if (!file.exists(tempFolder_s))
       dir.create(tempFolder_s, recursive = TRUE)
-    
+
     ParallelLogger::logInfo(print(paste0(
       "Constructing treatment pathways: ", studyName)))
     
     # Select cohorts included
     targetCohortId <- pathwaySettings[
       pathwaySettings$param == "targetCohortId", s]
-    
+
     eventCohortIds <- pathwaySettings[
       pathwaySettings$param == "eventCohortIds", s]
-    
+
     eventCohortIds <- unlist(strsplit(eventCohortIds, split = c(";|,")))
-    
+
     # Analysis settings
     includeTreatments <- pathwaySettings[
       pathwaySettings$param == "includeTreatments", s]
-    
+
     periodPriorToIndex <- as.integer(pathwaySettings[
       pathwaySettings$param == "periodPriorToIndex", s])
-    
+
     minEraDuration <- as.integer(pathwaySettings[
       pathwaySettings$param == "minEraDuration", s])
-    
+
     splitEventCohorts <- pathwaySettings[
       pathwaySettings$param == "splitEventCohorts", s]
-    
+
     splitTime <- pathwaySettings[
       pathwaySettings$param == "splitTime", s]
-    
+
     eraCollapseSize <- as.integer(pathwaySettings[
       pathwaySettings$param == "eraCollapseSize", s])
-    
+
     combinationWindow <- as.integer(pathwaySettings[
       pathwaySettings$param == "combinationWindow", s])
-    
+
     minPostCombinationDuration <- as.integer(pathwaySettings[
       pathwaySettings$param == "minPostCombinationDuration", s])
     
     filterTreatments <-  pathwaySettings[
       pathwaySettings$param == "filterTreatments", s]
-    
+
     maxPathLength <- as.integer(pathwaySettings[
       pathwaySettings$param == "maxPathLength", s])
-    
+
     # Select subset of full cohort including only data for the current target
     # cohort
     select_people <- full_cohorts$person_id[
       full_cohorts$cohort_id == targetCohortId]
-    
+
     current_cohorts <- full_cohorts[
       full_cohorts$person_id %in% select_people, ]
-    
+
     if (nrow(current_cohorts) != 0) {
       # Preprocess the target/event cohorts to create treatment history
       treatment_history <- doCreateTreatmentHistory(
@@ -126,80 +126,80 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
         eventCohortIds, 
         periodPriorToIndex, 
         includeTreatments)
-      
+
       # Apply pathway settings to create treatment pathways
       ParallelLogger::logInfo(paste(
         "Construct treatment pathways, this may",
         "take a while for larger datasets."))
-      
+
       writeLines(paste0("Original number of rows: ", nrow(treatment_history)))
-      
+
       # TODO: check what happens if treatment_history zero or few rows
       # (throw errors)
-      
+
       treatment_history <- doEraDuration(
         treatment_history, 
         minEraDuration)
-      
+
       treatment_history <- doSplitEventCohorts(
         treatment_history,
         splitEventCohorts,
         splitTime,
         saveSettings$outputFolder)
-      
+
       treatment_history <- doEraCollapse(
         treatment_history,
         eraCollapseSize)
-      
+
       treatment_history <- doCombinationWindow(
         treatment_history,
         combinationWindow,
         minPostCombinationDuration)
-      
+
       treatment_history <- doFilterTreatments(
         treatment_history,
         filterTreatments)
-      
+
       if (nrow(treatment_history) != 0) {
         # Add event_seq number to determine order of treatments in pathway
         ParallelLogger::logInfo("Adding drug sequence number.")
         treatment_history <- treatment_history[
           order(person_id, event_start_date, event_end_date), ]
-        
+
         treatment_history[, event_seq := seq_len(.N), by = .(person_id)]
-        
+
         treatment_history <- doMaxPathLength(
           treatment_history, 
           maxPathLength)
-        
+
         # Add event_cohort_name (instead of only event_cohort_id)
         ParallelLogger::logInfo("Adding concept names.")
-        
+
         treatment_history <- addLabels(
           treatment_history, 
           saveSettings$outputFolder)
-        
+
         # Order the combinations
         ParallelLogger::logInfo("Ordering the combinations.")
         combi <- grep(
           pattern = "+", 
           x = treatment_history$event_cohort_name, 
           fixed = TRUE)
-        
+
         cohort_names <- strsplit(
           x = treatment_history$event_cohort_name[combi], 
           split = "+", 
           fixed = TRUE)
-        
+
         treatment_history$event_cohort_name[combi] <- sapply(
           X = cohort_names, 
           FUN = function(x) {
             paste(sort(x), collapse = "+")})
-        
+
         treatment_history$event_cohort_name <- unlist(
           treatment_history$event_cohort_name)
       }
-      
+
       # Save the processed treatment history
       write.csv(treatment_history, file.path(
         tempFolder_s,
@@ -209,7 +209,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
           studyName,
           "_event_seq_processed.csv")),
         row.names = FALSE)
-      
+
       # Save the treatment pathways
       if (nrow(treatment_history) != 0) {
         treatment_pathways <- as.data.table(
@@ -217,17 +217,17 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
             data = treatment_history, 
             formula = person_id + index_year ~ event_seq, 
             value.var = "event_cohort_name"))
-        
+
         colnames(treatment_pathways)[3:ncol(treatment_pathways)] <- paste0(
           "event_cohort_name", 
           colnames(treatment_pathways)[3:ncol(treatment_pathways)])
-        
+
         layers <- c(colnames(treatment_pathways))[
           3:min(7, ncol(treatment_pathways))] # max first 5
-        
+
         treatment_pathways <- treatment_pathways[
           , .(freq = length((person_id))), by = c(layers, "index_year")]
-        
+
         write.csv(
           x = treatment_pathways, 
           file = file.path(
@@ -237,37 +237,37 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
               "_", studyName, 
               "_paths.csv")), 
           row.names = FALSE) 
-        
+
         # Calculate counts of the number of persons in target cohort / with 
         # pathways, in total / per year
         targetCohort <- current_cohorts[
           current_cohorts$cohort_id %in% targetCohortId,,]
-        
+
         targetCohort$index_year <- as.numeric(format(
           targetCohort$start_date,
           "%Y"))
-        
+
         counts_targetcohort <- data.table::rollup(
           targetCohort,
           .N,
           by = c("index_year"))
-        
+
         counts_targetcohort$index_year <- paste0(
           "Number of persons in target cohort ",
           counts_targetcohort$index_year)
-        
+
         counts_pathways <- rollup(
           treatment_pathways,
           sum(freq),
           by = c("index_year"))
-        
+
         counts_pathways$index_year <- paste0(
           "Number of pathways (before minCellCount) in ",
           counts_pathways$index_year)
-        
+
         colnames(counts_pathways) <- colnames(counts_targetcohort)
         counts <- rbind(counts_targetcohort, counts_pathways)
-        
+
         write.csv(
           counts,
           file.path(
@@ -289,21 +289,16 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
 #'
 #' @param current_cohorts
 #'     Dataframe with target and event cohorts of current study settings.
-#'     
 #' @param targetCohortId
 #'     Target cohort ID of current study settings.
-#' 
 #' @param eventCohortIds
 #'     Event cohort IDs of current study settings.
-#'     
 #' @param periodPriorToIndex
 #'     Number of days prior to the index date of the target cohort that event
 #'     cohorts are allowed to start
-#'     
 #' @param includeTreatments
 #'     Include treatments starting ('startDate') or ending ('endDate') after
 #'     target cohort start date
-#'
 #' @return current_cohorts
 #'     Updated dataframe, including only event cohorts after
 #'     target cohort start date and with added index year, duration, gap same
@@ -314,25 +309,25 @@ doCreateTreatmentHistory <- function(
     eventCohortIds, 
     periodPriorToIndex, 
     includeTreatments) {
-  
+
   # Add index year column based on start date target cohort
   targetCohort <- current_cohorts[
     current_cohorts$cohort_id %in% targetCohortId,, ]
-  
+
   targetCohort$index_year <- as.numeric(format(targetCohort$start_date, "%Y"))
-  
+
   # Select event cohorts for target cohort and merge with start/end date and 
   # index year
   eventCohorts <- current_cohorts[
     current_cohorts$cohort_id %in% eventCohortIds,, ]
-  
+
   current_cohorts <- merge(
     x = eventCohorts,
     y = targetCohort,
     by = c("person_id"),
     all.x = TRUE,
     allow.cartesian = TRUE)
-  
+
   # Only keep event cohorts starting (startDate) or ending (endDate) after
   # target cohort start date
   if (includeTreatments == "startDate") {
@@ -342,7 +337,7 @@ doCreateTreatmentHistory <- function(
         current_cohorts$start_date.x &
         current_cohorts$start_date.x <
         current_cohorts$end_date.y, ]
-    
+
   } else if (includeTreatments == "endDate") {
     current_cohorts <- current_cohorts[
       current_cohorts$start_date.y -
@@ -350,7 +345,7 @@ doCreateTreatmentHistory <- function(
         current_cohorts$end_date.x &
         current_cohorts$start_date.x <
         current_cohorts$end_date.y, ]
-    
+
     current_cohorts$start_date.x <- pmax(
       current_cohorts$start_date.y - as.difftime(
         periodPriorToIndex, unit = "days"), 
@@ -366,31 +361,30 @@ doCreateTreatmentHistory <- function(
         current_cohorts$start_date.x <
         current_cohorts$end_date.y, ]
   }
-  
+
   # Remove unnecessary columns
   current_cohorts <- current_cohorts[
     , c("person_id", "index_year", "cohort_id.x",
         "start_date.x", "end_date.x")]
-  
+
   colnames(current_cohorts) <- c(
     "person_id", "index_year", "event_cohort_id",
     "event_start_date", "event_end_date")
-  
+
   # Calculate duration and gap same
   current_cohorts[,
     duration_era := difftime(event_end_date, event_start_date, units = "days")]
-  
+
   current_cohorts <- current_cohorts[order(event_start_date, event_end_date), ]
-  
-  current_cohorts[,
-    lag_variable := shift(event_end_date, type = "lag"), 
+
+  current_cohorts[
+    , lag_variable := shift(event_end_date, type = "lag"), 
     by = c("person_id", "event_cohort_id")]
   
   current_cohorts[,
     gap_same := difftime(event_start_date, lag_variable, units = "days"), ]
-  
+
   current_cohorts$lag_variable <- NULL
-  
   return(current_cohorts)
 }
 
@@ -401,7 +395,6 @@ doCreateTreatmentHistory <- function(
 #'     Dataframe with event cohorts of the target cohort in different rows.
 #' @param minEraDuration
 #'     Minimum time an event era should last to be included in analysis.
-#'
 #' @return treatment_history
 #'     Updated dataframe, rows with duration < 
 #'     minEraDuration filtered out.
@@ -409,7 +402,6 @@ doEraDuration <- function(treatment_history, minEraDuration) {
   treatment_history <- treatment_history[duration_era >= minEraDuration, ]
   ParallelLogger::logInfo(print(
     paste0("After minEraDuration: ", nrow(treatment_history))))
-  
   return(treatment_history)
 }
 

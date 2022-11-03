@@ -2,7 +2,7 @@
 % Please edit documentation in R/launchResultsExplorer.R
 \name{launchResultsExplorer}
 \alias{launchResultsExplorer}
-\title{Processes the zipped result folder(s) and launch the shiny application.}
+\title{launchResultsExplorer}
 \usage{
 launchResultsExplorer(
   saveSettings = NULL,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/generateOutput.R
 \name{generateOutput}
 \alias{generateOutput}
-\title{Generate output (sunburst plots, Sankey diagrams and more).}
+\title{generateOutput}
 \usage{
 generateOutput(saveSettings)
 }

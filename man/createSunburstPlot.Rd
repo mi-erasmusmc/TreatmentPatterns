@@ -2,7 +2,7 @@
 % Please edit documentation in R/generateOutput.R
 \name{createSunburstPlot}
 \alias{createSunburstPlot}
-\title{Function to create sunburst plot from CSV file.}
+\title{createSunburstPlot}
 \usage{
 createSunburstPlot(
   data,
@@ -14,7 +14,10 @@ createSunburstPlot(
 )
 }
 \arguments{
-\item{data}{A data frame containing two columns: 1) column "path" should specify the event cohorts separated by dashes - (combinations can be indicated using &) and 2) column "freq" should specify how often that (unique) path occurs.}
+\item{data}{A data frame containing two columns: 1) column "path" should specify the
+event cohorts separated by dashes - (combinations can be indicated using
+&) and 2) column "freq" should specify how often that (unique) path
+occurs.}
 
 \item{outcomes}{Character vector containing all event cohorts.}
 
@@ -22,9 +25,11 @@ createSunburstPlot(
 
 \item{file_name}{File name for the results.}
 
-\item{shiny}{Set to TRUE if HTML file is generated for shiny application, FALSE will generate a standalone HTML with title and legend.}
+\item{shiny}{Set to TRUE if HTML file is generated for shiny application, FALSE will
+generate a standalone HTML with title and legend.}
 
-\item{title}{Optional if shiny = FALSE: add descriptive title in sunburst plot for standalone HTML.}
+\item{title}{Optional if shiny = FALSE: add descriptive title in sunburst plot for
+standalone HTML.}
 }
 \description{
 Function to create sunburst plot from CSV file.

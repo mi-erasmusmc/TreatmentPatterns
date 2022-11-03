@@ -2,7 +2,7 @@
 % Please edit documentation in R/cohortCharacterization.R
 \name{cohortCharacterization}
 \alias{cohortCharacterization}
-\title{Optional, only for OMOP-CDM data: Perform baseline characterization of study/target population.}
+\title{cohortCharacterization}
 \usage{
 cohortCharacterization(dataSettings, characterizationSettings, saveSettings)
 }
@@ -14,5 +14,6 @@ cohortCharacterization(dataSettings, characterizationSettings, saveSettings)
 \item{saveSettings}{Settings object as created by createSaveSettings().}
 }
 \description{
-Optional, only for OMOP-CDM data: Perform baseline characterization of study/target population.
+Optional, only for OMOP-CDM data: Perform baseline characterization of 
+study/target population.
 }

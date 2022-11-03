@@ -25,7 +25,8 @@ Imports:
     reshape2,
     googleVis,
     RJSONIO,
-    R.utils
+    R.utils,
+    webshot2
 Remotes:
   OHDSI/OhdsiSharing,
   OHDSI/FeatureExtraction

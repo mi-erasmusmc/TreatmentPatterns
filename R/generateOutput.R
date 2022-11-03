@@ -186,7 +186,7 @@ getPathways <- function(
     tempFolder,
     databaseName,
     studyName,
-minCellCount) {
+    minCellCount) {
   # Try to read in paths from constructPathways.R for studyName
   file <- try({
     data.table(readr::read_csv(
@@ -1363,4 +1363,31 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
     }
   }
   return(as.data.table(data))
+}
+
+
+#' saveAsPNG
+#' 
+#' Takes a scaled screenshot of a html page. Shadows webshot2::webshot.
+#'
+#' @param fileName
+#'     File name of the input HTML-file.
+#' @param fileNameOut
+#'     Filename of the output PNG-file.
+#' @param zoom
+#'     Zoom factor
+#' @param vwidth
+#'     Width of the image
+#' @param ...
+#'     Other parameters that webshot2::webshot can use. See ??webshot2::websot
+#'
+#' @export
+saveAsPNG <- function(fileName, fileNameOut, zoom = 3, vwidth = 430, ...) {
+  webshot2::webshot(
+    url = fileName,
+    file = fileNameOut,
+    selector = "svg",
+    zoom = zoom,
+    vwidth = vwidth,
+    ...)
 }

@@ -1381,6 +1381,8 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
 #' @param ...
 #'     Other parameters that webshot2::webshot can use. See ??webshot2::websot
 #'
+#' @import webshot2
+#'
 #' @export
 saveAsPNG <- function(fileName, fileNameOut, zoom = 3, vwidth = 430, ...) {
   webshot2::webshot(

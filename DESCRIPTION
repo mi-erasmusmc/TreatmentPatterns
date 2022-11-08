@@ -31,7 +31,7 @@ Remotes:
   OHDSI/OhdsiSharing,
   OHDSI/FeatureExtraction
 Suggests:
-    OHDSI/ROhdsiWebApi,
+    ROhdsiWebApi,
     testthat (>= 3.0.0)
 License: Apache License 2.0
 Encoding: UTF-8

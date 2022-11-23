@@ -24,6 +24,14 @@ test_that("Minimal", {
     cohortDatabaseSchema = "main"), "dataSettings")
 })
 
+test_that("OMOP TRUE/FALSE", {
+  testthat::expect_warning(createDataSettings(
+    OMOP_CDM = TRUE,
+    connectionDetails = getEunomiaConnectionDetails(),
+    cdmDatabaseSchema = "main",
+    cohortDatabaseSchema = "main"), c("not logical"))
+})
+
 test_that("OMOP", {
   testthat::expect_s3_class(createDataSettings(
     connectionDetails = getEunomiaConnectionDetails(),

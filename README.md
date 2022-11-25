@@ -2,6 +2,8 @@
 
 This R package contains the resources for performing a treatment pathway analysis of a study population of interest in observational databases. The package partially relies on the Observational Medical Outcomes Partnership Common Data Model (OMOP CDM), but the main parts of the package are also usable with different data formats.
 
+Reference: Markus, A. F., Verhamme, K. M., Kors, J. A., & Rijnbeek, P. R. (2022). [TreatmentPatterns: An R package to facilitate the standardized development and analysis of treatment patterns across disease domains](https://doi.org/10.1016/j.cmpb.2022.107081). Computer Methods and Programs in Biomedicine, 107081.
+
 ## Features
 
 - Extracts the necessary data from a database in OMOP CDM format or directly imports the cohorts from a csv file.
@@ -12,6 +14,7 @@ This R package contains the resources for performing a treatment pathway analysi
 
 
 ## Screenshots
+Demo output: [example shiny application](https://mi-erasmusmc.shinyapps.io/TreatmentPatterns/).
 
 <table>
 <tr valign="bottom">

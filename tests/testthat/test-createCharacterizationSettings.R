@@ -93,3 +93,11 @@ test_that("baselineCovariates", {
     "characterizationSettings"
   )
 })
+
+test_that("returnCovariates", {
+  expect_error(createCharacterizationSettings(returnCovariates = "stuff"))
+})
+
+test_that("returnCovariates", {
+  expect_error(createCharacterizationSettings(minCellCount = "5"))
+})

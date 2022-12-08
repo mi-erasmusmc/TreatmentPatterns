@@ -1,3 +1,5 @@
+library(TreatmentPatterns)
+
 conDetails <- Eunomia::getEunomiaConnectionDetails()
 
 dataSettings <- createDataSettings(
@@ -47,3 +49,24 @@ pathwaySettings <- createPathwaySettings(targetCohortId = 1,
 
 saveSettings <- createSaveSettings(databaseName = "Eunomia",
                                    rootFolder = getwd())
+
+TreatmentPatterns::executeTreatmentPatterns(
+  dataSettings = dataSettings,
+  cohortSettings = cohortSettings,
+  characterizationSettings = characterizationSettings,
+  pathwaySettings = pathwaySettings,
+  saveSettings = saveSettings,
+)
+
+con <- DatabaseConnector::connect(conDetails)
+
+sql <- "
+SELECT * FROM treatmentpatterns_cohorts"
+
+res <- DatabaseConnector::renderTranslateQuerySql(con, sql)
+
+dim(res)
+
+library(dplyr)
+
+res %>% group_by(.data$COHORT_DEFINITION_ID) %>% tally()

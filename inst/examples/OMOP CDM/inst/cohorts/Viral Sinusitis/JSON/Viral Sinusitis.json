@@ -1,0 +1,266 @@
+{
+  "ConceptSets": [
+    {
+      "id": 0,
+      "name": "[MVK] Viral Sinusitis diagnosis",
+      "expression": {
+        "items": [
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Clinical Finding",
+              "CONCEPT_CODE": "444814009",
+              "CONCEPT_ID": 40481087,
+              "CONCEPT_NAME": "Viral sinusitis",
+              "DOMAIN_ID": "Condition",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "SNOMED"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": 1,
+      "name": "[MVK] Viral Sinusistis drugs",
+      "expression": {
+        "items": [
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "161",
+              "CONCEPT_ID": 1125315,
+              "CONCEPT_NAME": "acetaminophen",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "723",
+              "CONCEPT_ID": 1713332,
+              "CONCEPT_NAME": "amoxicillin",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "1191",
+              "CONCEPT_ID": 1112807,
+              "CONCEPT_NAME": "aspirin",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "48203",
+              "CONCEPT_ID": 1759842,
+              "CONCEPT_NAME": "clavulanate",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "7984",
+              "CONCEPT_ID": 1729720,
+              "CONCEPT_NAME": "penicillin V",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "3642",
+              "CONCEPT_ID": 738818,
+              "CONCEPT_NAME": "doxylamine",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "3642",
+              "CONCEPT_ID": 738818,
+              "CONCEPT_NAME": "doxylamine",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "3289",
+              "CONCEPT_ID": 1119510,
+              "CONCEPT_NAME": "dextromethorphan",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "5640",
+              "CONCEPT_ID": 1177480,
+              "CONCEPT_NAME": "ibuprofen",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "140587",
+              "CONCEPT_ID": 1118084,
+              "CONCEPT_NAME": "celecoxib",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "7258",
+              "CONCEPT_ID": 1115008,
+              "CONCEPT_NAME": "naproxen",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "PrimaryCriteria": {
+    "CriteriaList": [
+      {
+        "DrugEra": {
+          "CodesetId": 1
+        }
+      }
+    ],
+    "ObservationWindow": {
+      "PriorDays": 365,
+      "PostDays": 1095
+    },
+    "PrimaryCriteriaLimit": {
+      "Type": "First"
+    }
+  },
+  "QualifiedLimit": {
+    "Type": "First"
+  },
+  "ExpressionLimit": {
+    "Type": "First"
+  },
+  "InclusionRules": [
+    {
+      "name": "Viral Sinusitis diagnosis",
+      "expression": {
+        "Type": "ALL",
+        "CriteriaList": [
+          {
+            "Criteria": {
+              "ConditionOccurrence": {
+                "CodesetId": 0
+              }
+            },
+            "StartWindow": {
+              "Start": {
+                "Coeff": -1
+              },
+              "End": {
+                "Coeff": 1
+              },
+              "UseEventEnd": false
+            },
+            "IgnoreObservationPeriod": true,
+            "Occurrence": {
+              "Type": 2,
+              "Count": 1
+            }
+          }
+        ],
+        "DemographicCriteriaList": [],
+        "Groups": []
+      }
+    },
+    {
+      "name": "Index year",
+      "expression": {
+        "Type": "ALL",
+        "CriteriaList": [],
+        "DemographicCriteriaList": [
+          {
+            "OccurrenceStartDate": {
+              "Value": "1949-12-31",
+              "Op": "gt"
+            }
+          }
+        ],
+        "Groups": []
+      }
+    }
+  ],
+  "CensoringCriteria": [],
+  "CollapseSettings": {
+    "CollapseType": "ERA",
+    "EraPad": 0
+  },
+  "CensorWindow": {},
+  "cdmVersionRange": ">=5.0.0"
+}

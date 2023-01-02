@@ -72,5 +72,5 @@ the sunburst plot.}
 sunburst plot}
 }
 \description{
-Add set of pathway settings.
+addPathwaySettings defines and returns a data.frame of settings specified in the function call.
 }

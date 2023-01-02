@@ -1,45 +1,48 @@
-#' Create data settings.
+#' createDataSettings
+#' 
+#' Create a dataSettings object containing information about how to connect to
+#' a database. 
 #'
-#' @param OMOP-CDM
+#' @param omopCDM
 #'     Format of database 'Observational Medical Outcomes Partnership Common
 #'     Data Model' = TRUE or 'Other' = FALSE.
 #' 
 #' @param connectionDetails
-#'     Only for OMOP-CDM TRUE: An object of type connectionDetails as created
+#'     Only for omopCDM TRUE: An object of type connectionDetails as created
 #'     using the createConnectionDetails function in the DatabaseConnector
 #'     package.
 #' 
 #' @param cdmDatabaseSchema
-#'     Only for OMOP-CDM TRUE: Schema name where your patient-level data
+#'     Only for omopCDM TRUE: Schema name where your patient-level data
 #'     resides. Note that for SQL Server, this should include both the database
 #'     and schema name, for example 'cdm_data.dbo'.
 #'     
 #' @param cohortDatabaseSchema
-#'     Only for OMOP-CDM TRUE: Schema name where intermediate data can be
+#'     Only for omopCDM TRUE: Schema name where intermediate data can be
 #'     stored. You will need to have write priviliges in this schema. Note that
 #'     for SQL Server, this should include both the database and schema name,
 #'     for example cdm_results.dbo'.
 #'     
 #' @param cohortTable
-#'     Only for OMOP-CDM TRUE: The name of the table that will be created in
+#'     Only for omopCDM TRUE: The name of the table that will be created in
 #'     the cohortDatabaseSchema. This table will hold the target and event
 #'     cohorts used in this study.
 #'     
 #' @param cohortLocation
-#'     Only for OMOP-CDM FALSE: Location from where cohorts can be loaded.
+#'     Only for omopCDM FALSE: Location from where cohorts can be loaded.
 #'     
 #' @return
 #'     Object dataSettings.
 #' @export
 createDataSettings <- function(
-    OMOP_CDM = "TRUE",
+    omopCDM = TRUE,
     connectionDetails = NULL,
     cdmDatabaseSchema = NULL,
     cohortDatabaseSchema = NULL,
     cohortTable = "treatmentpatterns_cohorts",
     cohortLocation = NULL) {
   
-  if (OMOP_CDM) {
+  if (omopCDM) {
     if (is.null(connectionDetails)) {
       connectionDetails <- DatabaseConnector::createConnectionDetails(
         dbms = Sys.getenv('dbms'),
@@ -81,7 +84,7 @@ createDataSettings <- function(
     replacement = getwd())
   
   dataSettings <- list(
-    OMOP_CDM = OMOP_CDM,
+    omopCDM = omopCDM,
     connectionDetails = connectionDetails,
     cdmDatabaseSchema = cdmDatabaseSchema,
     cohortDatabaseSchema = cohortDatabaseSchema,
@@ -94,6 +97,10 @@ createDataSettings <- function(
 }
 
 #' Create cohort settings.
+#'
+#' Create a cohortsSettings object, containing information about the target and event cohorts.
+#' A cohort ID and name; and optionally an Atlas ID and concept set are required to specify the target and event cohorts.
+#' Cohorts can also be loaded in using the cohortsToCreate_location parameter, or loaded using the ATLAS WebApi, using the loadCohorts, and baseURL parameters.
 #'
 #' @param cohortsToCreate_location 
 #'     Optional: Location of saved cohortsToCreate object.
@@ -218,7 +225,9 @@ createCohortSettings <- function(
   return(cohortSettings)
 }
 
-#' Create characterization settings (optional, only for OMOP-CDM data ).
+#' DEPRECATED Create characterization settings (optional, only for OMOP-CDM data ).
+#'
+#' DEPRECATED
 #'
 #' @param baselineCovariates_location
 #'     Optional: Location of saved baselineCovariates object.
@@ -241,7 +250,6 @@ createCohortSettings <- function(
 #'     included in analysis
 #'
 #' @return Object characterizationSettings.
-#' @export
 createCharacterizationSettings <- function(
     baselineCovariates_location = NULL,
     baselineCovariates = data.frame(
@@ -374,6 +382,8 @@ createPathwaySettings <- function(
 
 
 #' Add set of pathway settings.
+#'
+#' addPathwaySettings defines and returns a data.frame of settings specified in the function call.
 #'
 #' @param studyName
 #'     Name identifying the set of study parameters.

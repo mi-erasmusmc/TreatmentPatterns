@@ -2,7 +2,7 @@
 % Please edit documentation in R/createSettings.R
 \name{createCharacterizationSettings}
 \alias{createCharacterizationSettings}
-\title{Create characterization settings (optional, only for OMOP-CDM data ).}
+\title{DEPRECATED Create characterization settings (optional, only for OMOP-CDM data ).}
 \usage{
 createCharacterizationSettings(
   baselineCovariates_location = NULL,
@@ -37,5 +37,5 @@ included in analysis}
 Object characterizationSettings.
 }
 \description{
-Create characterization settings (optional, only for OMOP-CDM data ).
+DEPRECATED
 }

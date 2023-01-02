@@ -23,7 +23,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   }
 
   # Load already created cohorts
-  if (dataSettings$OMOP_CDM) {
+  if (dataSettings$omopCDM) {
     # Connect to database
     connection <- DatabaseConnector::connect(dataSettings$connectionDetails)
     on.exit(DatabaseConnector::disconnect(connection))

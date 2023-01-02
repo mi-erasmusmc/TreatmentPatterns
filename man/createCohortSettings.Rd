@@ -45,5 +45,7 @@ conceptSet.}
 Object cohortSettings.
 }
 \description{
-Create cohort settings.
+Create a cohortsSettings object, containing information about the target and event cohorts.
+A cohort ID and name; and optionally an Atlas ID and concept set are required to specify the target and event cohorts.
+Cohorts can also be loaded in using the cohortsToCreate_location parameter, or loaded using the ATLAS WebApi, using the loadCohorts, and baseURL parameters.
 }

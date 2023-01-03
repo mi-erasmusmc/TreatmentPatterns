@@ -1,3 +1,46 @@
+createDataSettingsChecks <- function(
+    omopCDM,
+    connectionDetails,
+    cdmDatabaseSchema,
+    resultSchema,
+    cohortTable) {
+  # Check omopCDM
+  checkmate::checkLogical(
+    x = omopCDM,
+    len = 1,
+    null.ok = FALSE)
+  
+  # Check connectionDetails
+  checkmate::checkClass(
+    connectionDetails,
+    "connectionDetails")
+  
+  checkmate::checkCharacter(
+    x = connectionDetails$dbms,
+    len = 1,
+    null.ok = FALSE)
+  
+  # check cdmDatabaseSchema
+  checkmate::checkCharacter(
+    cdmDatabaseSchema,
+    null.ok = FALSE,
+    len = 1)
+  
+  # check resultSchema
+  checkmate::checkCharacter(
+    resultSchema,
+    null.ok = FALSE,
+    len = 1)
+  
+  # cohortTable
+  checkmate::checkCharacter(
+    cohortTable,
+    null.ok = FALSE,
+    len = 1)
+  
+  return(TRUE)
+}
+
 #' createDataSettings
 #' 
 #' Create a dataSettings object containing information about how to connect to
@@ -28,278 +71,130 @@
 #'     the cohortDatabaseSchema. This table will hold the target and event
 #'     cohorts used in this study.
 #'     
-#' @param cohortLocation
-#'     Only for omopCDM FALSE: Location from where cohorts can be loaded.
-#'     
 #' @return
 #'     Object dataSettings.
 #' @export
 createDataSettings <- function(
     omopCDM = TRUE,
-    connectionDetails = NULL,
-    cdmDatabaseSchema = NULL,
-    cohortDatabaseSchema = NULL,
-    cohortTable = "treatmentpatterns_cohorts",
-    cohortLocation = NULL) {
+    connectionDetails,
+    cdmDatabaseSchema,
+    resultSchema,
+    cohortTable = "treatmentpatterns_cohorts") {
   
-  if (omopCDM) {
-    if (is.null(connectionDetails)) {
-      connectionDetails <- DatabaseConnector::createConnectionDetails(
-        dbms = Sys.getenv('dbms'),
-        server = Sys.getenv('server'),
-        user = Sys.getenv('user'),
-        password = Sys.getenv('password'),
-        port = Sys.getenv('port'))
-    }
-
-    tryCatch({
-      connection <- DatabaseConnector::connect(
-        connectionDetails = connectionDetails)
-      }, error = function(e) {
-        print(paste0(
-          "Problem with database connection (check connection details): ",
-          e))
-        })
+  check <- createDataSettingsChecks(
+    omopCDM,
+    connectionDetails,
+    cdmDatabaseSchema,
+    resultSchema,
+    cohortTable)
+  
+  if (check) {
+    dataSettings <- list(
+      omopCDM = omopCDM,
+      connectionDetails = connectionDetails,
+      cdmDatabaseSchema = cdmDatabaseSchema,
+      cohortDatabaseSchema = resultSchema,
+      cohortTable = cohortTable,
+      cohortLocation = cohortLocation)
     
-    on.exit(DatabaseConnector::disconnect(connection))
+    class(dataSettings) <- 'dataSettings'
     
-    if (is.null(cdmDatabaseSchema)) {
-      stop('Need to specify cdmDatabaseSchema.')
-    }
-
-    if (is.null(cohortDatabaseSchema)) {
-      stop('Need to specify cohortDatabaseSchema.')
-    }
-    
-  } else {
-    if (is.null(cohortLocation)) {
-      stop('Need to specify cohortLocation.')
-    }
+    return(dataSettings)
   }
+}
+
+
+#' cohortsCheck
+#' 
+#' Checks the validity of targetCohorts and eventCohorts parameters of
+#' createCohortSettings
+#'
+#' @param cohorts eventCohorts or targetCohorts
+#'
+#' @return TRUE if checkmate checks pass
+cohortsCheck <- function(cohorts) {
+  # Check validity of data.frame inputs
+  checkmate::checkSubset(
+    x = names(cohorts),
+    choices = c("cohortId", "cohortName"))
   
-  # Change relative path to absolute path 
-  cohortLocation <- stringr::str_replace(
-    string = cohortLocation, 
-    pattern = "^[.]", 
-    replacement = getwd())
+  checkmate::testDataFrame(
+    cohorts,
+    any.missing = FALSE,
+    types = c("numeric", "character"))
   
-  dataSettings <- list(
-    omopCDM = omopCDM,
-    connectionDetails = connectionDetails,
-    cdmDatabaseSchema = cdmDatabaseSchema,
-    cohortDatabaseSchema = cohortDatabaseSchema,
-    cohortTable = cohortTable,
-    cohortLocation = cohortLocation)
-  
-  class(dataSettings) <- 'dataSettings'
-  
-  return(dataSettings)
+  return(TRUE)
 }
 
 #' Create cohort settings.
 #'
 #' Create a cohortsSettings object, containing information about the target and event cohorts.
-#' A cohort ID and name; and optionally an Atlas ID and concept set are required to specify the target and event cohorts.
-#' Cohorts can also be loaded in using the cohortsToCreate_location parameter, or loaded using the ATLAS WebApi, using the loadCohorts, and baseURL parameters.
+#' A cohort ID and name are required to specify the target and event cohorts.
+#' The cohortId and cohortName are the ID and Name specified while creating cohorts with i.e. CohortGenerator.
 #'
-#' @param cohortsToCreate_location 
-#'     Optional: Location of saved cohortsToCreate object.
-#'     
 #' @param targetCohorts
 #'     Data frame containing the study population of interest
-#'     (cohortId = "Unique ID number", cohortName = "Descriptive name cohort",
-#'     optional: atlasId = "Cohort ID ATLAS",
-#'     optional: conceptSet = "Concept set to use with SQL template").
+#'     cohortId = "Unique ID number", cohortName = "Descriptive name cohort".
 #'     
 #' @param eventCohorts
 #'     Data frame containing the events of interest
-#'     (cohortId = "Unique ID number", cohortName = "Descriptive name cohort",
-#'     optional: atlasId = "Cohort ID ATLAS",
-#'     optional: conceptSet = "Concept set to use with SQL template").
-#'
-#' @param loadCohorts
-#'     Setting to retrieve cohort definitions with atlasId from ATLAS WebApi.
-#'     
-#' @param cohortsFolder
-#'     Location where cohort definitions are stored (SQL/JSON files).
-#'     
-#' @param baseUrl
-#'     The base URL for the WebApi instance, for example:
-#'     "http://server.org:80/WebAPI". Note, there is no trailing '/'. If
-#'     trailing /' is used, you may receive an error.
-#'     
-#' @param generateCohorts
-#'     Setting to (re)generate cohortTable in the database.
-#'     
-#' @param includeDescendants
-#'     Whether to include all descendants of Custom cohorts defined using 
-#'     conceptSet.
+#'     cohortId = "Unique ID number", cohortName = "Descriptive name cohort".
 #'
 #' @return
 #'     Object cohortSettings.
 #'     
 #' @export
-createCohortSettings <- function(
-    cohortsToCreate_location = NULL,
-    targetCohorts = NULL,
-    eventCohorts = NULL,
-    loadCohorts = FALSE,
-    cohortsFolder = NULL,
-    baseUrl = NULL,
-    generateCohorts = TRUE,
-    includeDescendants = TRUE) {
-  
-  # If cohortsToCreate_location given, load settings from data
-  if (!is.null(cohortsToCreate_location)) {
-    print("Loading settings from cohortsToCreate_location")
-    
-    cohortsToCreate <- readr::read_csv(
-      file = cohortsToCreate_location, 
-      col_types = readr::cols())
-    
-  } else if (!is.null(targetCohorts) & !is.null(eventCohorts)) {
-    # Otherwise create cohortsToCreate from targetCohorts and eventCohorts
-
-    if (!is.data.frame(targetCohorts) |
-        !all(c("cohortId", "cohortName") %in% colnames(targetCohorts))) {
-      stop('Incorrect input for targetCohorts')
-    }
-    
-    if (!is.data.frame(eventCohorts) |
-        !all(c("cohortId", "cohortName") %in% colnames(eventCohorts))) {
-      stop('Incorrect input for eventCohorts')
-    }
-    
-    if (!("atlasId" %in% colnames(targetCohorts))) {
-      targetCohorts$atlasId <- NA
-    }
-    
-    if (!("conceptSet" %in% colnames(targetCohorts))) {
-      targetCohorts$conceptSet <- NA
-    }
-    
-    if (!("atlasId" %in% colnames(eventCohorts))) {
-      eventCohorts$atlasId <- NA
-    }
-    
-    if (!("conceptSet" %in% colnames(eventCohorts))) {
-      eventCohorts$conceptSet <- NA
-    }
-    
+#' 
+#' @example
+#' cohortSettings <- createCohortSettings(
+#'   targetCohorts = data.frame(
+#'     cohortId = c(1),
+#'     cohortName = c("a")),
+#'   eventCohorts = data.frame(
+#'     cohortId = c(2, 3),
+#'     cohortName = c("b", "c")))
+createCohortSettings <- function(targetCohorts, eventCohorts) {
+  # Create cohortsToCreate from targetCohorts and eventCohorts
+  if (cohortsCheck(targetCohorts) && cohortsCheck(eventCohorts)) {
     targetCohorts$cohortType <- 'target'
     eventCohorts$cohortType <- 'event'
-    
     cohortsToCreate <- rbind(targetCohorts, eventCohorts)
-    
-  } else if (is.null(targetCohorts) | is.null(eventCohorts)) {
-    stop("targetCohorts and/or eventCohorts missing")
   }
   
-  # Order columns
-  # col_types = list("i","c","c","i","c")
-  cohortsToCreate <- cohortsToCreate[, c(
-    'cohortId', 'cohortName', 'cohortType', 'atlasId', 'conceptSet')]
-  
+  # Why numeric to int?
   cohortsToCreate$cohortId <- as.integer(cohortsToCreate$cohortId)
-  cohortsToCreate$atlasId <- as.integer(cohortsToCreate$atlasId)
-  
-  if (!loadCohorts & is.null(cohortsFolder)) {
-    warning(paste(
-      "cohortsFolder missing, location is assumed", 
-      "to be saveSettings$outputFolder/cohorts"))
-  }
-  
-  if (loadCohorts & is.null(baseUrl)) {
-    stop("baseUrl missing")
-  }
   
   cohortSettings <- list(
-    cohortsToCreate = cohortsToCreate,
-    loadCohorts = loadCohorts,
-    cohortsFolder = cohortsFolder,
-    baseUrl = baseUrl,
-    generateCohorts = generateCohorts,
-    includeDescendants = includeDescendants)
+    cohortsToCreate = cohortsToCreate)
   class(cohortSettings) <- 'cohortSettings'
   
   return(cohortSettings)
 }
 
-#' DEPRECATED Create characterization settings (optional, only for OMOP-CDM data ).
-#'
-#' DEPRECATED
-#'
-#' @param baselineCovariates_location
-#'     Optional: Location of saved baselineCovariates object.
-#'
-#' @param baselineCovariates
-#'     Data frame containing the baseline characteristics of interest
-#'     (covariateName = "Descriptive name covariate", covariateId = "Unique ID
-#'     number referring to covariate from FeatureExtraction or 'Custom' (see
-#'     explanation below)"), covariateId can be "custom" if SQL code is.
-#'
-#' @param standardCovariateSettings
-#'     An object of type covariateSettings as created using the
-#'     createCovariateSettings function in the FeatureExtraction package.
-#'
-#' @param returnCovariates
-#'     Return "all" features or only "selection" of features
-#'
-#' @param minCellCount
-#'     Minimum number of persons with a specific baseline covariate to be
-#'     included in analysis
-#'
-#' @return Object characterizationSettings.
-createCharacterizationSettings <- function(
-    baselineCovariates_location = NULL,
-    baselineCovariates = data.frame(
-      covariateName = c('Male', 'Age',  'Charlson comorbidity index score'),
-      covariateId = c(8507001, 1002, 1901)),
-    standardCovariateSettings = FeatureExtraction::createCovariateSettings(
-      useDemographicsAge = TRUE,
-      useDemographicsGender = TRUE,
-      useDemographicsTimeInCohort = TRUE,
-      useDemographicsPostObservationTime = TRUE,
-      useConditionGroupEraAnyTimePrior = TRUE,
-      useConditionGroupEraLongTerm = TRUE,
-      useCharlsonIndex = TRUE),
-    returnCovariates = "all",
-    minCellCount = 5) {
+createPathwaySettingsCheck <- function(
+    cohortSettings,
+    pathwaySettingsLocation,
+    pathwaySettingsList) {
   
-  # If baselineCovariates_location given, load settings from data
-  if (!is.null(baselineCovariates_location)) {
-    print("Loading settings from baselineCovariates_location")
-    baselineCovariates <- readr::read_csv(
-      file = baselineCovariates_location, 
-      col_types = list("c", "c"))
-  }
+  # Check cohortSettings
+  checkmate::checkClass(
+    x = cohortSettings,
+    classes = "cohortSettings")
   
-  if (!is.data.frame(baselineCovariates) |
-      !all(c("covariateName", "covariateId") %in%
-           colnames(baselineCovariates))) {
-    stop('Incorrect input for baselineCovariates')
-  }
+  checkmate::checkDataFrame(
+    x = cohortSettings$cohortsToCreate,
+    types = c("integer", "character", "character"),
+    ncols = 3,
+    any.missing = FALSE)
   
-  customCovariates <- baselineCovariates$covariateName[
-    baselineCovariates$covariateId == "Custom"]
+  checkmate::checkSubset(
+    x = names(c$cohortsToCreate),
+    choices = c("cohortId", "cohortName", "cohortType"))
   
-  if (length(customCovariates) > 0) {
-    warning(paste0(
-      "Are SQL files added in inst/SQL to create custom covariates: ", 
-      paste0(customCovariates, collapse = ", "), "?"))
-  }
+  # check pathwaySettingsLocation
+  checkmate
   
-  # TODO: change inst/SQL location and change path in file!
-  
-  characterizationSettings <- list(
-    baselineCovariates = baselineCovariates,
-    standardCovariateSettings = standardCovariateSettings,
-    returnCovariates = returnCovariates,
-    minCellCount = minCellCount)
-  
-  class(characterizationSettings) <- 'characterizationSettings'
-  
-  return(characterizationSettings)
+  return(TRUE)
 }
 
 #' Create pathway settings.
@@ -313,22 +208,24 @@ createCharacterizationSettings <- function(
 #'     pathwaySettings_list = list(addPathwaySettings(),
 #'     addPathwaySettings())).
 #'     
-#' @param targetCohortId
-#'     Target cohort ID of current study settings.
-#'     
-#' @param eventCohortIds
-#'     Event cohort IDs of current study settings.
 #'
 #' @return
 #'     Object pathwaySettings.
 #'     
 #' @export
 createPathwaySettings <- function(
-    pathwaySettings_location = NULL,
-    pathwaySettings_list = NULL,
-    targetCohortId = NULL,
-    eventCohortIds = NULL,
+    cohortSettings,
+    pathwaySettingsLocation = NULL,
+    pathwaySettingsList = NULL,
     ...) {
+  
+  # Check
+  
+  targetCohorts <- cohortSettings$cohortsToCreate %>%
+    filter(cohortType == "target")
+  
+  eventCohorts <- cohortSettings$cohortsToCreate %>%
+    filter(cohortType == "event")
   
   # If pathwaySettings_location given, load settings from data
   if (!is.null(pathwaySettings_location)) {

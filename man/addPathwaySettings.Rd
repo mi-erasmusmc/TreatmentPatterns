@@ -39,7 +39,7 @@ cohorts are allowed to start.}
 
 \item{minEraDuration}{Minimum time an event era should last to be included in analysis.}
 
-\item{splitEventCohorts}{Specify event cohort to split in acute (< X days) and therapy 
+\item{splitEventCohorts}{Specify event cohort ID's to split in acute (< X days) and therapy 
 (>= X days).}
 
 \item{splitTime}{Specify number of days (X) at which each of the split event cohorts

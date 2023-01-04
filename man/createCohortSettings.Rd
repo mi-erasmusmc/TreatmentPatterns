@@ -4,48 +4,20 @@
 \alias{createCohortSettings}
 \title{Create cohort settings.}
 \usage{
-createCohortSettings(
-  cohortsToCreate_location = NULL,
-  targetCohorts = NULL,
-  eventCohorts = NULL,
-  loadCohorts = FALSE,
-  cohortsFolder = NULL,
-  baseUrl = NULL,
-  generateCohorts = TRUE,
-  includeDescendants = TRUE
-)
+createCohortSettings(targetCohorts, eventCohorts)
 }
 \arguments{
-\item{cohortsToCreate_location}{Optional: Location of saved cohortsToCreate object.}
-
 \item{targetCohorts}{Data frame containing the study population of interest
-(cohortId = "Unique ID number", cohortName = "Descriptive name cohort",
-optional: atlasId = "Cohort ID ATLAS",
-optional: conceptSet = "Concept set to use with SQL template").}
+cohortId = "Unique ID number", cohortName = "Descriptive name cohort".}
 
 \item{eventCohorts}{Data frame containing the events of interest
-(cohortId = "Unique ID number", cohortName = "Descriptive name cohort",
-optional: atlasId = "Cohort ID ATLAS",
-optional: conceptSet = "Concept set to use with SQL template").}
-
-\item{loadCohorts}{Setting to retrieve cohort definitions with atlasId from ATLAS WebApi.}
-
-\item{cohortsFolder}{Location where cohort definitions are stored (SQL/JSON files).}
-
-\item{baseUrl}{The base URL for the WebApi instance, for example:
-"http://server.org:80/WebAPI". Note, there is no trailing '/'. If
-trailing /' is used, you may receive an error.}
-
-\item{generateCohorts}{Setting to (re)generate cohortTable in the database.}
-
-\item{includeDescendants}{Whether to include all descendants of Custom cohorts defined using 
-conceptSet.}
+cohortId = "Unique ID number", cohortName = "Descriptive name cohort".}
 }
 \value{
 Object cohortSettings.
 }
 \description{
 Create a cohortsSettings object, containing information about the target and event cohorts.
-A cohort ID and name; and optionally an Atlas ID and concept set are required to specify the target and event cohorts.
-Cohorts can also be loaded in using the cohortsToCreate_location parameter, or loaded using the ATLAS WebApi, using the loadCohorts, and baseURL parameters.
+A cohort ID and name are required to specify the target and event cohorts.
+The cohortId and cohortName are the ID and Name specified while creating cohorts with i.e. CohortGenerator.
 }

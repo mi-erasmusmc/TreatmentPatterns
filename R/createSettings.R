@@ -4,40 +4,49 @@ createDataSettingsChecks <- function(
     cdmDatabaseSchema,
     resultSchema,
     cohortTable) {
-  # Check omopCDM
-  checkmate::checkLogical(
-    x = omopCDM,
-    len = 1,
-    null.ok = FALSE)
+  # Check omopCDM\
+  checkmate::assert(
+    checkmate::checkLogical(
+      x = omopCDM,
+      len = 1,
+      null.ok = FALSE)
+  )
   
   # Check connectionDetails
-  checkmate::checkClass(
-    connectionDetails,
-    "connectionDetails")
-  
-  checkmate::checkCharacter(
-    x = connectionDetails$dbms,
-    len = 1,
-    null.ok = FALSE)
+  checkmate::assert(
+    checkmate::checkClass(
+      connectionDetails,
+      "connectionDetails"),
+    checkmate::checkCharacter(
+      x = connectionDetails$dbms,
+      len = 1,
+      null.ok = FALSE),
+    combine = "and"
+  )
   
   # check cdmDatabaseSchema
-  checkmate::checkCharacter(
-    cdmDatabaseSchema,
-    null.ok = FALSE,
-    len = 1)
+  checkmate::assert(
+    checkmate::checkCharacter(
+      cdmDatabaseSchema,
+      null.ok = FALSE,
+      len = 1)
+  )
   
   # check resultSchema
-  checkmate::checkCharacter(
-    resultSchema,
-    null.ok = FALSE,
-    len = 1)
+  checkmate::assert(
+    checkmate::checkCharacter(
+      resultSchema,
+      null.ok = FALSE,
+      len = 1)
+  )
   
   # cohortTable
-  checkmate::checkCharacter(
-    cohortTable,
-    null.ok = FALSE,
-    len = 1)
-  
+  checkmate::assert(
+    checkmate::checkCharacter(
+      cohortTable,
+      null.ok = FALSE,
+      len = 1)
+  )
   return(TRUE)
 }
 
@@ -94,8 +103,7 @@ createDataSettings <- function(
       connectionDetails = connectionDetails,
       cdmDatabaseSchema = cdmDatabaseSchema,
       cohortDatabaseSchema = resultSchema,
-      cohortTable = cohortTable,
-      cohortLocation = cohortLocation)
+      cohortTable = cohortTable)
     
     class(dataSettings) <- 'dataSettings'
     
@@ -114,15 +122,16 @@ createDataSettings <- function(
 #' @return TRUE if checkmate checks pass
 cohortsCheck <- function(cohorts) {
   # Check validity of data.frame inputs
-  checkmate::checkSubset(
-    x = names(cohorts),
-    choices = c("cohortId", "cohortName"))
-  
-  checkmate::testDataFrame(
-    cohorts,
-    any.missing = FALSE,
-    types = c("numeric", "character"))
-  
+  checkmate::assert(
+    checkmate::checkSubset(
+      x = names(cohorts),
+      choices = c("cohortId", "cohortName")),
+    checkmate::checkDataFrame(
+      cohorts,
+      any.missing = FALSE,
+      types = c("numeric", "character")),
+    combine = "and"
+  )
   return(TRUE)
 }
 
@@ -172,111 +181,285 @@ createCohortSettings <- function(targetCohorts, eventCohorts) {
 }
 
 createPathwaySettingsCheck <- function(
-    cohortSettings,
-    pathwaySettingsLocation,
-    pathwaySettingsList) {
-  
+    cohortSettings) {
   # Check cohortSettings
-  checkmate::checkClass(
-    x = cohortSettings,
-    classes = "cohortSettings")
-  
-  checkmate::checkDataFrame(
-    x = cohortSettings$cohortsToCreate,
-    types = c("integer", "character", "character"),
-    ncols = 3,
-    any.missing = FALSE)
-  
-  checkmate::checkSubset(
-    x = names(c$cohortsToCreate),
-    choices = c("cohortId", "cohortName", "cohortType"))
-  
-  # check pathwaySettingsLocation
-  checkmate
-  
+  checkmate::assert(
+    checkmate::checkClass(
+      x = cohortSettings,
+      classes = "cohortSettings"),
+    checkmate::checkDataFrame(
+      x = cohortSettings$cohortsToCreate,
+      types = c("integer", "character", "character"),
+      ncols = 3,
+      any.missing = FALSE),
+    checkmate::checkSubset(
+      x = names(cohortSettings$cohortsToCreate),
+      choices = c("cohortId", "cohortName", "cohortType")),
+    combine = "and"
+  )
   return(TRUE)
 }
 
+#' readInPathwaySettings
+#' 
+#' Reads in the pathwaySettings from a csv-file.
+#'
+#' @param filePath Path to csv-file containing the pathwaySettings. 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' readInPathwaySettings(file.path(system.file(
+#'   package = "TreatmentPatterns"),
+#'  "examples", "OMOP CDM", "inst", "settings", "pathway_settings.csv"))
+readInPathwaySettings <- function(filePath) {
+  # Read File
+  pathwaySettings <- read.csv(file = filePath)
+  
+  # Check Contents
+  checkmate::assert(
+    checkmate::checkDataFrame(pathwaySettings, nrows = 15))
+  
+  # Check if all analysis column names adhere to pattern
+  analysisCheck <- all(grepl(
+    # (\\d)? optional digits
+    pattern = "analysis(\\d)?",
+    # Remove first column param of names with [-1]
+    x = names(pathwaySettings)[-1]), TRUE)
+  
+  if (!analysisCheck) {
+    stop("analysis column names do not adhere to 'analysis1', 'analysis12', 'analysis123', ... pattern")
+  } else {
+    pathwaySettings <- list(all_settings = pathwaySettings)
+    class(pathwaySettings) <- 'pathwaySettings'
+    
+    return(pathwaySettings)
+  }
+}
+
+#' createPathwaySettings
+#' 
 #' Create pathway settings.
 #'
-#' @param pathwaySettings_location
-#'     Optional: Location of saved pathwaySettings object.
-#'     
-#' @param pathwaySettings_list 
-#'     Create (list of pathway settings) with addPathwaySettings()
-#'     (e.g.pathwaySettings_list = addPathwaySettings() or
-#'     pathwaySettings_list = list(addPathwaySettings(),
-#'     addPathwaySettings())).
-#'     
+#' @param cohortSettings cohortSettings object
+#' @param ...
+#'   Any addPathwaySettings parameter:
+#'   1. studyName
+#'   2. targetCohortId
+#'   3. eventCohortIds
+#'   4. includeTreatments
+#'   5. periodPriorToIndex
+#'   6. minEraDuration
+#'   7. splitEventCohorts
+#'   8. splitTime
+#'   9. eraCollapseSize
+#'   10. combinationWindow
+#'   11. minPostCombinationDuration
+#'   12. filterTreatments
+#'   13. maxPathLength
+#'   14. minCellCount
+#'   15. minCellMethod
+#'   16. groupCombinations
+#'   17. addNoPaths
 #'
 #' @return
 #'     Object pathwaySettings.
 #'     
 #' @export
-createPathwaySettings <- function(
-    cohortSettings,
-    pathwaySettingsLocation = NULL,
-    pathwaySettingsList = NULL,
-    ...) {
-  
+#' @example 
+#' createPathwaySettings(
+#'   cohortSettings = cohortSettings,
+#'   studyName = "MyStudyName")
+createPathwaySettings <- function(cohortSettings, ...) {
   # Check
+  check <- createPathwaySettingsCheck(
+    cohortSettings)
   
-  targetCohorts <- cohortSettings$cohortsToCreate %>%
-    filter(cohortType == "target")
-  
-  eventCohorts <- cohortSettings$cohortsToCreate %>%
-    filter(cohortType == "event")
-  
-  # If pathwaySettings_location given, load settings from data
-  if (!is.null(pathwaySettings_location)) {
-    print("Loading settings from pathwaySettings_location")
+  if (check) {
+    targetCohorts <- cohortSettings$cohortsToCreate %>%
+      dplyr::filter(cohortType == "target")
     
-    pathwaySettings <- data.frame(readr::read_csv(
-      file = pathwaySettings_location,
-      col_types = readr::cols()))
-    
-    print(paste0(
-      "Loaded ",
-      ncol(pathwaySettings) - 1,
-      " sets of pathway settings: ",
-      paste0(colnames(pathwaySettings), collapse =  ",")))
-    
-    # TODO: add check if colnames correct (param, analysis 1, 2, etc. )
-    
-  } else if (!is.null(pathwaySettings_list)) {
-    pathwaySettings_all <- do.call("rbind", pathwaySettings_list)
-    
-    pathwaySettings <- data.table::transpose(pathwaySettings_all)
-    colnames(pathwaySettings) <- paste0("analysis", 1:ncol(pathwaySettings))
-    
-    pathwaySettings <- cbind(
-      param = colnames(pathwaySettings_all), 
-      pathwaySettings)
-    
-  } else if (!is.null(targetCohortId) & !is.null(eventCohortIds)) {
-    pathwaySettings_default <- addPathwaySettings(
+    eventCohorts <- cohortSettings$cohortsToCreate %>%
+      dplyr::filter(cohortType == "event")
+      
+    # Create default pathwaySettings template
+    pathwaySettingsDefault <- addPathwaySettings(
       studyName = c("default"),
-      targetCohortId = targetCohortId,
-      eventCohortIds = eventCohortIds, 
+      targetCohortId = targetCohorts$cohortId,
+      eventCohortIds = eventCohorts$cohortId,
       ...)
     
-    pathwaySettings <- data.table::transpose(pathwaySettings_default)
-    colnames(pathwaySettings) <- paste0("analysis", 1:ncol(pathwaySettings))
+    # Transpose
+    pathwaySettings <- data.table::transpose(pathwaySettingsDefault)
+    
+    # Add colnames analysis1, analysis2, ...
+    colnames(pathwaySettings) <- paste0(
+      "analysis", seq_len(ncol(pathwaySettings)))
+    
+    # Add param names to pathwaySettings 
     pathwaySettings <- cbind(
-      param = colnames(pathwaySettings_default), 
+      param = colnames(pathwaySettingsDefault), 
       pathwaySettings)
-  } else {
-    stop(paste(
-      "Input missing, insert 1) pathwaySettings_location,",
-      "2) pathwaySettings_list, or 3) targetCohortId and eventCohortIds"))
+    
+    pathwaySettings <- list(all_settings = pathwaySettings)
+    class(pathwaySettings) <- 'pathwaySettings'
+    
+    return(pathwaySettings)
   }
-  
-  pathwaySettings <- list(all_settings = pathwaySettings)
-  class(pathwaySettings) <- 'pathwaySettings'
-  
-  return(pathwaySettings)
 }
 
+addPathwaySettingsCheck <- function(
+    studyName,
+    targetCohortId,
+    eventCohortIds,
+    includeTreatments,
+    periodPriorToIndex,
+    minEraDuration,
+    splitEventCohorts,
+    splitTime,
+    eraCollapseSize,
+    combinationWindow, 
+    minPostCombinationDuration,
+    filterTreatments,
+    maxPathLength, 
+    minCellCount,
+    minCellMethod,
+    groupCombinations,
+    addNoPaths) {
+  
+  # studyName
+  checkmate::assert(
+    checkmate::checkCharacter(
+      x = studyName,
+      len = 1))
+  
+  # targetCohortId
+  checkmate::assert(checkmate::checkNumeric(
+    x = targetCohortId,
+    min.len = 1,
+    unique = TRUE,
+    null.ok = FALSE))
+  
+  # eventCohortIds
+  checkmate::assert(checkmate::checkNumeric(
+    x = eventCohortIds,
+    min.len = 1,
+    unique = TRUE,
+    null.ok = FALSE))
+  
+  # includeTreatments
+  checkmate::assert(
+    checkmate::checkCharacter(
+      x = includeTreatments,
+      len = 1),
+    checkmate::checkSubset(
+      x = includeTreatments,
+      choices = c("startDate", "endDate")),
+    combine = "and")
+  
+  # periodPriorToIndex
+  checkmate::assert(checkmate::checkNumeric(
+    x = periodPriorToIndex,
+    # lower = 0, # Can it be negative?
+    len = 1,
+    finite = TRUE,
+    null.ok = FALSE))
+  
+  # minEraDuration
+  checkmate::assert(checkmate::checkNumeric(
+    x = minEraDuration,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE))
+  
+  # splitEventCohorts
+  checkmate::assert(checkmate::checkCharacter(
+    x = splitEventCohorts,
+    len = 1))
+  
+  # splitTime
+  checkmate::assert(checkmate::checkNumeric(
+    x = splitTime,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE))
+  
+  # eraCollapseSize
+  checkmate::assert(checkmate::checkNumeric(
+    x = eraCollapseSize,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE))
+  
+  # combinationWindow
+  checkmate::assert(checkmate::checkNumeric(
+    x = combinationWindow,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE))
+  
+  # minPostCombinationDuration
+  checkmate::assert(checkmate::checkNumeric(
+    x = minPostCombinationDuration,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE))
+  
+  # filterTreatments
+  checkmate::assert(
+    checkmate::checkCharacter(
+      x = filterTreatments,
+      len = 1),
+    checkmate::checkSubset(
+      x = filterTreatments,
+      choices = c("First", "Changes", "All")),
+    combine = "and")
+  
+  # maxPathLength
+  checkmate::assert(checkmate::checkNumeric(
+    x = maxPathLength,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE))
+  
+  # minCellCount
+  checkmate::assert(checkmate::checkNumeric(
+    x = minCellCount,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE))
+  
+  # minCellMethod
+  # Not used in ConstructPathways.R
+  checkmate::assert(
+    checkmate::checkCharacter(
+      x = filterTreatments,
+      len = 1))
+  
+  # groupCombinations
+  checkmate::assert(checkmate::checkNumeric(
+    x = groupCombinations,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE))
+  
+  # addNoPaths
+  checkmate::assert(checkmate::checkLogical(
+    x = addNoPaths,
+    any.missing = FALSE,
+    len = 1))
+  
+  return(TRUE)
+}
 
 #' Add set of pathway settings.
 #'
@@ -303,7 +486,7 @@ createPathwaySettings <- function(
 #'     Minimum time an event era should last to be included in analysis.
 #'     
 #' @param splitEventCohorts
-#'     Specify event cohort to split in acute (< X days) and therapy 
+#'     Specify event cohort ID's to split in acute (< X days) and therapy 
 #'     (>= X days).
 #'     
 #' @param splitTime
@@ -365,39 +548,75 @@ addPathwaySettings <- function(
     groupCombinations = 10,
     addNoPaths = FALSE) {
   
-  if (!length(targetCohortId)>0 | !is.numeric(targetCohortId)) {
-    stop("targetCohortId should be numeric value")
+  check <- addPathwaySettingsCheck(
+    studyName,
+    targetCohortId,
+    eventCohortIds,
+    includeTreatments,
+    periodPriorToIndex,
+    minEraDuration,
+    splitEventCohorts,
+    splitTime,
+    eraCollapseSize,
+    combinationWindow, 
+    minPostCombinationDuration,
+    filterTreatments,
+    maxPathLength, 
+    minCellCount,
+    minCellMethod,
+    groupCombinations,
+    addNoPaths)
+  
+  if (check) {
+    settings <- data.frame(
+      studyName = studyName,
+      targetCohortId = targetCohortId,
+      eventCohortIds = paste(eventCohortIds, collapse = ","),
+      includeTreatments = includeTreatments,
+      periodPriorToIndex = periodPriorToIndex,
+      minEraDuration = minEraDuration,
+      splitEventCohorts = splitEventCohorts,
+      splitTime = splitTime,
+      eraCollapseSize = eraCollapseSize,
+      combinationWindow = combinationWindow,
+      minPostCombinationDuration = minPostCombinationDuration,
+      filterTreatments = filterTreatments,
+      maxPathLength = maxPathLength,
+      minCellCount = minCellCount,
+      minCellMethod = minCellMethod,
+      groupCombinations = groupCombinations,
+      addNoPaths = addNoPaths)
+    
+    return(settings)
   }
-  # TODO: check if analysis also works with multiple targetCohortIds at once
+}
+
+checkSaveSettings <- function(
+    databaseName,
+    rootFolder,
+    outputFolder,
+    tempFolder) {
+
+  # databaseName
+  checkmate::assert(checkmate::checkCharacter(
+    x = databaseName,
+    len = 1,
+    any.missing = FALSE))
   
-  if (!length(eventCohortIds)>0 | !is.numeric(eventCohortIds)) {
-    stop("eventCohortIds should be numeric values")
-  }
+  # rootFolder
+  checkmate::assert(checkmate::checkDirectory(
+    x = rootFolder,
+    access = "wx"))
   
-  if (maxPathLength > 5) {
-    stop("MaxPathLength > 5 is currently not supported")
-  }
+  # outputFolder
+  checkmate::assert(checkmate::checkDirectory(
+    x = outputFolder,
+    access = "wx"))
   
-  settings <- data.frame(
-    studyName = studyName,
-    targetCohortId = targetCohortId,
-    eventCohortIds = paste(eventCohortIds, collapse = ","),
-    includeTreatments = includeTreatments,
-    periodPriorToIndex = periodPriorToIndex,
-    minEraDuration = minEraDuration,
-    splitEventCohorts = splitEventCohorts,
-    splitTime = splitTime,
-    eraCollapseSize = eraCollapseSize,
-    combinationWindow = combinationWindow,
-    minPostCombinationDuration = minPostCombinationDuration,
-    filterTreatments = filterTreatments,
-    maxPathLength = maxPathLength,
-    minCellCount = minCellCount,
-    minCellMethod = minCellMethod,
-    groupCombinations = groupCombinations,
-    addNoPaths = addNoPaths)
-  
-  return(settings)
+  # tempFolder
+  checkmate::assert(checkmate::checkDirectory(
+    x = tempFolder,
+    access = "wx"))
 }
 
 #' Create save settings.
@@ -427,29 +646,32 @@ createSaveSettings <- function(
     outputFolder = file.path(rootFolder, "output"),
     tempFolder = file.path(rootFolder, "temp")) {
   
-  outputFolder <- file.path(outputFolder, databaseName)
+  check <- checkSaveSettings(
+    databaseName,
+    rootFolder,
+    outputFolder,
+    tempFolder)
   
-  # Change relative path to absolute path
-  rootFolder <- stringr::str_replace(
-    string = rootFolder,
-    pattern = "^[.]", replacement = getwd())
+  rootFolder <- getwd()
   
-  outputFolder <- stringr::str_replace(
-    string = outputFolder,
-    pattern = "^[.]", replacement = getwd())
-  
-  tempFolder <- stringr::str_replace(
-    string = tempFolder,
-    pattern = "^[.]",
-    replacement = getwd())
-  
-  saveSettings <- list(
-    databaseName = databaseName,
-    rootFolder = rootFolder,
-    outputFolder = outputFolder,
-    tempFolder = tempFolder)
-  
-  class(saveSettings) <- 'saveSettings'
-  
-  return(saveSettings)
+  if (check) {
+    outputFolder <- file.path(outputFolder, databaseName)
+    
+    # Change relative path to absolute path
+    rootFolder <- normalizePath(rootFolder)
+    
+    # Suppress Warnings, as nothing will be written yet.
+    outputFolder <- suppressWarnings(normalizePath(outputFolder))
+    tempFolder <- suppressWarnings(normalizePath(tempFolder))
+    
+    saveSettings <- list(
+      databaseName = databaseName,
+      rootFolder = rootFolder,
+      outputFolder = outputFolder,
+      tempFolder = tempFolder)
+    
+    class(saveSettings) <- 'saveSettings'
+    
+    return(saveSettings)
+  }
 }

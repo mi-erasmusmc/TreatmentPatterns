@@ -6,11 +6,10 @@
 \usage{
 createDataSettings(
   omopCDM = TRUE,
-  connectionDetails = NULL,
-  cdmDatabaseSchema = NULL,
-  cohortDatabaseSchema = NULL,
-  cohortTable = "treatmentpatterns_cohorts",
-  cohortLocation = NULL
+  connectionDetails,
+  cdmDatabaseSchema,
+  resultSchema,
+  cohortTable = "treatmentpatterns_cohorts"
 )
 }
 \arguments{
@@ -25,16 +24,14 @@ package.}
 resides. Note that for SQL Server, this should include both the database
 and schema name, for example 'cdm_data.dbo'.}
 
-\item{cohortDatabaseSchema}{Only for omopCDM TRUE: Schema name where intermediate data can be
-stored. You will need to have write priviliges in this schema. Note that
-for SQL Server, this should include both the database and schema name,
-for example cdm_results.dbo'.}
-
 \item{cohortTable}{Only for omopCDM TRUE: The name of the table that will be created in
 the cohortDatabaseSchema. This table will hold the target and event
 cohorts used in this study.}
 
-\item{cohortLocation}{Only for omopCDM FALSE: Location from where cohorts can be loaded.}
+\item{cohortDatabaseSchema}{Only for omopCDM TRUE: Schema name where intermediate data can be
+stored. You will need to have write priviliges in this schema. Note that
+for SQL Server, this should include both the database and schema name,
+for example cdm_results.dbo'.}
 }
 \value{
 Object dataSettings.

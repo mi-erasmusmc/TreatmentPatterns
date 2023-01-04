@@ -2,27 +2,31 @@
 % Please edit documentation in R/createSettings.R
 \name{createPathwaySettings}
 \alias{createPathwaySettings}
-\title{Create pathway settings.}
+\title{createPathwaySettings}
 \usage{
-createPathwaySettings(
-  pathwaySettings_location = NULL,
-  pathwaySettings_list = NULL,
-  targetCohortId = NULL,
-  eventCohortIds = NULL,
-  ...
-)
+createPathwaySettings(cohortSettings, ...)
 }
 \arguments{
-\item{pathwaySettings_location}{Optional: Location of saved pathwaySettings object.}
+\item{cohortSettings}{cohortSettings object}
 
-\item{pathwaySettings_list}{Create (list of pathway settings) with addPathwaySettings()
-(e.g.pathwaySettings_list = addPathwaySettings() or
-pathwaySettings_list = list(addPathwaySettings(),
-addPathwaySettings())).}
-
-\item{targetCohortId}{Target cohort ID of current study settings.}
-
-\item{eventCohortIds}{Event cohort IDs of current study settings.}
+\item{...}{Any addPathwaySettings parameter:
+1. studyName
+2. targetCohortId
+3. eventCohortIds
+4. includeTreatments
+5. periodPriorToIndex
+6. minEraDuration
+7. splitEventCohorts
+8. splitTime
+9. eraCollapseSize
+10. combinationWindow
+11. minPostCombinationDuration
+12. filterTreatments
+13. maxPathLength
+14. minCellCount
+15. minCellMethod
+16. groupCombinations
+17. addNoPaths}
 }
 \value{
 Object pathwaySettings.

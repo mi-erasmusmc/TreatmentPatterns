@@ -99,7 +99,7 @@ createDataSettings <- function(
     dataSettings <- list(
       connectionDetails = connectionDetails,
       cdmDatabaseSchema = cdmDatabaseSchema,
-      cohortDatabaseSchema = resultSchema,
+      resultSchema = resultSchema,
       cohortTable = cohortTable)
     
     class(dataSettings) <- 'dataSettings'

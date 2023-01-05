@@ -5,7 +5,9 @@
 #' @param targetCohortIds Target Cohort IDs
 #' @param ... Optional addPathwaySettings parameters. i.e. studyName.
 #'
-#' @return
+#' @import dplyr
+#'
+#' @return pathwaySettings
 #' @export
 #'
 #' @examples
@@ -38,6 +40,8 @@ addPathwayAnalysis <- function(
   names(analysisParams) <- paste0(
     "analysis", length(names(pathwaySettings$all_settings)))
   
-  pathwaySettings$all_settings <- dplyr::bind_cols(pathwaySettings$all_settings, analysisParams)
+  pathwaySettings$all_settings <- dplyr::bind_cols(
+    pathwaySettings$all_settings,
+    analysisParams)
   return(pathwaySettings)
 }

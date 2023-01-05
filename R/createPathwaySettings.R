@@ -54,7 +54,7 @@ checkPathwaySettings <- function(
 #'     Object pathwaySettings.
 #'     
 #' @export
-#' @example 
+#' @examples
 #' createPathwaySettings(
 #'   cohortSettings = cohortSettings,
 #'   studyName = "MyStudyName")

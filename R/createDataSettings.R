@@ -7,6 +7,8 @@
 #' @param resultSchema Schema name of results.
 #' @param cohortTable Cohort table name.
 #'
+#' @import checkmate
+#'
 #' @return TRUE if all the assertions pass.
 checkDataSettings <- function(
     connectionDetails,

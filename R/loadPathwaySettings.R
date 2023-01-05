@@ -4,6 +4,9 @@
 #'
 #' @param filePath Path to csv-file containing the pathwaySettings. 
 #'
+#' @import checkmate
+#' @import dplyr
+#'
 #' @return
 #' @export
 #'

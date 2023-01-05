@@ -1,3 +1,18 @@
+#' Title
+#'
+#' @param targetCohort 
+#' @param cohortPath 
+#' @param dataSettings 
+#' @param pathwaySettings 
+#' @param characterizatonSettings 
+#' @param saveSettings 
+#'
+#' @import dplyr
+#'
+#' @return
+#' @export
+#'
+#' @examples
 darwinExecute <- function(
     targetCohort,
     cohortPath,

@@ -873,7 +873,7 @@ doMaxPathLength <- function(treatment_history, maxPathLength) {
 #' @param treatment_history treatment_history object
 #' @param outputFolder Folder of output
 #'
-#' @return
+#' @return treatment_history
 addLabels <- function(treatment_history, outputFolder) {
   labels <- data.frame(readr::read_csv(
       file = file.path(outputFolder, "settings", "cohorts_to_create.csv"),

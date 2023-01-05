@@ -5,6 +5,8 @@
 #'
 #' @param cohorts eventCohorts or targetCohorts
 #'
+#' @import checkmate
+#'
 #' @return TRUE if checkmate checks pass
 cohortsCheck <- function(cohorts) {
   # Check validity of data.frame inputs
@@ -40,7 +42,7 @@ cohortsCheck <- function(cohorts) {
 #'     
 #' @export
 #' 
-#' @example
+#' @examples
 #' cohortSettings <- createCohortSettings(
 #'   targetCohorts = data.frame(
 #'     cohortId = c(1),

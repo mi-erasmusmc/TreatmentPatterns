@@ -18,6 +18,8 @@
 #' @param groupCombinations 
 #' @param addNoPaths 
 #'
+#' @import checkmate
+#'
 #' @return TRUE if all assertions pass
 addPathwaySettingsCheck <- function(
     studyName,

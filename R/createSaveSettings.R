@@ -6,8 +6,10 @@
 #' @param rootFolder 
 #' @param outputFolder 
 #' @param tempFolder 
+#' 
+#' @import checkmate
 #'
-#' @return
+#' @return TRUE if all assertions pass
 checkSaveSettings <- function(
     databaseName,
     rootFolder,
@@ -34,6 +36,8 @@ checkSaveSettings <- function(
   checkmate::assert(checkmate::checkDirectory(
     x = tempFolder,
     access = "wx"))
+  
+  return(TRUE)
 }
 
 #' createSaveSettings

@@ -11,6 +11,9 @@ addLabels(treatment_history, outputFolder)
 
 \item{outputFolder}{Folder of output}
 }
+\value{
+treatment_history
+}
 \description{
 Adds back cohort names to concept ids.
 }

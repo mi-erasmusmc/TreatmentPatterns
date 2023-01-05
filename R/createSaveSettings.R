@@ -28,14 +28,12 @@ checkSaveSettings <- function(
     access = "wx"))
   
   # outputFolder
-  checkmate::assert(checkmate::checkDirectory(
-    x = outputFolder,
-    access = "wx"))
+  checkmate::assert(checkmate::checkPathForOutput(
+    x = outputFolder))
   
   # tempFolder
-  checkmate::assert(checkmate::checkDirectory(
-    x = tempFolder,
-    access = "wx"))
+  checkmate::assert(checkmate::checkPathForOutput(
+    x = tempFolder))
   
   return(TRUE)
 }

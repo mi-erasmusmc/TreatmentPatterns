@@ -1,4 +1,43 @@
+#' checkConstructPathways
+#' 
+#' Checks parameters for constructPathways.
+#' 
+#' @import checkmate
+#' 
+#' @param dataSettings 
+#' @param pathwaySettings 
+#' @param saveSettings 
+#'
+#' @return TRUE if all assertions pass
+checkConstructPathways <- function(
+    dataSettings, pathwaySettings, saveSettings) {
+  # dataSettings
+  checkmate::assert(
+    checkmate::checkClass(dataSettings, "dataSettings"),
+    checkmate::checkClass(dataSettings$connectionDetails, "connectionDetails"),
+    checkmate::checkCharacter(dataSettings$connectionDetails$dbms, len = 1),
+    checkmate::checkCharacter(dataSettings$cdmDatabaseSchema, len = 1),
+    checkmate::checkCharacter(dataSettings$resultSchema, len = 1),
+    checkmate::checkCharacter(dataSettings$cohortTable, len = 1))
+  
+  # pathwaySettings
+  checkmate::assert(
+    checkmate::checkClass(pathwaySettings, "pathwaySettings"),
+    checkmate::checkDataFrame(pathwaySettings$all_settings, nrows = 17))
+  
+  # saveSettings
+  checkmate::assert(
+    checkmate::checkClass(saveSettings, "saveSettings"),
+    checkmate::checkCharacter(saveSettings$databaseName, len = 1),
+    checkmate::checkDirectory(saveSettings$rootFolder),
+    checkmate::checkDirectory(saveSettings$outputFolder),
+    checkmate::checkDirectory(saveSettings$tempFolder)
+  )
+  return(TRUE)
+}
 
+#' constructPathways
+#' 
 #' Construct treatment pathways.
 #'
 #' @param dataSettings
@@ -10,43 +49,40 @@
 #' @export
 constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   # Check if inputs correct
-  if (!class(dataSettings) %in% c("dataSettings")) {
-    stop("Incorrect class for dataSettings")
-  }
+  check <- checkConstructPathways(dataSettings, pathwaySettings, saveSettings)
 
-  if (!class(pathwaySettings) %in% c("pathwaySettings")) {
-    stop("Incorrect class for pathwaySettings")
+  if (check) {
+    # do stuff
+    message("check passed")
   }
-
-  if (!class(saveSettings) %in% c("saveSettings")) {
-    stop("Incorrect class for saveSettings")
-  }
-
+  
   # Load already created cohorts
-  if (dataSettings$omopCDM) {
-    # Connect to database
-    connection <- DatabaseConnector::connect(dataSettings$connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection))
+  # Connect to database
+  connection <- DatabaseConnector::connect(dataSettings$connectionDetails)
+  on.exit(DatabaseConnector::disconnect(connection))
 
-    # Get cohorts from database
-    full_cohorts <- data.table::as.data.table(extractFile(
-      connection, 
-      dataSettings$cohortTable, 
-      dataSettings$cohortDatabaseSchema, 
-      dataSettings$connectionDetails$dbms))
+  # Get cohorts from database
+  full_cohorts <- data.table::as.data.table(extractFile(
+    connection, 
+    dataSettings$cohortTable, 
+    dataSettings$resultSchema, 
+    dataSettings$connectionDetails$dbms))
 
-  } else {
-    # Get cohorts from csv file
-    # Required columns: cohortId, personId, startDate, endDate
-    full_cohorts <- data.table::as.data.table(readr::read_csv(
-      file = dataSettings$cohortLocation, 
-      col_types = list("d", "d", "D", "D")))
-  }
-  colnames(full_cohorts) <- c("cohort_id", "person_id", 
-                              "start_date", "end_date")   
+  colnames(full_cohorts) <- c(
+    "cohort_id", "person_id", "start_date", "end_date")   
 
   # Save pathway settings
   pathwaySettings <- pathwaySettings$all_settings
+  
+  # Create output and temp folders
+  fs::dir_create(saveSettings$outputFolder)
+  fs::dir_create(saveSettings$tempFolder)
+  
+  dirSettings <- suppressWarnings(normalizePath(file.path(
+    saveSettings$outputFolder, "settings")))
+  
+  fs::dir_create(dirSettings)
+  
   write.csv(
     pathwaySettings,
     file.path(
@@ -174,28 +210,28 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
 
         # Add event_cohort_name (instead of only event_cohort_id)
         ParallelLogger::logInfo("Adding concept names.")
-
+        
         treatment_history <- addLabels(
           treatment_history, 
           saveSettings$outputFolder)
-
+     
         # Order the combinations
         ParallelLogger::logInfo("Ordering the combinations.")
         combi <- grep(
           pattern = "+", 
           x = treatment_history$event_cohort_name, 
           fixed = TRUE)
-
+       
         cohort_names <- strsplit(
           x = treatment_history$event_cohort_name[combi], 
           split = "+", 
           fixed = TRUE)
-
+      
         treatment_history$event_cohort_name[combi] <- sapply(
           X = cohort_names, 
           FUN = function(x) {
             paste(sort(x), collapse = "+")})
-
+       
         treatment_history$event_cohort_name <- unlist(
           treatment_history$event_cohort_name)
       }
@@ -378,7 +414,7 @@ doCreateTreatmentHistory <- function(
   current_cohorts <- current_cohorts[order(event_start_date, event_end_date), ]
 
   current_cohorts[
-    , lag_variable := shift(event_end_date, type = "lag"), 
+    , lag_variable := data.table::shift(event_end_date, type = "lag"), 
     by = c("person_id", "event_cohort_id")]
   
   current_cohorts[,
@@ -583,7 +619,7 @@ doCombinationWindow <- function(
       SELECTED_ROWS == 1 & 
         (-GAP_PREVIOUS < combinationWindow & 
            !(-GAP_PREVIOUS == duration_era |
-               -GAP_PREVIOUS == shift(duration_era, type = "lag"))), 
+               -GAP_PREVIOUS == data.table::shift(duration_era, type = "lag"))), 
       switch := 1]
     
     # For rows selected not in column switch ->
@@ -593,7 +629,7 @@ doCombinationWindow <- function(
     treatment_history[
       SELECTED_ROWS == 1 &
         is.na(switch) &
-        shift(event_end_date, type = "lag") <= event_end_date, 
+        data.table::shift(event_end_date, type = "lag") <= event_end_date, 
       combination_FRFS := 1]
     
     # For rows selected not in column switch ->
@@ -603,7 +639,7 @@ doCombinationWindow <- function(
     treatment_history[
       SELECTED_ROWS == 1 &
         is.na(switch) &
-        shift(event_end_date, type = "lag") >
+        data.table::shift(event_end_date, type = "lag") >
         event_end_date, combination_LRFS := 1]
     
     ParallelLogger::logInfo(print(paste0(
@@ -636,25 +672,25 @@ doCombinationWindow <- function(
     # Do transformations for each of the three newly added columns
     # Construct helpers
     treatment_history[
-      , event_start_date_next := shift(event_start_date, type = "lead"),
+      , event_start_date_next := data.table::shift(event_start_date, type = "lead"),
       by = person_id]
     
     treatment_history[
-      , event_end_date_previous := shift(event_end_date, type = "lag"),
+      , event_end_date_previous := data.table::shift(event_end_date, type = "lag"),
       by = person_id]
     
     treatment_history[
-      , event_end_date_next := shift(event_end_date, type = "lead"),
+      , event_end_date_next := data.table::shift(event_end_date, type = "lead"),
       by = person_id]
     
     treatment_history[
-      , event_cohort_id_previous := shift(event_cohort_id, type = "lag"),
+      , event_cohort_id_previous := data.table::shift(event_cohort_id, type = "lag"),
       by = person_id]
     
     # Case: switch
     # Change end treatment_history of previous row ->
     # no minPostCombinationDuration
-    treatment_history[shift(
+    treatment_history[data.table::shift(
       switch, 
       type = "lead") == 1,
       event_end_date := event_start_date_next]
@@ -671,7 +707,7 @@ doCombinationWindow <- function(
     
     # Change end date of previous row -> check minPostCombinationDuration
     treatment_history[
-      shift(combination_FRFS, type = "lead") == 1,
+      data.table::shift(combination_FRFS, type = "lead") == 1,
       c("event_end_date","check_duration") := list(event_start_date_next, 1)]
     
     # Change start date of current row -> check minPostCombinationDuration 
@@ -690,7 +726,7 @@ doCombinationWindow <- function(
     # Add a new row with end date (r) and end date (r-1) to split drug era 
     # (copy previous row + change end date) -> check minPostCombinationDuration
     add_rows_LRFS <- treatment_history[
-      shift(combination_LRFS, type = "lead") == 1, ]
+      data.table::shift(combination_LRFS, type = "lead") == 1, ]
     
     add_rows_LRFS[
       , c("event_start_date", "check_duration") := list(
@@ -698,7 +734,7 @@ doCombinationWindow <- function(
     
     # Change end date of previous row -> check minPostCombinationDuration 
     treatment_history[
-      shift(combination_LRFS, type = "lead") == 1,
+      data.table::shift(combination_LRFS, type = "lead") == 1,
       c("event_end_date", "check_duration") := list(event_start_date_next, 1)]
     
     # Combine all rows and remove helper columns
@@ -748,7 +784,7 @@ selectRowsCombinationWindow <- function(treatment_history) {
   
   # Calculate gap with previous treatment
   treatment_history[, GAP_PREVIOUS := difftime(
-      event_start_date, shift(event_end_date, type = "lag"),units = "days"),
+      event_start_date, data.table::shift(event_end_date, type = "lag"),units = "days"),
     by = person_id]
   
   treatment_history$GAP_PREVIOUS <- as.integer(treatment_history$GAP_PREVIOUS)
@@ -875,9 +911,10 @@ doMaxPathLength <- function(treatment_history, maxPathLength) {
 #'
 #' @return treatment_history
 addLabels <- function(treatment_history, outputFolder) {
-  labels <- data.frame(readr::read_csv(
-      file = file.path(outputFolder, "settings", "cohorts_to_create.csv"),
-      col_types = list("c", "c", "c", "i", "c")))
+  labels <- read.csv(
+      file = file.path(outputFolder, "settings", "cohorts_to_create.csv"))
+  # convenrt event_cohort_id to character
+  labels["cohortId"] <- as.character(labels["cohortId"])
   
   labels <- labels[labels$cohortType == "event",c("cohortId", "cohortName")]
   colnames(labels) <- c("event_cohort_id", "event_cohort_name")
@@ -894,6 +931,7 @@ addLabels <- function(treatment_history, outputFolder) {
         is.na(treatment_history$event_cohort_name)],
       FUN = function(x) {
     # Revert search to look for longest concept_ids first
+    
     for (l in nrow(labels):1) {
       # If treatment occurs twice in a combination (as monotherapy and as part
       # of fixed-combination) -> remove monotherapy occurrence

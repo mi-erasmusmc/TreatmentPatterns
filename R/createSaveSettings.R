@@ -12,9 +12,7 @@
 #' @return TRUE if all assertions pass
 checkSaveSettings <- function(
     databaseName,
-    rootFolder,
-    outputFolder,
-    tempFolder) {
+    rootFolder) {
 
   # databaseName
   checkmate::assert(checkmate::checkCharacter(
@@ -26,15 +24,6 @@ checkSaveSettings <- function(
   checkmate::assert(checkmate::checkDirectory(
     x = rootFolder,
     access = "wx"))
-  
-  # outputFolder
-  checkmate::assert(checkmate::checkPathForOutput(
-    x = outputFolder))
-  
-  # tempFolder
-  checkmate::assert(checkmate::checkPathForOutput(
-    x = tempFolder))
-  
   return(TRUE)
 }
 
@@ -48,14 +37,6 @@ checkSaveSettings <- function(
 #' @param rootFolder
 #'     Name of local folder to place all package output (outputFolder,
 #'     tempFolder if not given).
-#'     
-#' @param outputFolder
-#'     Name of local folder to place results; make sure to use forward slashes
-#'     (/).
-#'     
-#' @param tempFolder
-#'     Name of local folder to place intermediate results (not to be shared);
-#'     make sure to use forward slashes (/).
 #'
 #' @return
 #'     Object saveSettings.
@@ -64,26 +45,24 @@ checkSaveSettings <- function(
 createSaveSettings <- function(
     databaseName = "unknown_name",
     rootFolder,
-    outputFolder = file.path(rootFolder, "output"),
-    tempFolder = file.path(rootFolder, "temp")) {
+    outputFolder = NULL,
+    tempFolder = NULL) {
   
+  if (is.null(outputFolder)) {
+    outputFolder <- file.path(rootFolder, "output")
+  }
+  
+  if (is.null(tempFolder)) {
+    tempFolder <- file.path(rootFolder, "temp")
+  }
+      
   check <- checkSaveSettings(
     databaseName,
-    rootFolder,
-    outputFolder,
-    tempFolder)
-  
-  rootFolder <- getwd()
+    rootFolder)
   
   if (check) {
-    outputFolder <- file.path(outputFolder, databaseName)
-    
     # Change relative path to absolute path
     rootFolder <- normalizePath(rootFolder)
-    
-    # Suppress Warnings, as nothing will be written yet.
-    outputFolder <- suppressWarnings(normalizePath(outputFolder))
-    tempFolder <- suppressWarnings(normalizePath(tempFolder))
     
     saveSettings <- list(
       databaseName = databaseName,

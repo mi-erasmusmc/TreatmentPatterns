@@ -67,6 +67,7 @@ loadRenderTranslateSql <- function(
 #'
 #' @return data
 #'     data.frame 
+#' @export
 extractFile <- function(connection, tableName, resultsSchema, dbms) {
   parameterizedSql <- "SELECT * FROM @resultsSchema.@tableName"
   renderedSql <- SqlRender::render(

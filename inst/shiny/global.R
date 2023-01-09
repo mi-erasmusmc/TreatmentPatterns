@@ -24,8 +24,8 @@ names(included_databases) <- included_databases # optional: change with own cust
 included_databases <- as.list(included_databases) 
 
 # Import settings
-pathway_settings <- data.frame(readr::read_csv(file.path(local, included_databases[[1]],"settings", "pathway_settings.csv"), col_types = readr::cols()))
-cohorts <- data.frame(readr::read_csv(file.path(local, included_databases[[1]],"settings", "cohorts_to_create.csv"), col_types = readr::cols()))
+pathway_settings <- data.frame(readr::read_csv(file.path(local, included_databases[[1]], "settings", "pathway_settings.csv"), col_types = readr::cols()))
+cohorts <- data.frame(readr::read_csv(file.path(local, included_databases[[1]], "settings", "cohorts_to_create.csv"), col_types = readr::cols()))
 
 all_targetcohorts <- unique(as.numeric(pathway_settings[pathway_settings$param == "targetCohortId",-1]))
 names(all_targetcohorts) <- sapply(all_targetcohorts, function(c) cohorts$cohortName[cohorts$cohortId == c])

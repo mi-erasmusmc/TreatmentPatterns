@@ -12,7 +12,9 @@
 #' @return TRUE if all assertions pass
 checkSaveSettings <- function(
     databaseName,
-    rootFolder) {
+    rootFolder,
+    outputFolder,
+    tempFolder) {
 
   # databaseName
   checkmate::assert(checkmate::checkCharacter(
@@ -24,6 +26,18 @@ checkSaveSettings <- function(
   checkmate::assert(checkmate::checkDirectory(
     x = rootFolder,
     access = "wx"))
+  
+  if (!is.null(outputFolder)) {
+    # outputFolder
+    checkmate::assert(checkmate::checkPathForOutput(
+      outputFolder, overwrite = TRUE))
+  }
+  
+  if (!is.null(tempFolder)) {
+    # tempFolder
+    checkmate::assert(checkmate::checkPathForOutput(
+      tempFolder, overwrite = TRUE))
+  }
   return(TRUE)
 }
 
@@ -58,7 +72,9 @@ createSaveSettings <- function(
       
   check <- checkSaveSettings(
     databaseName,
-    rootFolder)
+    rootFolder,
+    outputFolder,
+    tempFolder)
   
   if (check) {
     # Change relative path to absolute path

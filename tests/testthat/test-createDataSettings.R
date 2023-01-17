@@ -1,13 +1,3 @@
-# createDataSettings
-# Input parameters:
-#   OMOP_CDM = "TRUE"
-#   connectionDetails = NULL
-#   cdmDatabaseSchema = NULL
-#   cohortDatabaseSchema = NULL
-#   cohortTable = "treatmentpatterns_cohorts"
-#   cohortLocation = NULL
-# Returns dataSettings object
-
 # Libraries
 library(testthat)
 library(TreatmentPatterns)
@@ -18,39 +8,64 @@ test_that("Void", {
 })
 
 test_that("Minimal", {
-  testthat::expect_s3_class(createDataSettings(
-    connectionDetails = getEunomiaConnectionDetails(),
-    cdmDatabaseSchema = "main",
-    cohortDatabaseSchema = "main"), "dataSettings")
+  testthat::expect_s3_class(
+    createDataSettings(
+      connectionDetails = getEunomiaConnectionDetails(),
+      cdmDatabaseSchema = "main",
+      resultSchema = "main"
+    ),
+    "dataSettings"
+  )
 })
 
-test_that("OMOP TRUE/FALSE", {
-  testthat::expect_warning(createDataSettings(
-    OMOP_CDM = TRUE,
-    connectionDetails = getEunomiaConnectionDetails(),
-    cdmDatabaseSchema = "main",
-    cohortDatabaseSchema = "main"), c("not logical"))
+test_that("Assert connectionDetails", {
+  testthat::expect_error(
+    createDataSettings(connectionDetails = "getEunomiaConnectionDetails()"),
+    c("Must inherit from class 'connectionDetails'")
+  )
 })
 
-test_that("OMOP", {
-  testthat::expect_s3_class(createDataSettings(
-    connectionDetails = getEunomiaConnectionDetails(),
-    cdmDatabaseSchema = "main",
-    cohortDatabaseSchema = "main",
-    OMOP_CDM = TRUE,
-    cohortTable = "treatmentpatterns_cohorts"), "dataSettings")
+test_that("Assert cdmDatabaseSchema", {
+  testthat::expect_error(
+    createDataSettings(
+      connectionDetails = getEunomiaConnectionDetails(),
+      cdmDatabaseSchema = 3
+    ),
+    c("Must be of type 'character")
+  )
 })
 
-test_that("NOMOP", {
-  testthat::expect_s3_class(createDataSettings(
-    connectionDetails = getEunomiaConnectionDetails(),
-    cdmDatabaseSchema = "main",
-    cohortDatabaseSchema = "main",
-    OMOP_CDM = FALSE,
-    cohortLocation = list.files(
-      path = system.file(
-        "examples/other format/inst/cohorts",
-        package = "TreatmentPatterns"),
-      full.names = TRUE)),
-    "dataSettings")
+test_that("Assert resultSchema", {
+  testthat::expect_error(
+    createDataSettings(
+      connectionDetails = getEunomiaConnectionDetails(),
+      cdmDatabaseSchema = "main",
+      resultSchema = 2
+    ),
+    c("Must be of type 'character")
+  )
+})
+
+test_that("Assert cohortTable", {
+  testthat::expect_error(
+    createDataSettings(
+      connectionDetails = getEunomiaConnectionDetails(),
+      cdmDatabaseSchema = "main",
+      resultSchema = "main",
+      cohortTable = TRUE
+    ),
+    c("Must be of type 'character")
+  )
+})
+
+test_that("All parameters", {
+  testthat::expect_s3_class(
+    createDataSettings(
+      connectionDetails = getEunomiaConnectionDetails(),
+      cdmDatabaseSchema = "main",
+      resultSchema = "main",
+      cohortTable = "myCohortTable"
+    ),
+    "dataSettings"
+  )
 })

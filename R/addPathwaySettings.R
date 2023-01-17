@@ -137,6 +137,7 @@ addPathwaySettingsCheck <- function(
   checkmate::assert(checkmate::checkNumeric(
     x = maxPathLength,
     lower = 0,
+    upper = 5,
     finite = TRUE,
     len = 1,
     null.ok = FALSE))
@@ -153,7 +154,7 @@ addPathwaySettingsCheck <- function(
   # Not used in ConstructPathways.R
   checkmate::assert(
     checkmate::checkCharacter(
-      x = filterTreatments,
+      x = minCellMethod,
       len = 1))
   
   # groupCombinations

@@ -1,118 +1,45 @@
-# createCohortSettings
-# Parameters:
-#   cohortsToCreate_location = NULL
-#   targetCohorts = NULL
-#   eventCohorts = NULL
-#   loadCohorts = FALSE
-#   cohortsFolder = NULL
-#   baseUrl = NULL
-#   generateCohorts = TRUE
-#   includeDescendants = TRUE
-# Returns cohortSettings object
-
 # Libraries
 library(testthat)
 library(TreatmentPatterns)
 
 # Variables
-targetCohortsInMem <- data.frame(
-  cohortId = c(1),
-  atlasId = c(1777380),
-  cohortName = c('Hypertension'),
-  conceptSet = ""
-)
+targetCohorts <- data.frame(cohortId = c(1),
+                            cohortName = c('Hypertension'))
 
-eventCohortsInMem <- data.frame(
+eventCohorts <- data.frame(
   cohortId = c(10, 11, 12, 13, 14),
-  atlasId = c(1777381, 1777382, 1777383, 1777384, 1777385),
   cohortName = c(
     'Hydrochlorothiazide',
     'Metorolol',
     'Amlodipine',
     'Lisinopril',
     'Losartan'
-  ),
-  conceptSet = c("", "", "", "", "")
+  )
 )
-
-cohortsToCreatePath <- file.path(
-  system.file(package = "TreatmentPatterns"),
-  "examples",
-  "OMOP CDM",
-  "inst",
-  "settings",
-  "cohorts_to_create.csv"
-)
-
-cohortsToCreateWrongpath <- file.path(
-  system.file(package = "TreatmentPatterns"),
-  "examples",
-  "OMOP CDM",
-  "inst",
-  "settings",
-  "Numenor.csv"
-)
-
-cohortsFolderPath <-
-  file.path(system.file(package = "TreatmentPatterns"),
-            "examples",
-            "OMOP CDM",
-            "inst",
-            "cohorts")
 
 test_that("Void", {
   expect_error(createCohortSettings())
 })
 
-test_that("Minimal - in script", {
-  expect_warning(
-    expect_s3_class(
-      createCohortSettings(targetCohorts = targetCohortsInMem,
-                           eventCohorts = eventCohortsInMem),
-      class = "cohortSettings"
-    ),
-    regexp = c("cohortsFolder missing")
-  )
-})
-
-test_that("Minimal - from file", {
-  expect_warning(
-    expect_s3_class(
-      createCohortSettings(cohortsToCreate_location = cohortsToCreatePath),
-      class = "cohortSettings"
-    ),
-    regexp = c("cohortsFolder missing")
-  )
-})
-
-test_that("OMOP: Settings in script", {
+test_that("Minimal", {
   expect_s3_class(
-    createCohortSettings(
-      targetCohorts = targetCohortsInMem,
-      eventCohorts = eventCohortsInMem,
-      baseUrl = "http://api.ohdsi.org:8080/WebAPI",
-      loadCohorts = TRUE
-    ),
-    "cohortSettings"
+    createCohortSettings(targetCohorts = targetCohorts,
+                         eventCohorts = eventCohorts),
+    class = "cohortSettings"
   )
 })
 
-test_that("OMOP: Settings from file", {
-  expect_s3_class(
-    createCohortSettings(
-      cohortsToCreate_location = cohortsToCreatePath,
-      cohortsFolder = cohortsFolderPath
-    ),
-    "cohortSettings"
-  )
+test_that("Assert targetCohorts", {
+  expect_error(createCohortSettings(targetCohorts = "stuff"),
+               c("Must be of type 'data.frame'"))
 })
 
-test_that("OMOP: Settings from file - wrong file", {
+test_that("Assert eventCohorts", {
   expect_error(
-    createCohortSettings(
-      cohortsToCreate_location = cohortsToCreateWrongpath,
-      cohortsFolder = cohortsFolderPath
-    ),
-    regexp = c("does not exist")
+    createCohortSettings(targetCohorts = targetCohorts,
+                         eventCohorts = "stuff"),
+    c("Must be of type 'data.frame'")
   )
 })
+
+# Minimal == All

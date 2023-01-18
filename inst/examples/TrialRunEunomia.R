@@ -78,6 +78,9 @@ eventCohorts <- cohortsGenerated %>%
   select(cohortId, cohortName)
 
 # === saveSettings ====
+fs::dir_create("output")
+fs::dir_create("temp")
+
 saveSettings <- TreatmentPatterns::createSaveSettings(
   databaseName = "Eunomia",
   rootFolder = getwd(),
@@ -119,7 +122,8 @@ DatabaseConnector::disconnect(con)
 
 # === pathwaySettings ====
 pathwaySettings <- createPathwaySettings(
-  cohortSettings = cohortSettings, studyName = "Viral_Sinusitis")
+  cohortSettings = cohortSettings,
+  studyName = "Viral_Sinusitis")
 
 # add analysis
 pathwaySettings <- addPathwayAnalysis(
@@ -147,3 +151,13 @@ TreatmentPatterns::generateOutput(saveSettings)
 
 # 5) Launch shiny application to visualize the results
 TreatmentPatterns::launchResultsExplorer(saveSettings)
+
+# Save sunburst PDF
+TreatmentPatterns::saveAsPNG(
+  fileName = "output/Eunomia/Viral_Sinusitis/Eunomia_Viral_Sinusitis_all_sunburstplot.html",
+  fileNameOut = "output/Eunomia/sunburst.pdf")
+
+# PNG
+TreatmentPatterns::saveAsPNG(
+  fileName = "output/Eunomia/Viral_Sinusitis/Eunomia_Viral_Sinusitis_all_sunburstplot.html",
+  fileNameOut = "output/Eunomia/sunburst.png")

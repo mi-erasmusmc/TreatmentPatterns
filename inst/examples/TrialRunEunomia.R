@@ -1,4 +1,4 @@
-# === Libraries ====
+# === Pre log stuff ====
 library(CohortGenerator)
 library(TreatmentPatterns)
 library(dplyr)
@@ -7,7 +7,21 @@ library(data.table)
 fs::dir_delete("output")
 fs::dir_delete("temp")
 
+# === Logging ====
+# Add logger
+ParallelLogger::clearLoggers()
+ParallelLogger::addDefaultFileLogger(
+  fileName = file.path(
+    "dev/",
+    "treatmentpatterns_log.txt"),
+  name = "TreatmentPatterns_Logger")
+
+ParallelLogger::logInfo(print(paste0(
+  "Running package version ",
+  packageVersion("TreatmentPatterns"))))
+
 # === Create dataSettings ====
+ParallelLogger::logInfo(print("=== Create dataSettings ===="))
 dataSettings <- createDataSettings(
   connectionDetails = Eunomia::getEunomiaConnectionDetails(),
   cdmDatabaseSchema = "main",
@@ -15,6 +29,7 @@ dataSettings <- createDataSettings(
   cohortTable = "cohort_table")
 
 # === Create cohorts ====
+ParallelLogger::logInfo(print("=== Create cohorts ===="))
 # Create empty cohort definition
 cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
 
@@ -67,6 +82,7 @@ cohortsGenerated <- CohortGenerator::generateCohortSet(
 
 
 # === Cohort data prep ====
+ParallelLogger::logInfo(print("=== Cohort data prep ===="))
 # Select Viral Sinusitis Cohort
 targetCohort <- cohortsGenerated %>% 
   filter(cohortName == "Viral Sinusitis") %>%
@@ -78,6 +94,7 @@ eventCohorts <- cohortsGenerated %>%
   select(cohortId, cohortName)
 
 # === saveSettings ====
+ParallelLogger::logInfo(print("=== saveSettings ===="))
 fs::dir_create("output")
 fs::dir_create("temp")
 
@@ -87,6 +104,7 @@ saveSettings <- TreatmentPatterns::createSaveSettings(
   outputFolder = file.path(getwd(), "output", "Eunomia"))
 
 # === cohortSettings ====
+ParallelLogger::logInfo(print("=== cohortSettings ===="))
 cohortSettings <- TreatmentPatterns::createCohortSettings(
   targetCohorts = targetCohort,
   eventCohorts = eventCohorts)
@@ -121,6 +139,7 @@ invisible(lapply(cohortTableNames, function(tableName) {
 DatabaseConnector::disconnect(con)
 
 # === pathwaySettings ====
+ParallelLogger::logInfo(print("=== pathwaySettings ===="))
 pathwaySettings <- createPathwaySettings(
   cohortSettings = cohortSettings,
   studyName = "Viral_Sinusitis")
@@ -133,6 +152,7 @@ pathwaySettings <- addPathwayAnalysis(
   studyName = "One drug less")
 
 # === ConstructPathways ====
+ParallelLogger::logInfo(print("=== ConstructPathways ===="))
 # 1) Create target/event cohorts of interest
 # > Done with CohortGenerator
 
@@ -147,17 +167,20 @@ TreatmentPatterns::constructPathways(
   saveSettings = saveSettings)
 
 # 4) Generate output (sunburst plots, Sankey diagrams and more)
+ParallelLogger::logInfo(print("=== Generate outputs ===="))
 TreatmentPatterns::generateOutput(saveSettings)
 
 # 5) Launch shiny application to visualize the results
-TreatmentPatterns::launchResultsExplorer(saveSettings)
+# TreatmentPatterns::launchResultsExplorer(saveSettings)
 
 # Save sunburst PDF
-TreatmentPatterns::saveAsPNG(
-  fileName = "output/Eunomia/Viral_Sinusitis/Eunomia_Viral_Sinusitis_all_sunburstplot.html",
-  fileNameOut = "output/Eunomia/sunburst.pdf")
+# TreatmentPatterns::saveAsPNG(
+#   fileName = "output/Eunomia/Viral_Sinusitis/Eunomia_Viral_Sinusitis_all_sunburstplot.html",
+#   fileNameOut = "output/Eunomia/sunburst.pdf")
+# 
+# # PNG
+# TreatmentPatterns::saveAsPNG(
+#   fileName = "output/Eunomia/Viral_Sinusitis/Eunomia_Viral_Sinusitis_all_sunburstplot.html",
+#   fileNameOut = "output/Eunomia/sunburst.png")
 
-# PNG
-TreatmentPatterns::saveAsPNG(
-  fileName = "output/Eunomia/Viral_Sinusitis/Eunomia_Viral_Sinusitis_all_sunburstplot.html",
-  fileNameOut = "output/Eunomia/sunburst.png")
+ParallelLogger::unregisterLogger("TreatmentPatterns_Logger")

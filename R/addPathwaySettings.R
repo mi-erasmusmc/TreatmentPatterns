@@ -1,4 +1,6 @@
 #' addPathwaySettingsCheck
+#' 
+#' Helper functions that checks the input for addPathwaySettings.
 #'
 #' @param studyName
 #' @param targetCohortId
@@ -274,6 +276,11 @@ addPathwaySettingsCheck <- function(
 #'     sunburst plot
 #'
 #' @export
+#' @examples
+#' pathwaySettings <- addPathwaySettings(
+#'   studyName = "myCoolStudy",
+#'   targetCohortId = 1,
+#'   eventCohortIds = c(1,2,3))
 addPathwaySettings <- function(
     studyName = "name_unknown",
     targetCohortId,

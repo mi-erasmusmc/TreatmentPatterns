@@ -248,7 +248,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
 
       # Save the treatment pathways
       if (nrow(treatment_history) != 0) {
-        treatment_pathways <- as.data.table(
+        treatment_pathways <- data.table::as.data.table(
           reshape2::dcast(
             data = treatment_history, 
             formula = person_id + index_year ~ event_seq, 
@@ -490,7 +490,7 @@ doSplitEventCohorts <- function(
   
   if (!is.na(splitEventCohorts)) {
     # Load in labels cohorts
-    labels <- data.table(readr::read_csv(
+    labels <- data.table::data.table(readr::read_csv(
       file = file.path(outputFolder, "settings", "cohorts_to_create.csv"), 
       col_types = list("c","c","c","i","c")))
     

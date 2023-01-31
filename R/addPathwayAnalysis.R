@@ -1,9 +1,12 @@
 #' addPathwayAnalysis
 #'
-#' @param pathwaySettings pathwaySettings object
-#' @param eventCohortIds Event Cohort IDs
-#' @param targetCohortIds Target Cohort IDs
-#' @param ... Optional addPathwaySettings parameters. i.e. studyName.
+#' Adds a pathway analysis to a pathwaySettings object.
+#'
+#' @param pathwaySettings A pathwaySettings object
+#' @param eventCohortIds Event Cohort ID's
+#' @param targetCohortIds Target Cohort ID's
+#' @param ... Optional addPathwaySettings parameters i.e. studyName. Excluding
+#' eventCohortId and targetCohortIds
 #'
 #' @import dplyr
 #'
@@ -19,10 +22,10 @@
 #'   eventCohorts = data.frame(
 #'     cohortId = c(2, 3),
 #'     cohortName = c("b", "c")))
-#' 
+#'
 #' # Create pathwaySettings
 #' pathwaySettings <- createPathwaySettings(cohortSettings)
-#' 
+#'
 #' addPathwayAnalysis(
 #'   pathwaySettings = pathwaySettings,
 #'   targetCohortIds = c(10),
@@ -34,12 +37,12 @@ addPathwayAnalysis <- function(
     eventCohortIds = eventCohortIds,
     targetCohortId = targetCohortIds,
     ...)
-  
+
   analysisParams <- data.table::transpose(analysis)
-  
+
   names(analysisParams) <- paste0(
     "analysis", length(names(pathwaySettings$all_settings)))
-  
+
   pathwaySettings$all_settings <- dplyr::bind_cols(
     pathwaySettings$all_settings,
     analysisParams)

@@ -189,7 +189,7 @@ getPathways <- function(
     minCellCount) {
   # Try to read in paths from constructPathways.R for studyName
   file <- try({
-    data.table(readr::read_csv(
+    data.table::data.table(readr::read_csv(
       file.path(
         tempFolder,
         studyName,
@@ -214,7 +214,7 @@ getPathways <- function(
     rep(file$freq, times = num_columns), 
     ncol = num_columns)[findCombinations == TRUE]
   
-  summaryCombinations <-data.table(
+  summaryCombinations <- data.table::data.table(
     combination = combinations,
     freq = freqCombinations)
   
@@ -452,7 +452,7 @@ outputDurationEras <- function(
     groupCombinations,
     minCellCount) {
   # Try to read in treatment history from constructPathways.R for studyName
-  file <- data.table(readr::read_csv(
+  file <- data.table::data.table(readr::read_csv(
     file.path(
       tempFolder,
       studyName,
@@ -1342,7 +1342,7 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
       rep(data$freq, times = num_columns),
       ncol = num_columns)[findCombinations == TRUE]
     
-    summaryCombinations <- data.table(
+    summaryCombinations <- data.table::data.table(
       combination = combinations,
       freq = freqCombinations)
     
@@ -1362,7 +1362,7 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
       data[selectedCombinations] <- "Other"
     }
   }
-  return(as.data.table(data))
+  return(data.table::as.data.table(data))
 }
 
 

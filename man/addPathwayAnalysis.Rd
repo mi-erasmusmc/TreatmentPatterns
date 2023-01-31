@@ -7,19 +7,20 @@
 addPathwayAnalysis(pathwaySettings, targetCohortIds, eventCohortIds, ...)
 }
 \arguments{
-\item{pathwaySettings}{pathwaySettings object}
+\item{pathwaySettings}{A pathwaySettings object}
 
-\item{targetCohortIds}{Target Cohort IDs}
+\item{targetCohortIds}{Target Cohort ID's}
 
-\item{eventCohortIds}{Event Cohort IDs}
+\item{eventCohortIds}{Event Cohort ID's}
 
-\item{...}{Optional addPathwaySettings parameters. i.e. studyName.}
+\item{...}{Optional addPathwaySettings parameters i.e. studyName. Excluding
+eventCohortId and targetCohortIds}
 }
 \value{
 pathwaySettings
 }
 \description{
-addPathwayAnalysis
+Adds a pathway analysis to a pathwaySettings object.
 }
 \examples{
 # Create cohortSettings

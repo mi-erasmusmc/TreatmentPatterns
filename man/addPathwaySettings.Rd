@@ -39,7 +39,7 @@ cohorts are allowed to start.}
 
 \item{minEraDuration}{Minimum time an event era should last to be included in analysis.}
 
-\item{splitEventCohorts}{Specify event cohort ID's to split in acute (< X days) and therapy 
+\item{splitEventCohorts}{Specify event cohort ID's to split in acute (< X days) and therapy
 (>= X days).}
 
 \item{splitTime}{Specify number of days (X) at which each of the split event cohorts
@@ -72,5 +72,12 @@ the sunburst plot.}
 sunburst plot}
 }
 \description{
-addPathwaySettings defines and returns a data.frame of settings specified in the function call.
+addPathwaySettings defines and returns a data.frame of settings specified in
+the function call.
+}
+\examples{
+pathwaySettings <- addPathwaySettings(
+  studyName = "myCoolStudy",
+  targetCohortId = 1,
+  eventCohortIds = c(1,2,3))
 }

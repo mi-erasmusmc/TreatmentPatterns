@@ -11,22 +11,20 @@ createPathwaySettings(cohortSettings, ...)
 
 \item{...}{Any addPathwaySettings parameter:
 1. studyName
-2. targetCohortId
-3. eventCohortIds
-4. includeTreatments
-5. periodPriorToIndex
-6. minEraDuration
-7. splitEventCohorts
-8. splitTime
-9. eraCollapseSize
-10. combinationWindow
-11. minPostCombinationDuration
-12. filterTreatments
-13. maxPathLength
-14. minCellCount
-15. minCellMethod
-16. groupCombinations
-17. addNoPaths}
+2. includeTreatments
+3. periodPriorToIndex
+4. minEraDuration
+5. splitEventCohorts
+6. splitTime
+7. eraCollapseSize
+8. combinationWindow
+9. minPostCombinationDuration
+10. filterTreatments
+11. maxPathLength
+12. minCellCount
+13. minCellMethod
+14. groupCombinations
+15. addNoPaths}
 }
 \value{
 Object pathwaySettings.

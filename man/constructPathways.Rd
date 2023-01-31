@@ -2,7 +2,7 @@
 % Please edit documentation in R/ConstructPathways.R
 \name{constructPathways}
 \alias{constructPathways}
-\title{Construct treatment pathways.}
+\title{constructPathways}
 \usage{
 constructPathways(dataSettings, pathwaySettings, saveSettings)
 }

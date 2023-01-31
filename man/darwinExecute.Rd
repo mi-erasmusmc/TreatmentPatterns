@@ -2,7 +2,7 @@
 % Please edit documentation in R/darwinExecute.R
 \name{darwinExecute}
 \alias{darwinExecute}
-\title{Title}
+\title{darwinExecute}
 \usage{
 darwinExecute(
   targetCohort,
@@ -27,5 +27,5 @@ darwinExecute(
 \item{saveSettings}{}
 }
 \description{
-Title
+darwinExecute
 }

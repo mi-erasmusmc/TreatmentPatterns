@@ -1,22 +1,22 @@
 #' addPathwaySettingsCheck
 #'
-#' @param studyName 
-#' @param targetCohortId 
-#' @param eventCohortIds 
-#' @param includeTreatments 
-#' @param periodPriorToIndex 
-#' @param minEraDuration 
-#' @param splitEventCohorts 
-#' @param splitTime 
-#' @param eraCollapseSize 
-#' @param combinationWindow 
-#' @param minPostCombinationDuration 
-#' @param filterTreatments 
-#' @param maxPathLength 
-#' @param minCellCount 
-#' @param minCellMethod 
-#' @param groupCombinations 
-#' @param addNoPaths 
+#' @param studyName
+#' @param targetCohortId
+#' @param eventCohortIds
+#' @param includeTreatments
+#' @param periodPriorToIndex
+#' @param minEraDuration
+#' @param splitEventCohorts
+#' @param splitTime
+#' @param eraCollapseSize
+#' @param combinationWindow
+#' @param minPostCombinationDuration
+#' @param filterTreatments
+#' @param maxPathLength
+#' @param minCellCount
+#' @param minCellMethod
+#' @param groupCombinations
+#' @param addNoPaths
 #'
 #' @import checkmate
 #'
@@ -31,35 +31,39 @@ addPathwaySettingsCheck <- function(
     splitEventCohorts,
     splitTime,
     eraCollapseSize,
-    combinationWindow, 
+    combinationWindow,
     minPostCombinationDuration,
     filterTreatments,
-    maxPathLength, 
+    maxPathLength,
     minCellCount,
     minCellMethod,
     groupCombinations,
     addNoPaths) {
-  
   # studyName
-  checkmate::assert(
-    checkmate::checkCharacter(
-      x = studyName,
-      len = 1))
-  
+  checkmate::assert(checkmate::checkCharacter(
+    x = studyName,
+    len = 1))
+
   # targetCohortId
-  checkmate::assert(checkmate::checkNumeric(
-    x = targetCohortId,
-    min.len = 1,
-    unique = TRUE,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = targetCohortId,
+      min.len = 1,
+      unique = TRUE,
+      null.ok = FALSE
+    )
+  )
+
   # eventCohortIds
-  checkmate::assert(checkmate::checkNumeric(
-    x = eventCohortIds,
-    min.len = 1,
-    unique = TRUE,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = eventCohortIds,
+      min.len = 1,
+      unique = TRUE,
+      null.ok = FALSE
+    )
+  )
+
   # includeTreatments
   checkmate::assert(
     checkmate::checkCharacter(
@@ -68,61 +72,78 @@ addPathwaySettingsCheck <- function(
     checkmate::checkSubset(
       x = includeTreatments,
       choices = c("startDate", "endDate")),
-    combine = "and")
-  
+    combine = "and"
+  )
+
   # periodPriorToIndex
-  checkmate::assert(checkmate::checkNumeric(
-    x = periodPriorToIndex,
-    # lower = 0, # Can it be negative?
-    len = 1,
-    finite = TRUE,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = periodPriorToIndex,
+      # lower = 0, # Can it be negative?
+      len = 1,
+      finite = TRUE,
+      null.ok = FALSE
+    )
+  )
+
   # minEraDuration
-  checkmate::assert(checkmate::checkNumeric(
-    x = minEraDuration,
-    lower = 0,
-    finite = TRUE,
-    len = 1,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = minEraDuration,
+      lower = 0,
+      finite = TRUE,
+      len = 1,
+      null.ok = FALSE
+    )
+  )
+
   # splitEventCohorts
   checkmate::assert(checkmate::checkCharacter(
     x = splitEventCohorts,
     len = 1))
-  
+
   # splitTime
   checkmate::assert(checkmate::checkNumeric(
     x = splitTime,
     lower = 0,
     finite = TRUE,
     len = 1,
-    null.ok = FALSE))
-  
+    null.ok = FALSE
+  ))
+
   # eraCollapseSize
-  checkmate::assert(checkmate::checkNumeric(
-    x = eraCollapseSize,
-    lower = 0,
-    finite = TRUE,
-    len = 1,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = eraCollapseSize,
+      lower = 0,
+      finite = TRUE,
+      len = 1,
+      null.ok = FALSE
+    )
+  )
+
   # combinationWindow
-  checkmate::assert(checkmate::checkNumeric(
-    x = combinationWindow,
-    lower = 0,
-    finite = TRUE,
-    len = 1,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = combinationWindow,
+      lower = 0,
+      finite = TRUE,
+      len = 1,
+      null.ok = FALSE
+    )
+  )
+
   # minPostCombinationDuration
-  checkmate::assert(checkmate::checkNumeric(
-    x = minPostCombinationDuration,
-    lower = 0,
-    finite = TRUE,
-    len = 1,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = minPostCombinationDuration,
+      lower = 0,
+      finite = TRUE,
+      len = 1,
+      null.ok = FALSE
+    )
+  )
+
   # filterTreatments
   checkmate::assert(
     checkmate::checkCharacter(
@@ -131,119 +152,130 @@ addPathwaySettingsCheck <- function(
     checkmate::checkSubset(
       x = filterTreatments,
       choices = c("First", "Changes", "All")),
-    combine = "and")
-  
+    combine = "and"
+  )
+
   # maxPathLength
-  checkmate::assert(checkmate::checkNumeric(
-    x = maxPathLength,
-    lower = 0,
-    upper = 5,
-    finite = TRUE,
-    len = 1,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = maxPathLength,
+      lower = 0,
+      upper = 5,
+      finite = TRUE,
+      len = 1,
+      null.ok = FALSE
+    )
+  )
+
   # minCellCount
-  checkmate::assert(checkmate::checkNumeric(
-    x = minCellCount,
-    lower = 0,
-    finite = TRUE,
-    len = 1,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = minCellCount,
+      lower = 0,
+      finite = TRUE,
+      len = 1,
+      null.ok = FALSE
+    )
+  )
+
   # minCellMethod
   # Not used in ConstructPathways.R
-  checkmate::assert(
-    checkmate::checkCharacter(
-      x = minCellMethod,
-      len = 1))
-  
+  checkmate::assert(checkmate::checkCharacter(
+    x = minCellMethod,
+    len = 1))
+
   # groupCombinations
-  checkmate::assert(checkmate::checkNumeric(
-    x = groupCombinations,
-    lower = 0,
-    finite = TRUE,
-    len = 1,
-    null.ok = FALSE))
-  
+  checkmate::assert(
+    checkmate::checkNumeric(
+      x = groupCombinations,
+      lower = 0,
+      finite = TRUE,
+      len = 1,
+      null.ok = FALSE
+    )
+  )
+
   # addNoPaths
   checkmate::assert(checkmate::checkLogical(
     x = addNoPaths,
     any.missing = FALSE,
-    len = 1))
-  
+    len = 1
+  ))
+
   return(TRUE)
 }
 
 #' addPathwaySettings
 #'
-#' addPathwaySettings defines and returns a data.frame of settings specified in the function call.
+#' addPathwaySettings defines and returns a data.frame of settings specified in
+#' the function call.
 #'
 #' @param studyName
 #'     Name identifying the set of study parameters.
-#'     
+#'
 #' @param targetCohortId
 #'     Target cohort ID of current study settings.
-#'     
+#'
 #' @param eventCohortIds
 #'     Event cohort IDs of current study settings.
-#'     
+#'
 #' @param includeTreatments
 #'     Include treatments starting ('startDate') or ending ('endDate') after
 #'     target cohort start date.
-#'     
+#'
 #' @param periodPriorToIndex
 #'     Number of days prior to the index date of the target cohort that event
 #'     cohorts are allowed to start.
-#'     
+#'
 #' @param minEraDuration
 #'     Minimum time an event era should last to be included in analysis.
-#'     
+#'
 #' @param splitEventCohorts
-#'     Specify event cohort ID's to split in acute (< X days) and therapy 
+#'     Specify event cohort ID's to split in acute (< X days) and therapy
 #'     (>= X days).
-#'     
+#'
 #' @param splitTime
 #'     Specify number of days (X) at which each of the split event cohorts
 #'     should be split in acute and therapy.
-#'     
+#'
 #' @param eraCollapseSize
 #'     Window of time between which two eras of the same event cohort are
 #'     collapsed into one era.
-#'     
+#'
 #' @param combinationWindow
 #'     Window of time two event cohorts need to overlap to be considered a
 #'     combination treatment.
-#'     
+#'
 #' @param minPostCombinationDuration
 #'     Minimum time an event era before or after a generated combination
 #'     treatment should last to be included in analysis.
-#'     
+#'
 #' @param filterTreatments
 #'     Select first occurrence of ("First") / changes between ("Changes') / all
 #'     event cohorts ("All").
-#'     
+#'
 #' @param maxPathLength
 #'     Maximum number of steps included in treatment pathway (max 5).
-#'     
+#'
 #' @param minCellCount
 #'     Minimum number of persons with a specific treatment pathway for the
 #'     pathway to be included in analysis.
-#'     
+#'
 #' @param minCellMethod
 #'     Select to completely remove / sequentially adjust (by removing last step
 #'     as often as necessary) treatment pathways below minCellCount.
-#'     
+#'
 #' @param groupCombinations
 #'     Select to group all non-fixed combinations in one category 'other’ in
 #'     the sunburst plot.
-#'     
+#'
 #' @param addNoPaths
 #'     Select to include untreated persons without treatment pathway in the
 #'     sunburst plot
 #'
 #' @export
 addPathwaySettings <- function(
-    studyName = "name_unknown", # c("default")
+    studyName = "name_unknown",
     targetCohortId,
     eventCohortIds,
     includeTreatments = "startDate",
@@ -252,15 +284,14 @@ addPathwaySettings <- function(
     splitEventCohorts = "",
     splitTime = 30,
     eraCollapseSize = 30,
-    combinationWindow = 30, 
+    combinationWindow = 30,
     minPostCombinationDuration = 30,
     filterTreatments = "First",
-    maxPathLength = 5, 
+    maxPathLength = 5,
     minCellCount = 5,
     minCellMethod = "Remove",
     groupCombinations = 10,
     addNoPaths = FALSE) {
-  
   check <- addPathwaySettingsCheck(
     studyName,
     targetCohortId,
@@ -271,15 +302,16 @@ addPathwaySettings <- function(
     splitEventCohorts,
     splitTime,
     eraCollapseSize,
-    combinationWindow, 
+    combinationWindow,
     minPostCombinationDuration,
     filterTreatments,
-    maxPathLength, 
+    maxPathLength,
     minCellCount,
     minCellMethod,
     groupCombinations,
-    addNoPaths)
-  
+    addNoPaths
+  )
+
   if (check) {
     settings <- data.frame(
       studyName = studyName,
@@ -298,8 +330,9 @@ addPathwaySettings <- function(
       minCellCount = minCellCount,
       minCellMethod = minCellMethod,
       groupCombinations = groupCombinations,
-      addNoPaths = addNoPaths)
-    
+      addNoPaths = addNoPaths
+    )
+
     return(settings)
   }
 }

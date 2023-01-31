@@ -1,5 +1,7 @@
 #' addPathwayAnalysis
 #'
+#' Adds a pathway analysis to a pathwaySettings object.
+#'
 #' @param pathwaySettings pathwaySettings object
 #' @param eventCohortIds Event Cohort IDs
 #' @param targetCohortIds Target Cohort IDs

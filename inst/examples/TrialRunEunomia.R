@@ -114,7 +114,8 @@ fs::dir_create(file.path(saveSettings$outputFolder, "settings"))
 
 write.csv(
   x = cohortSettings$cohortsToCreate,
-  file = file.path(saveSettings$outputFolder, "settings", "cohorts_to_create.csv"))
+  file = file.path(saveSettings$outputFolder, "settings", "cohorts_to_create.csv"),
+  row.names = FALSE)
 
 # Connect to database
 con <- DatabaseConnector::connect(dataSettings$connectionDetails)

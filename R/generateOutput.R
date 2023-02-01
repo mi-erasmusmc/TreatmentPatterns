@@ -325,7 +325,7 @@ percentageGroupTreated <- function(
   
   cohorts <- readr::read_csv(
       file.path(outputFolder, "settings", "cohorts_to_create.csv"),
-      col_types = list("i", "c", "c", "c", "c")
+      col_types = list("i", "c", "c")
     )
   outcomes <- c(
     cohorts$cohortName[cohorts$cohortId %in% eventCohortIds],
@@ -565,7 +565,7 @@ outputDurationEras <- function(
   # Add missing groups
   cohorts <- readr::read_csv(
       file.path(outputFolder, "settings", "cohorts_to_create.csv"),
-      col_types = list("i", "c", "c", "c", "c"))
+      col_types = list("i", "c", "c"))
 
   outcomes <- c(
     cohorts$cohortName[cohorts$cohortId %in% eventCohortIds],
@@ -793,7 +793,7 @@ outputSunburstPlot <- function(
     addNoPaths) {
   cohorts <- readr::read_csv(
     file.path(outputFolder, "settings", "cohorts_to_create.csv"),
-    col_types = list("i", "c", "c", "c", "c"))
+    col_types = list("i", "c", "c"))
 
   outcomes <- c(
     cohorts$cohortName[cohorts$cohortId %in% eventCohortIds],

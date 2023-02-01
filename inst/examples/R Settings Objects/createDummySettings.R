@@ -1,49 +1,75 @@
-conDetails <- Eunomia::getEunomiaConnectionDetails()
-
-dataSettings <- createDataSettings(
-  OMOP_CDM = TRUE,
-  connectionDetails = conDetails,
+dataSettings <- TreatmentPatterns::createDataSettings(
+  connectionDetails = Eunomia::getEunomiaConnectionDetails(),
   cdmDatabaseSchema = "main",
-  cohortDatabaseSchema = "main",
-  cohortTable = "treatmentpatterns_cohorts"
-)
+  resultSchema = "main",
+  cohortTable = "cohort_table")
 
-cohortSettings <-
-  createCohortSettings(
-    targetCohorts = data.frame(
-      cohortId = c(1),
-      atlasId = c(1781027),
-      cohortName = c("Viral sinusitis"),
-      conceptSet = ""
-    ),
-    eventCohorts = data.frame(
-      cohortId = c(10, 11, 12, 13, 14),
-      atlasId = c(1781028, 1781029, 1781030, 1781031, 1781032),
-      cohortName = c(
-        "Acetaminophen",
-        "Amoxicillin",
-        "Aspirin",
-        "Clavulanate",
-        "Penicillin V"
-      ),
-      conceptSet = c("", "", "", "", "")
-    ),
-    baseUrl = "http://api.ohdsi.org:8080/WebAPI",
-    loadCohorts = TRUE
-  )
+cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
 
-characterizationSettings <- createCharacterizationSettings(
-  baselineCovariates = data.frame(
-    covariateName = c('Male', 'Age',
-                      'Charlson comorbidity index score'),
-    covariateId = c(8507001, 1002, 1901)
-  ),
-  returnCovariates = "selection"
-)
+cohortJsonFiles <- list.files(
+  "inst/examples/OMOP CDM/inst/cohorts/Viral Sinusitis/JSON/",
+  full.names = TRUE)
 
-# specify different sets of pathway settings, with adjusted settings
-pathwaySettings <- createPathwaySettings(targetCohortId = 1,
-                                         eventCohortIds = c(10, 11, 12, 13, 14))
+for (i in seq_len(length(cohortJsonFiles))) {
+  cohortJsonFileName <- cohortJsonFiles[i]
+  cohortName <- tools::file_path_sans_ext(basename(cohortJsonFileName))
+  # Here we read in the JSON in order to create the SQL
+  # using [CirceR](https://ohdsi.github.io/CirceR/)
+  # If you have your JSON and SQL stored differenly, you can
+  # modify this to read your JSON/SQL files however you require
+  cohortJson <- readChar(cohortJsonFileName, file.info(
+    cohortJsonFileName)$size)
+  
+  cohortExpression <- CirceR::cohortExpressionFromJson(cohortJson)
+  
+  cohortSql <- CirceR::buildCohortQuery(
+    cohortExpression,
+    options = CirceR::createGenerateOptions(generateStats = FALSE))
+  cohortsToCreate <- rbind(
+    cohortsToCreate, 
+    data.frame(
+      cohortId = i,
+      cohortName = cohortName, 
+      sql = cohortSql,
+      stringsAsFactors = FALSE))
+}
 
-saveSettings <- createSaveSettings(databaseName = "Eunomia",
-                                   rootFolder = getwd())
+cohortTableNames <- CohortGenerator::getCohortTableNames(
+  cohortTable = dataSettings$cohortTable)
+
+CohortGenerator::createCohortTables(
+  connectionDetails = dataSettings$connectionDetails,
+  cohortDatabaseSchema = dataSettings$resultSchema,
+  cohortTableNames = cohortTableNames)
+
+# Generate the cohorts
+cohortsGenerated <- CohortGenerator::generateCohortSet(
+  connectionDetails = dataSettings$connectionDetails,
+  cdmDatabaseSchema = dataSettings$cdmDatabaseSchema,
+  cohortDatabaseSchema = dataSettings$resultSchema,
+  cohortTableNames = cohortTableNames,
+  cohortDefinitionSet = cohortsToCreate)
+
+# Select Viral Sinusitis Cohort
+targetCohort <- cohortsGenerated %>% 
+  filter(cohortName == "Viral Sinusitis") %>%
+  select(cohortId, cohortName)
+
+# Select everything BUT Viral Sinusitis cohorts
+eventCohorts <- cohortsGenerated %>% 
+  filter(cohortName != "Viral Sinusitis") %>%
+  select(cohortId, cohortName)
+
+saveSettings <- TreatmentPatterns::createSaveSettings(
+  databaseName = "Eunomia",
+  rootFolder = getwd(),
+  outputFolder = file.path(getwd(), "output", "Eunomia"))
+
+cohortSettings <- TreatmentPatterns::createCohortSettings(
+  targetCohorts = targetCohort,
+  eventCohorts = eventCohorts)
+
+pathwaySettings <- TreatmentPatterns::createPathwaySettings(
+  cohortSettings = cohortSettings,
+  studyName = "Viral_Sinusitis")
+

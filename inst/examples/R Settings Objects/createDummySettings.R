@@ -21,7 +21,9 @@ dataSettings <- TreatmentPatterns::createDataSettings(
 cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
 
 cohortJsonFiles <- list.files(
-  "inst/examples/OMOP CDM/inst/cohorts/Viral Sinusitis/JSON/",
+  system.file(
+    package = "TreatmentPatterns",
+    "examples", "OMOP CDM", "inst", "cohorts", "Viral Sinusitis", "JSON"),
   full.names = TRUE)
 
 for (i in seq_len(length(cohortJsonFiles))) {

@@ -1,168 +1,3 @@
-#' generateOutput
-#' 
-#' Generate output (sunburst plots, Sankey diagrams and more).
-#'
-#' @param saveSettings
-#'     Settings object as created by createSaveSettings().
-#'
-#' @export
-generateOutput <- function(saveSettings) {
-  # Check if inputs correct
-  if (!class(saveSettings) %in% c('saveSettings')) {
-    stop('Incorrect class for saveSettings')
-  }
-  
-  # Load pathway settings
-  pathwaySettings <- data.frame(readr::read_csv(
-    file.path(
-      saveSettings$outputFolder,
-      "settings",
-      "pathway_settings.csv"),
-    col_types = readr::cols()))
-  
-  # For all different pathway settings
-  settings <-
-    colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
-  
-  for (s in settings) {
-    studyName <- pathwaySettings[pathwaySettings$param == "studyName", s]
-    
-    ParallelLogger::logInfo(print(paste0("Creating output: ", studyName)))
-    
-    # Select cohorts included
-    targetCohortId <-
-      pathwaySettings[pathwaySettings$param == "targetCohortId", s]
-    eventCohortIds <-
-      pathwaySettings[pathwaySettings$param == "eventCohortIds", s]
-    eventCohortIds <-
-      unlist(strsplit(eventCohortIds, split = c(";|,")))
-    
-    # Result settings
-    minCellCount <-
-      as.integer(pathwaySettings[pathwaySettings$param == "minCellCount", s])
-    minCellMethod <-
-      pathwaySettings[pathwaySettings$param == "minCellMethod", s]
-    groupCombinations <-
-      pathwaySettings[pathwaySettings$param == "groupCombinations", s]
-    addNoPaths <-
-      pathwaySettings[pathwaySettings$param == "addNoPaths", s]
-    
-    # Check if directories exist and create if necessary
-    outputFolder_s <-
-      file.path(saveSettings$outputFolder, studyName)
-    if (!file.exists(outputFolder_s))
-      dir.create(outputFolder_s, recursive = TRUE)
-    
-    # Transform results for output
-    treatment_pathways <- getPathways(
-      outputFolder = saveSettings$outputFolder,
-      tempFolder = saveSettings$tempFolder,
-      databaseName = saveSettings$databaseName,
-      studyName = studyName,
-      minCellCount = minCellCount)
-    
-    # TODO: check if conversions to data.table needed here
-    
-    if (!is.null(treatment_pathways)) {
-      # Compute percentage of people treated with each event cohort separately
-      # and in the form of combination treatments
-      outputTreatedPatients(
-        data = treatment_pathways[[1]],
-        eventCohortIds = eventCohortIds,
-        groupCombinations = TRUE,
-        outputFolder = saveSettings$outputFolder,
-        outputFile = file.path(
-          outputFolder_s,
-          paste0(
-            saveSettings$databaseName,
-            "_",
-            studyName,
-            "_percentage_groups_treated_noyear.csv"
-          )
-        )
-      )
-      outputTreatedPatients(
-        data = treatment_pathways[[2]],
-        eventCohortIds = eventCohortIds,
-        groupCombinations = TRUE,
-        outputFolder = saveSettings$outputFolder,
-        outputFile = file.path(
-          outputFolder_s,
-          paste0(
-            saveSettings$databaseName,
-            "_",
-            studyName,
-            "_percentage_groups_treated_withyear.csv"
-          )
-        )
-      )
-
-      # Duration of era's
-      outputDurationEras(
-        outputFolder = saveSettings$outputFolder,
-        tempFolder = saveSettings$tempFolder,
-        databaseName = saveSettings$databaseName,
-        studyName = studyName,
-        eventCohortIds = eventCohortIds,
-        groupCombinations = TRUE,
-        minCellCount = minCellCount
-      )
-
-      # Save (censored) results file_noyear and file_year
-      treatment_pathways <-
-        doMinCellCount(
-          file_noyear = treatment_pathways[[1]],
-          file_withyear = treatment_pathways[[2]],
-          outputFolder = saveSettings$outputFolder,
-          tempFolder = saveSettings$tempFolder,
-          databaseName = saveSettings$databaseName,
-          studyName = studyName,
-          groupCombinations = groupCombinations,
-          minCellCount = minCellCount,
-          minCellMethod = minCellMethod
-        )
-
-      # Treatment pathways sankey diagram
-      outputSankeyDiagram(
-        data = treatment_pathways[[1]],
-        outputFolder = saveSettings$outputFolder,
-        databaseName = saveSettings$databaseName,
-        studyName = studyName,
-        groupCombinations = TRUE
-      )
-
-      # Treatment pathways sunburst plot
-      outputSunburstPlot(
-        data = treatment_pathways[[1]],
-        outputFolder = saveSettings$outputFolder,
-        databaseName = saveSettings$databaseName,
-        studyName = studyName,
-        eventCohortIds = eventCohortIds,
-        addNoPaths = addNoPaths
-      )
-
-      outputSunburstPlot(
-        data = treatment_pathways[[2]],
-        outputFolder = saveSettings$outputFolder,
-        databaseName = saveSettings$databaseName,
-        studyName = studyName,
-        eventCohortIds = eventCohortIds,
-        addNoPaths = addNoPaths
-      )
-    }
-  }
-  
-  # Zip output folder
-  zipName <- file.path(
-    saveSettings$rootFolder,
-    paste0(saveSettings$databaseName, ".zip"))
-
-  OhdsiSharing::compressFolder(file.path(saveSettings$outputFolder), zipName)
-
-  ParallelLogger::logInfo("generateOutput done.")
-}
-
-
 #' getPathways
 #'
 #' Get treatment pathways for generating aggregate output.
@@ -179,8 +14,11 @@ generateOutput <- function(saveSettings) {
 #'     Minimum number of persons with a specific treatment pathway for the
 #'     pathway to be included in analysis.
 #'
-#' @return List
-#'     List with two dataframes.
+#' @import data.table
+#' @import readr
+#' @import ParallelLogger
+#' 
+#' @return List with two dataframes.
 getPathways <- function(
     outputFolder,
     tempFolder,
@@ -196,18 +34,18 @@ getPathways <- function(
         paste0(databaseName, "_", studyName, "_paths.csv")),
       col_types = readr::cols()))},
     silent = TRUE)
-
+  
   if ("try-error" %in% class(file)) {
     ParallelLogger::logInfo(warning(paste0(
       "Data is empty for study settings ", studyName)))
     return (NULL)
   }
-
+  
   # Summarize which non-fixed combinations occurring
   findCombinations <-
     apply(file, 2, function(x)
       grepl("+", x, fixed = TRUE))
-
+  
   combinations <- as.matrix(file)[findCombinations == TRUE]
   num_columns <- sum(grepl("event_cohort_name", colnames(file)))
   freqCombinations <- matrix(
@@ -249,12 +87,16 @@ getPathways <- function(
 #' @param eventCohortIds
 #'     IDs to refer to event cohorts.
 #' @param groupCombinations
-#'     Select to group all non-fixed combinations in one category 'other’ in
+#'     Select to group all non-fixed combinations in one category "other" in
 #'     the sunburst plot.
 #' @param outputFolder
 #'     Path to the output folder.
 #' @param outputFile
 #'     Name of output file.
+#' 
+#' @import ParallelLogger
+#' 
+#' @returns NULL
 outputTreatedPatients <- function(
     data,
     eventCohortIds,
@@ -315,6 +157,10 @@ outputTreatedPatients <- function(
 #'     Group combinations
 #' @param outputFolder
 #'     Output folder
+#' 
+#' @import readr
+#' 
+#' @returns result object
 percentageGroupTreated <- function(
     data,
     eventCohortIds,
@@ -324,9 +170,9 @@ percentageGroupTreated <- function(
     !grepl("index_year|freq", colnames(data))])
   
   cohorts <- readr::read_csv(
-      file.path(outputFolder, "settings", "cohorts_to_create.csv"),
-      col_types = list("i", "c", "c")
-    )
+    file.path(outputFolder, "settings", "cohorts_to_create.csv"),
+    col_types = list("i", "c", "c")
+  )
   outcomes <- c(
     cohorts$cohortName[cohorts$cohortId %in% eventCohortIds],
     "Other")
@@ -343,10 +189,10 @@ percentageGroupTreated <- function(
           sumGroup <- sum(data$freq[data[, ..l] == g], na.rm = TRUE)
           sumAllNotNA <- sum(data$freq[!is.na(data[, ..l])])
           return(sumGroup * 100.0 / sumAllNotNA)
-          }
-        )
-      }
-    )
+        }
+      )
+    }
+  )
   
   # Add outcome names
   result <- data.frame(
@@ -367,7 +213,7 @@ percentageGroupTreated <- function(
           ifelse(o %in% data[r, ], data[r, freq], 0)
         }))
       return(paths_with_outcome * 100.0 / paths_all)
-  })
+    })
   
   # Add rows for total, fixed combinations, all combinations
   if (length(layers) == 1) {
@@ -382,7 +228,7 @@ percentageGroupTreated <- function(
       c("Monotherapy",
         sum(result[!grepl("Other|\\+|\\&", result$outcomes), layers]),
         NA))
-
+    
   } else {
     result <- rbind(
       result,
@@ -396,7 +242,7 @@ percentageGroupTreated <- function(
         colSums(result[!grepl("Other|\\+|\\&", result$outcomes), layers]),
         NA))
   }
-
+  
   result$ALL_LAYERS[result$outcomes == "Fixed combinations"] <- sum(
     sapply(
       X = 1:nrow(data),
@@ -420,7 +266,7 @@ percentageGroupTreated <- function(
       ifelse(any(
         !grepl("Other|\\+|\\&", data[r, ])
       ), data[r, freq], 0)
-      })) * 100.0 / paths_all
+    })) * 100.0 / paths_all
   return(result)
 }
 
@@ -438,11 +284,16 @@ percentageGroupTreated <- function(
 #' @param eventCohortIds
 #'     IDs to refer to event cohorts.
 #' @param groupCombinations
-#'     Select to group all non-fixed combinations in one category 'other’ in
+#'     Select to group all non-fixed combinations in one category "other" in
 #'     the sunburst plot.
 #' @param minCellCount
 #'     Minimum number of persons with a specific treatment pathway for the
 #'     pathway to be included in analysis.
+#'     
+#' @import data.table
+#' @import readr
+#' 
+#' @returns NULL
 outputDurationEras <- function(
     outputFolder,
     tempFolder,
@@ -470,71 +321,71 @@ outputDurationEras <- function(
   result <- file[, .(AVG_DURATION = round(mean(duration_era), 3), COUNT = .N),
                  by = c("event_cohort_name", "event_seq")][
                    order(event_cohort_name, event_seq)]
-
+  
   # Add column for total treated, fixed combinations, all combinations
   file$fixed_combinations[grepl("\\&", file$event_cohort_name)] <- 1
   file$all_combinations[grepl("Other|\\+|\\&", file$event_cohort_name)] <- 1
   file$monotherapy[!grepl("Other|\\+|\\&", file$event_cohort_name)] <- 1
-
+  
   # Duration average per layer
   result_total_concept <- file[, .(
-      event_cohort_name = "Total treated",
-      AVG_DURATION = round(mean(duration_era), 2),
-      COUNT = .N
-    ), by = c("event_seq")]
-
+    event_cohort_name = "Total treated",
+    AVG_DURATION = round(mean(duration_era), 2),
+    COUNT = .N
+  ), by = c("event_seq")]
+  
   result_fixed_combinations <- file[, .(
-      event_cohort_name = "Fixed combinations",
-      AVG_DURATION = round(mean(duration_era), 2),
-      COUNT = .N
-    ), by = c("event_seq", "fixed_combinations")]
-
+    event_cohort_name = "Fixed combinations",
+    AVG_DURATION = round(mean(duration_era), 2),
+    COUNT = .N
+  ), by = c("event_seq", "fixed_combinations")]
+  
   result_fixed_combinations <- result_fixed_combinations[
     !is.na(fixed_combinations), ]
-
+  
   result_fixed_combinations$fixed_combinations <- NULL
-
+  
   result_all_combinations <- file[, .(
-      event_cohort_name = "All combinations",
-      AVG_DURATION = round(mean(duration_era), 2),
-      COUNT = .N
-    ), by = c("event_seq", "all_combinations")]
-
+    event_cohort_name = "All combinations",
+    AVG_DURATION = round(mean(duration_era), 2),
+    COUNT = .N
+  ), by = c("event_seq", "all_combinations")]
+  
   result_all_combinations <- result_all_combinations[
     !is.na(all_combinations), ]
-
+  
   result_all_combinations$all_combinations <- NULL
-
+  
   result_monotherapy <- file[, .(
-      event_cohort_name = "Monotherapy",
-      AVG_DURATION = round(mean(duration_era), 2),
-      COUNT = .N
-    ), by = c("event_seq", "monotherapy")]
-
+    event_cohort_name = "Monotherapy",
+    AVG_DURATION = round(mean(duration_era), 2),
+    COUNT = .N
+  ), by = c("event_seq", "monotherapy")]
+  
   result_monotherapy <- result_monotherapy[!is.na(monotherapy), ]
   result_monotherapy$monotherapy <- NULL
-
+  
   # Duration average all layers
   result_total_seq <- file[, .(
-      event_seq = "Overall",
-      AVG_DURATION = round(mean(duration_era), 2),
-      COUNT = .N
-    ), by = c("event_cohort_name")]
+    event_seq = "Overall",
+    AVG_DURATION = round(mean(duration_era), 2),
+    COUNT = .N
+  ), by = c("event_cohort_name")]
   
   results_total_treated <- file[, .(
-      event_cohort_name = "Total treated",
-      event_seq = "Overall",
-      AVG_DURATION = round(mean(duration_era), 2),
-      COUNT = .N
-    )]
-
+    event_cohort_name = "Total treated",
+    event_seq = "Overall",
+    AVG_DURATION = round(mean(duration_era), 2),
+    COUNT = .N
+  )]
+  
   results_total_fixed <- file[fixed_combinations == 1, .(
-      event_cohort_name = "Fixed combinations",
-      event_seq = "Overall",
-      AVG_DURATION = round(mean(duration_era), 2),
-      COUNT = .N
-    )]
-
+    event_cohort_name = "Fixed combinations",
+    event_seq = "Overall",
+    AVG_DURATION = round(mean(duration_era), 2),
+    COUNT = .N
+  )]
+  
   results_total_mono <-
     file[all_combinations == 1, .(
       event_cohort_name = "All combinations",
@@ -542,14 +393,14 @@ outputDurationEras <- function(
       AVG_DURATION = round(mean(duration_era), 2),
       COUNT = .N
     )]
-
+  
   results_total_allcombi <- file[monotherapy == 1, .(
-      event_cohort_name = "Monotherapy",
-      event_seq = "Overall",
-      AVG_DURATION = round(mean(duration_era), 2),
-      COUNT = .N
-    )]
-
+    event_cohort_name = "Monotherapy",
+    event_seq = "Overall",
+    AVG_DURATION = round(mean(duration_era), 2),
+    COUNT = .N
+  )]
+  
   results <- rbind(
     result,
     result_total_concept,
@@ -561,20 +412,20 @@ outputDurationEras <- function(
     results_total_fixed,
     results_total_mono,
     results_total_allcombi)
-
+  
   # Add missing groups
   cohorts <- readr::read_csv(
-      file.path(outputFolder, "settings", "cohorts_to_create.csv"),
-      col_types = list("i", "c", "c"))
-
+    file.path(outputFolder, "settings", "cohorts_to_create.csv"),
+    col_types = list("i", "c", "c"))
+  
   outcomes <- c(
     cohorts$cohortName[cohorts$cohortId %in% eventCohortIds],
     "Other")
-
+  
   for (o in outcomes[!(outcomes %in% results$event_cohort_name)]) {
     results <- rbind(results, list(o, "Overall", 0.0, 0))
   }
-
+  
   # Remove durations computed using less than minCellCount observations
   results[COUNT < minCellCount, c("AVG_DURATION", "COUNT")] <- NA
   write.csv(
@@ -584,7 +435,7 @@ outputDurationEras <- function(
       studyName,
       paste0(databaseName, "_", studyName, "_duration.csv")),
     row.names = FALSE)
-
+  
   ParallelLogger::logInfo("outputDurationEras done")
 }
 
@@ -608,7 +459,7 @@ outputDurationEras <- function(
 #' @param studyName
 #'     Name for the study corresponding to the current settings.
 #' @param groupCombinations
-#'     Select to group all non-fixed combinations in one category 'other’ in
+#'     Select to group all non-fixed combinations in one category "other" in
 #'     the sunburst plot.
 #' @param minCellCount
 #'     Minimum number of persons with a specific treatment pathway for the
@@ -618,6 +469,11 @@ outputDurationEras <- function(
 #'     as often as necessary) treatment pathways below minCellCount.
 #' @return List
 #'     List of file_noyear and file_withyear
+#'
+#' @import readr
+#' @import ParallelLogger
+#' 
+#' @returns List
 doMinCellCount <- function(
     file_noyear,
     file_withyear,
@@ -632,24 +488,24 @@ doMinCellCount <- function(
   file_noyear <- groupInfrequentCombinations(
     file_noyear,
     groupCombinations)
-
+  
   file_withyear <- groupInfrequentCombinations(
     file_withyear,
     groupCombinations)
-
+  
   layers <- as.vector(colnames(file_noyear)[
     !grepl("index_year|freq", colnames(file_noyear))])
-
+  
   # Calculate percentage treated before minCellCount
   summary_counts <- readr::read_csv(file.path(
     tempFolder,
     studyName,
     paste0(databaseName, "_", studyName, "_summary_cnt.csv")),
     col_types = list("c", "d"))
-
+  
   sumAll <- as.integer(summary_counts[
     summary_counts$index_year == "Number of persons in target cohort NA", "N"])
-
+  
   for (l in layers) {
     sumAllNotNA <- sum(file_noyear$freq[!is.na(file_noyear[, ..l])])
     percAllNotNA <- sumAllNotNA * 100.0 / sumAll
@@ -659,7 +515,7 @@ doMinCellCount <- function(
         percAllNotNA
       ))
   }
-
+  
   # Apply minCellCount by adjusting to other most similar path (removing last
   # treatment in path) or else remove complete path
   if (minCellMethod == "Adjust") {
@@ -674,13 +530,13 @@ doMinCellCount <- function(
           " paths with too low frequency (without year)"
         )
       )
-
+      
       file_noyear[freq < minCellCount, col] <- NA
       file_noyear <- file_noyear[, .(freq = sum(freq)), by = layers]
-
+      
       col <- col - 1
     }
-
+    
     col <- ncol(file_withyear) - 2
     while (sum(file_withyear$freq < minCellCount) > 0 & col != 0) {
       ParallelLogger::logInfo(
@@ -692,14 +548,14 @@ doMinCellCount <- function(
           " paths with too low frequency (with year)"
         )
       )
-
+      
       file_withyear[freq < minCellCount, col] <- NA
       file_withyear <- file_withyear[
         , .(freq = sum(freq)), by = c(layers, "index_year")]
       
       col <- col - 1
     }
-
+    
     # If path becomes completely NA -> add to "Other" group to distinguish
     # from non-treated
     file_noyear$event_cohort_name1[is.na(file_noyear$event_cohort_name1)] <-
@@ -711,33 +567,33 @@ doMinCellCount <- function(
     file_withyear <-
       file_withyear[, .(freq = sum(freq)), by = c(layers, "index_year")]
   }
-
+  
   ParallelLogger::logInfo(paste(
     "Remove ",
     sum(file_noyear$freq < minCellCount),
     " paths with too low frequency (without year)"))
   
   file_noyear <- file_noyear[freq >= minCellCount, ]
-
+  
   ParallelLogger::logInfo(paste(
     "Remove ",
     sum(file_withyear$freq < minCellCount),
     " paths with too low frequency (with year)"))
   
   file_withyear <- file_withyear[freq >= minCellCount, ]
-
+  
   # Add updated counts after minCellCount
   summary_counts <- rbind(
     summary_counts,
     c("Number of pathways (after minCellCount) in NA", sum(file_noyear$freq)))
-
+  
   for (y in unique(file_withyear$index_year)) {
     summary_counts <- rbind(
       summary_counts,
       c(paste0("Number of pathways (after minCellCount) in ", y),
         sum(file_withyear$freq[file_withyear$index_year == y])))
   }
-
+  
   write.table(
     summary_counts,
     file = file.path(
@@ -747,7 +603,7 @@ doMinCellCount <- function(
     sep = ",",
     row.names = FALSE,
     col.names = TRUE)
-
+  
   write.csv(
     file_noyear,
     file.path(
@@ -755,7 +611,7 @@ doMinCellCount <- function(
       studyName,
       paste0(databaseName, "_", studyName, "_file_noyear.csv")),
     row.names = FALSE)
-
+  
   write.csv(
     file_withyear,
     file.path(
@@ -763,7 +619,7 @@ doMinCellCount <- function(
       studyName,
       paste0(databaseName, "_", studyName, "_file_withyear.csv")),
     row.names = FALSE)
-
+  
   ParallelLogger::logInfo("doMinCellCount done")
   return(list(file_noyear, file_withyear))
 }
@@ -784,6 +640,11 @@ doMinCellCount <- function(
 #' @param addNoPaths
 #'     Select to include untreated persons without treatment pathway in the 
 #'     sunburst plot.
+#'     
+#' @import readr
+#' @import ParallelLogger
+#' 
+#' @returns NULL
 outputSunburstPlot <- function(
     data,
     outputFolder,
@@ -794,11 +655,11 @@ outputSunburstPlot <- function(
   cohorts <- readr::read_csv(
     file.path(outputFolder, "settings", "cohorts_to_create.csv"),
     col_types = list("i", "c", "c"))
-
+  
   outcomes <- c(
     cohorts$cohortName[cohorts$cohortId %in% eventCohortIds],
     "Other")
-
+  
   if (nrow(data) != 0) {
     if (is.null(data$index_year)) {
       # For file_noyear compute once
@@ -809,7 +670,7 @@ outputSunburstPlot <- function(
         studyName,
         addNoPaths,
         index_year = 'all')
-
+      
       createSunburstPlot(
         data,
         outcomes,
@@ -817,13 +678,13 @@ outputSunburstPlot <- function(
         file_name = file.path(studyName, paste0(
           databaseName, "_", studyName, "_all")),
         shiny = TRUE)
-
+      
       # Create legend once
       createLegend(studyName, outputFolder, databaseName)
     } else {
       # For file_withyear compute per year
       years <- unlist(unique(data[, "index_year"]))
-
+      
       for (y in years) {
         subset_data <- data[index_year == as.character(y), ]
         if (nrow(subset_data) != 0) {
@@ -834,7 +695,7 @@ outputSunburstPlot <- function(
             studyName,
             addNoPaths,
             index_year = y)
-
+          
           createSunburstPlot(
             subset_data,
             outcomes,
@@ -879,47 +740,49 @@ outputSunburstPlot <- function(
 #' @param title
 #'     Optional if shiny = FALSE: add descriptive title in sunburst plot for
 #'     standalone HTML.
+#'
+#' @import ParallelLogger
 #' 
-#' @export
+#' @returns NULL
 createSunburstPlot <- function(
     data,
     outcomes = NULL,
     folder = NULL,
     file_name = NULL,
     shiny = FALSE,
-     title = "") {
+    title = "") {
   # Check inputs
   if (!("path" %in% colnames(data))) {
     ParallelLogger::logWarn(
       "Column 'path' is missing from input data to create sunburst plot.")
   }
-
+  
   if (!("freq" %in% colnames(data))) {
     ParallelLogger::logWarn(
       "Column 'freq' is missing from input data to create sunburst plot.")
   }
-
+  
   if (is.null(outcomes)) {
     outcomes <-
       unique(unlist(strsplit(
         data$path, split = "-", fixed = TRUE)))
   }
-
+  
   if (is.null(folder)) {
     folder <- getwd()
   }
-
+  
   if (!file.exists(folder)) {
     dir.create(folder, recursive = TRUE)
   }
-
+  
   if (is.null(file_name)) {
     file_name <- "sunburst"
   }
-
+  
   # Load CSV file and convert to JSON
   json <- transformCSVtoJSON(data, outcomes, folder, file_name)
-
+  
   # Load template HTML file
   if (shiny == TRUE) {
     html <- paste(readLines(
@@ -937,14 +800,14 @@ createSunburstPlot <- function(
         "sunburst",
         "sunburst_standalone.html")),
       collapse = "\n")
-
+    
     # Replace @name
     html <- sub("@name", title, html)
   }
-
+  
   # Replace @insert_data
   html <- sub("@insert_data", json, html)
-
+  
   # Save HTML file
   write.table(
     html,
@@ -972,6 +835,11 @@ createSunburstPlot <- function(
 #'     Add no paths
 #' @param index_year
 #'     Index year
+#' 
+#' @import stringr
+#' @import readr
+#' 
+#' @returns transformed_file
 inputSunburstPlot <- function(
     data,
     outputFolder,
@@ -981,30 +849,30 @@ inputSunburstPlot <- function(
     index_year) {
   layers <- as.vector(
     colnames(data)[!grepl("index_year|freq", colnames(data))])
-
+  
   transformed_file <- apply(
     X = data[, ..layers],
     MARGIN = 1,
     FUN = paste,
     collapse = "-")
-
+  
   transformed_file <- stringr::str_replace_all(
     transformed_file, "-NA", "")
-
+  
   transformed_file <- paste0(transformed_file, "-End")
-
+  
   transformed_file <- data.frame(
     path = transformed_file,
     freq = data$freq,
     stringsAsFactors = FALSE)
-
+  
   if (addNoPaths) {
     summary_counts <- readr::read_csv(file.path(
       outputFolder,
       studyName,
       paste0(databaseName, "_", studyName, "_summary_cnt.csv")),
       col_types = list("c", "d"))
-
+    
     if (index_year == "all") {
       noPath <- as.integer(summary_counts[
         summary_counts$index_year ==
@@ -1022,7 +890,7 @@ inputSunburstPlot <- function(
   transformed_file$freq <- as.integer(transformed_file$freq)
   transformed_file <-
     transformed_file[order(-transformed_file$freq, transformed_file$path), ]
-
+  
   write.table(
     transformed_file,
     file = file.path(
@@ -1055,16 +923,20 @@ inputSunburstPlot <- function(
 #' @param file_name
 #'     File name
 #' @return JSON
+#' 
+#' @import stringr
+#' 
+#' @returns result
 transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
   # Add bitwise numbers to define combination treatments
   bitwiseNumbers <- sapply(
     X = 1:length(outcomes),
     FUN = function(o) {
       2^(o-1)
-      })
-
+    })
+  
   linking <- data.frame(outcomes, bitwiseNumbers)
-
+  
   # Generate lookup file
   series <- sapply(
     X = 1:nrow(linking),
@@ -1072,27 +944,27 @@ transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
       paste0(
         '{ "key": "', linking$bitwiseNumbers[row],
         '", "value": "', linking$outcomes[row],'"}')
-  })
-
+    })
+  
   series <- c(series, '{ "key": "End", "value": "End"}')
   lookup <- paste0("[", paste(series, collapse = ","), "]")
-
+  
   # Order names from longest to shortest to adjust in the right order
   linking <- linking[
     order(-sapply(linking$outcomes, function(x) stringr::str_length(x))),]
-
+  
   # Apply linking
   # Change all outcomes to bitwise number
   updated_path <- sapply(
     X = data$path, 
     FUN = function(p) {
-      stringi::stri_replace_all_fixed(
-        str = p,
+      stringr::stri_replace_all(
+        string = p,
         replacement = as.character(linking$bitwiseNumbers),
         pattern = as.character(linking$outcomes),
         vectorize = FALSE)
-  })
-
+    })
+  
   # Sum the bitwise numbers of combinations (indicated by +)
   updated_path <- sapply(
     X = updated_path,
@@ -1100,16 +972,16 @@ transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
       while(!is.na(stringr::str_extract(p, "[[:digit:]]+[+][[:digit:]]+"))) {
         pattern <- stringr::str_extract(p, "[[:digit:]]+[+][[:digit:]]+")
         p <- sub("[[:digit:]]+[+][[:digit:]]+", eval(parse(text=pattern)), p)
-    }
-    return(p)
-  })
-
+      }
+      return(p)
+    })
+  
   transformed_csv <- cbind(oath = updated_path, freq = data$freq)
   transformed_json <- buildHierarchy(transformed_csv) 
-
+  
   result <- paste0(
     "{ \"data\" : ", transformed_json, ", \"lookup\" : ", lookup, "}")
-
+  
   file <- file(file.path(folder,paste0(file_name ,"_input.txt")))
   writeLines(result, file)
   close(file)
@@ -1124,28 +996,30 @@ transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
 #' @param csv
 #'     CSV
 #'
-#' @return
-#'     JSON
+#' @import stringr
+#' @import rjson
+#'
+#' @returns JSON
 buildHierarchy <- function(csv) {
   root = list("name" = "root", "children" = list())
-
+  
   # Create nested structure of lists
   for (i in 1:nrow(csv)) {
     sequence = csv[i, 1]
     size = csv[i, 2]
-
+    
     parts = unlist(stringr::str_split(sequence, pattern = "-"))
-
+    
     currentNode = root
-
+    
     for (j in 1:length(parts)) {
       children = currentNode[["children"]]
       nodeName = parts[j]
-
+      
       if (j < length(parts)) {
         # Not yet at the end of the sequence; move down the tree
         foundChild = FALSE
-
+        
         if (length(children) != 0) {
           for (k in 1:length(children)) {
             if (children[[k]]$name == nodeName) {
@@ -1155,8 +1029,8 @@ buildHierarchy <- function(csv) {
             }
           }
         }
-
-        # If we don't already have a child node for this branch, create it
+        
+        # If we dont already have a child node for this branch, create it
         if (!foundChild) {
           childNode = list("name" = nodeName, "children" = list())
           children[[nodeName]] <- childNode
@@ -1182,7 +1056,7 @@ buildHierarchy <- function(csv) {
         # Reached the end of the sequence; create a leaf node
         childNode = list("name" = nodeName, "size" = size)
         children[[nodeName]] <- childNode
-
+        
         # Add to main root
         if (j == 1) {
           root[['children']] <- children
@@ -1201,12 +1075,12 @@ buildHierarchy <- function(csv) {
       }
     }
   }
-
+  
   # Remove list names
   root <- suppressWarnings(stripname(root, "children"))
-
+  
   # Convert nested list structure to json
-  json <- rjson::toJSON(root)
+  json <- jsonlite::toJSON(root)
   return(json)
 }
 
@@ -1218,6 +1092,8 @@ buildHierarchy <- function(csv) {
 #'     Output folder
 #' @param databaseName
 #'     Database name
+#'
+#' @returns NULL
 createLegend <- function(studyName, outputFolder, databaseName) {
   # Load template HTML file
   html <- paste(readLines(file.path(
@@ -1257,8 +1133,14 @@ createLegend <- function(studyName, outputFolder, databaseName) {
 #' @param studyName
 #'     Name for the study corresponding to the current settings.
 #' @param groupCombinations
-#'     Select to group all non-fixed combinations in one category 'other’ in
+#'     Select to group all non-fixed combinations in one category "other" in
 #'     the sunburst plot.
+#'
+#' @import dplyr
+#' @import googleVis
+#' @import ParallelLogger
+#'
+#' @returns NULL
 outputSankeyDiagram <- function(
     data,
     outputFolder,
@@ -1267,28 +1149,28 @@ outputSankeyDiagram <- function(
     groupCombinations) {
   # Group non-fixed combinations in one group according to groupCobinations
   data <- groupInfrequentCombinations(data, groupCombinations)
-
+  
   # Define stop treatment
   data[is.na(data)] <- 'Stopped'
-
+  
   # Sankey diagram for first three treatment layers
   data$event_cohort_name1 <- paste0("1. ", data$event_cohort_name1)
   data$event_cohort_name2 <- paste0("2. ", data$event_cohort_name2)
   data$event_cohort_name3 <- paste0("3. ", data$event_cohort_name3)
-
+  
   results1 <- data %>%
     dplyr::group_by(event_cohort_name1, event_cohort_name2) %>%
     dplyr::summarise(freq = sum(freq))
-
+  
   results2 <- data %>%
     dplyr::group_by(event_cohort_name2, event_cohort_name3) %>%
     dplyr::summarise(freq = sum(freq))
-
+  
   # Format in prep for sankey diagram
   colnames(results1) <- c("source", "target", "value")
   colnames(results2) <- c("source", "target", "value")
   links <- as.data.frame(rbind(results1, results2))
-
+  
   # Draw sankey network
   plot <- googleVis::gvisSankey(
     links,
@@ -1297,7 +1179,7 @@ outputSankeyDiagram <- function(
     weight = "value",
     chartid = 1,
     options = list(sankey = "{node: { colors: ['#B5482A'], width: 5}}"))
-
+  
   write.table(
     plot$html$chart,
     file = file.path(
@@ -1307,7 +1189,7 @@ outputSankeyDiagram <- function(
     quote = FALSE,
     col.names = FALSE,
     row.names = FALSE)
-
+  
   ParallelLogger::logInfo("outputSankeyDiagram done")
 }
 
@@ -1320,6 +1202,10 @@ outputSankeyDiagram <- function(
 #'     Data
 #' @param groupCombinations
 #'     Group combinations
+#'
+#' @import data.table
+#' 
+#' @returns data.table
 groupInfrequentCombinations <- function(data, groupCombinations) {
   data <- as.data.frame(data)
   
@@ -1329,7 +1215,7 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
     MARGIN = 2,
     FUN = function(x) {
       grepl("+", x, fixed = TRUE)
-      })
+    })
   
   # Group all non-fixed combinations in one group if TRUE
   if (groupCombinations == "TRUE") {
@@ -1358,38 +1244,161 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
         MARGIN = 2,
         FUN = function(x) {
           x %in% summarizeCombinations
-          })
+        })
       data[selectedCombinations] <- "Other"
     }
   }
   return(data.table::as.data.table(data))
 }
 
-
-#' saveAsPNG
+#' generateOutput
+#'
+#' Generate output (sunburst plots, Sankey diagrams and more).
+#'
+#' @param saveSettings saveSettings object.
 #' 
-#' Takes a scaled screenshot of a html page. Shadows webshot2::webshot.
+#' @import readr
+#' @import ParallelLogger
+#' @import OhdsiSharing
 #'
-#' @param fileName
-#'     File name of the input HTML-file.
-#' @param fileNameOut
-#'     Filename of the output PNG-file.
-#' @param zoom
-#'     Zoom factor
-#' @param vwidth
-#'     Width of the image
-#' @param ...
-#'     Other parameters that webshot2::webshot can use. See ??webshot2::websot
-#'
-#' @import webshot2
-#'
-#' @export
-saveAsPNG <- function(fileName, fileNameOut, zoom = 3, vwidth = 430, ...) {
-  webshot2::webshot(
-    url = fileName,
-    file = fileNameOut,
-    selector = "svg",
-    zoom = zoom,
-    vwidth = vwidth,
-    ...)
+#' @returns NULL
+generateOutput <- function(saveSettings) {
+  if (!class(saveSettings) %in% c('saveSettings')) {
+    stop('Incorrect class for saveSettings')
+  }
+  
+  pathwaySettings <- data.frame(readr::read_csv(
+    file.path(
+      saveSettings$outputFolder,
+      "settings",
+      "pathway_settings.csv"),
+    col_types = readr::cols()))
+  
+  settings <-
+    colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
+  
+  for (s in settings) {
+    studyName <- pathwaySettings[pathwaySettings$param == "studyName", s]
+    
+    ParallelLogger::logInfo(print(paste0("Creating output: ", studyName)))
+    
+    targetCohortId <-
+      pathwaySettings[pathwaySettings$param == "targetCohortId", s]
+    eventCohortIds <-
+      pathwaySettings[pathwaySettings$param == "eventCohortIds", s]
+    eventCohortIds <-
+      unlist(strsplit(eventCohortIds, split = c(";|,")))
+    
+    minCellCount <-
+      as.integer(pathwaySettings[pathwaySettings$param == "minCellCount", s])
+    minCellMethod <-
+      pathwaySettings[pathwaySettings$param == "minCellMethod", s]
+    groupCombinations <-
+      pathwaySettings[pathwaySettings$param == "groupCombinations", s]
+    addNoPaths <-
+      pathwaySettings[pathwaySettings$param == "addNoPaths", s]
+    
+    outputFolder_s <-
+      file.path(saveSettings$outputFolder, studyName)
+    if (!file.exists(outputFolder_s))
+      dir.create(outputFolder_s, recursive = TRUE)
+    
+    treatment_pathways <- getPathways(
+      outputFolder = saveSettings$outputFolder,
+      tempFolder = saveSettings$tempFolder,
+      databaseName = saveSettings$databaseName,
+      studyName = studyName,
+      minCellCount = minCellCount)
+    
+    if (!is.null(treatment_pathways)) {
+      outputTreatedPatients(
+        data = treatment_pathways[[1]],
+        eventCohortIds = eventCohortIds,
+        groupCombinations = TRUE,
+        outputFolder = saveSettings$outputFolder,
+        outputFile = file.path(
+          outputFolder_s,
+          paste0(
+            saveSettings$databaseName,
+            "_",
+            studyName,
+            "_percentage_groups_treated_noyear.csv"
+          )
+        )
+      )
+      outputTreatedPatients(
+        data = treatment_pathways[[2]],
+        eventCohortIds = eventCohortIds,
+        groupCombinations = TRUE,
+        outputFolder = saveSettings$outputFolder,
+        outputFile = file.path(
+          outputFolder_s,
+          paste0(
+            saveSettings$databaseName,
+            "_",
+            studyName,
+            "_percentage_groups_treated_withyear.csv"
+          )
+        )
+      )
+      
+      outputDurationEras(
+        outputFolder = saveSettings$outputFolder,
+        tempFolder = saveSettings$tempFolder,
+        databaseName = saveSettings$databaseName,
+        studyName = studyName,
+        eventCohortIds = eventCohortIds,
+        groupCombinations = TRUE,
+        minCellCount = minCellCount
+      )
+      
+      treatment_pathways <-
+        doMinCellCount(
+          file_noyear = treatment_pathways[[1]],
+          file_withyear = treatment_pathways[[2]],
+          outputFolder = saveSettings$outputFolder,
+          tempFolder = saveSettings$tempFolder,
+          databaseName = saveSettings$databaseName,
+          studyName = studyName,
+          groupCombinations = groupCombinations,
+          minCellCount = minCellCount,
+          minCellMethod = minCellMethod
+        )
+      
+      outputSankeyDiagram(
+        data = treatment_pathways[[1]],
+        outputFolder = saveSettings$outputFolder,
+        databaseName = saveSettings$databaseName,
+        studyName = studyName,
+        groupCombinations = TRUE
+      )
+      
+
+      outputSunburstPlot(
+        data = treatment_pathways[[1]],
+        outputFolder = saveSettings$outputFolder,
+        databaseName = saveSettings$databaseName,
+        studyName = studyName,
+        eventCohortIds = eventCohortIds,
+        addNoPaths = addNoPaths
+      )
+      
+      outputSunburstPlot(
+        data = treatment_pathways[[2]],
+        outputFolder = saveSettings$outputFolder,
+        databaseName = saveSettings$databaseName,
+        studyName = studyName,
+        eventCohortIds = eventCohortIds,
+        addNoPaths = addNoPaths
+      )
+    }
+  }
+  
+  zipName <- file.path(
+    saveSettings$rootFolder,
+    paste0(saveSettings$databaseName, ".zip"))
+  
+  OhdsiSharing::compressFolder(file.path(saveSettings$outputFolder), zipName)
+  
+  ParallelLogger::logInfo("generateOutput done.")
 }

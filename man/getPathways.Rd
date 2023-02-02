@@ -19,8 +19,7 @@ getPathways(outputFolder, tempFolder, databaseName, studyName, minCellCount)
 pathway to be included in analysis.}
 }
 \value{
-List
-    List with two dataframes.
+List with two dataframes.
 }
 \description{
 Get treatment pathways for generating aggregate output.

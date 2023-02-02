@@ -11,6 +11,9 @@ groupInfrequentCombinations(data, groupCombinations)
 
 \item{groupCombinations}{Group combinations}
 }
+\value{
+data.table
+}
 \description{
 Help function to group combinations
 }

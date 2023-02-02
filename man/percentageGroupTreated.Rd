@@ -15,6 +15,9 @@ percentageGroupTreated(data, eventCohortIds, groupCombinations, outputFolder)
 
 \item{outputFolder}{Output folder}
 }
+\value{
+result object
+}
 \description{
 Help function to compute percentage of treated patient with certain event
 cohorts for outputTreatedPatients.

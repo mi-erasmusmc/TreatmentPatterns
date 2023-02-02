@@ -17,6 +17,8 @@ transformCSVtoJSON(data, outcomes, folder, file_name)
 }
 \value{
 JSON
+
+result
 }
 \description{
 Help function to transform data in csv format to required JSON format for

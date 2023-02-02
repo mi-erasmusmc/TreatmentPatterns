@@ -33,6 +33,18 @@ Object pathwaySettings.
 Create pathway settings.
 }
 \examples{
+targetCohorts <- data.frame(
+  cohortName = c("targetCohort"),
+  cohortId = c(1))
+
+eventCohorts <- data.frame(
+  cohortName = c("eventCohort1", "eventCohort2"),
+  cohortId = c(2, 3))
+
+cohortSettings <- TreatmentPatterns::createCohortSettings(
+  targetCohorts = targetCohorts,
+  eventCohorts = eventCohorts)
+
 createPathwaySettings(
   cohortSettings = cohortSettings,
   studyName = "MyStudyName")

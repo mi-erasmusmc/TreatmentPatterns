@@ -25,7 +25,7 @@ outputDurationEras(
 
 \item{eventCohortIds}{IDs to refer to event cohorts.}
 
-\item{groupCombinations}{Select to group all non-fixed combinations in one category 'other’ in
+\item{groupCombinations}{Select to group all non-fixed combinations in one category "other" in
 the sunburst plot.}
 
 \item{minCellCount}{Minimum number of persons with a specific treatment pathway for the

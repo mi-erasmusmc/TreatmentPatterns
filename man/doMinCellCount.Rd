@@ -30,7 +30,7 @@ different rows (unique pathways, with frequency).}
 
 \item{studyName}{Name for the study corresponding to the current settings.}
 
-\item{groupCombinations}{Select to group all non-fixed combinations in one category 'other’ in
+\item{groupCombinations}{Select to group all non-fixed combinations in one category "other" in
 the sunburst plot.}
 
 \item{minCellCount}{Minimum number of persons with a specific treatment pathway for the
@@ -42,6 +42,8 @@ as often as necessary) treatment pathways below minCellCount.}
 \value{
 List
     List of file_noyear and file_withyear
+
+List
 }
 \description{
 Apply minCellCount to generate censored treatment pathways to share and for

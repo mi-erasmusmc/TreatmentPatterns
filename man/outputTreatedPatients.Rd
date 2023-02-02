@@ -17,7 +17,7 @@ outputTreatedPatients(
 
 \item{eventCohortIds}{IDs to refer to event cohorts.}
 
-\item{groupCombinations}{Select to group all non-fixed combinations in one category 'other’ in
+\item{groupCombinations}{Select to group all non-fixed combinations in one category "other" in
 the sunburst plot.}
 
 \item{outputFolder}{Path to the output folder.}

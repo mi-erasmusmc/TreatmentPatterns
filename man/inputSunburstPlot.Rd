@@ -26,6 +26,9 @@ inputSunburstPlot(
 
 \item{index_year}{Index year}
 }
+\value{
+transformed_file
+}
 \description{
 Help function to create transform data to correct format for sunburst plot.
 }

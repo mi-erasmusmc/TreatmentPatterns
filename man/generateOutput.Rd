@@ -7,7 +7,7 @@
 generateOutput(saveSettings)
 }
 \arguments{
-\item{saveSettings}{Settings object as created by createSaveSettings().}
+\item{saveSettings}{saveSettings object.}
 }
 \description{
 Generate output (sunburst plots, Sankey diagrams and more).

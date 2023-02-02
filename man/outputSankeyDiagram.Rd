@@ -21,7 +21,7 @@ outputSankeyDiagram(
 
 \item{studyName}{Name for the study corresponding to the current settings.}
 
-\item{groupCombinations}{Select to group all non-fixed combinations in one category 'other’ in
+\item{groupCombinations}{Select to group all non-fixed combinations in one category "other" in
 the sunburst plot.}
 }
 \description{

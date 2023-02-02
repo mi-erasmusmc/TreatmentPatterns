@@ -16,7 +16,7 @@ pathwaySettings
 Reads in the pathwaySettings from a csv-file.
 }
 \examples{
-readInPathwaySettings(file.path(system.file(
+loadPathwaySettings(file.path(system.file(
   package = "TreatmentPatterns"),
  "examples", "OMOP CDM", "inst", "settings", "pathway_settings.csv"))
 }

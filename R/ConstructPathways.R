@@ -492,7 +492,7 @@ doSplitEventCohorts <- function(
     # Load in labels cohorts
     labels <- data.table::data.table(readr::read_csv(
       file = file.path(outputFolder, "settings", "cohorts_to_create.csv"), 
-      col_types = list("c","c","c","i","c")))
+      col_types = list("i","c","c")))
     
     for (c in 1:length(splitEventCohorts)) {
       cohort <- splitEventCohorts[c]

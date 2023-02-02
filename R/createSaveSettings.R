@@ -29,8 +29,8 @@ checkSaveSettings <- function(
   
   if (!is.null(outputFolder)) {
     # outputFolder
-    checkmate::assert(checkmate::checkPathForOutput(
-      outputFolder, overwrite = TRUE))
+    checkmate::assert(checkmate::check_character(
+      outputFolder))
   }
   
   if (!is.null(tempFolder)) {

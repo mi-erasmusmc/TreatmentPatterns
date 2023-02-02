@@ -1,3 +1,17 @@
+library(dplyr)
+
+if (dir.exists("output")) {
+  fs::dir_delete("output")
+} else {
+  fs::dir_create("output")
+}
+
+if (dir.exists("temp")) {
+  fs::dir_delete("temp")
+} else {
+  fs::dir_create("temp")
+}
+
 dataSettings <- TreatmentPatterns::createDataSettings(
   connectionDetails = Eunomia::getEunomiaConnectionDetails(),
   cdmDatabaseSchema = "main",
@@ -65,6 +79,12 @@ saveSettings <- TreatmentPatterns::createSaveSettings(
   rootFolder = getwd(),
   outputFolder = file.path(getwd(), "output", "Eunomia"))
 
+if (file.exists(file.path(saveSettings$outputFolder, "settings"))) {
+  fs::dir_create(file.exists(file.path(saveSettings$outputFolder, "settings")))
+} else {
+  fs::dir_create(file.path(saveSettings$outputFolder, "settings"))
+}
+
 cohortSettings <- TreatmentPatterns::createCohortSettings(
   targetCohorts = targetCohort,
   eventCohorts = eventCohorts)
@@ -73,3 +93,30 @@ pathwaySettings <- TreatmentPatterns::createPathwaySettings(
   cohortSettings = cohortSettings,
   studyName = "Viral_Sinusitis")
 
+# Write files
+#names(cohortSettings$cohortsToCreate) <- c("cohort_id", "cohort_name", "cohort_type")
+write.csv(
+  x = cohortSettings$cohortsToCreate,
+  file = file.path(saveSettings$outputFolder, "settings", "cohorts_to_create.csv"),
+  row.names = FALSE)
+
+
+# Export tables from database
+con <- DatabaseConnector::connect(dataSettings$connectionDetails)
+
+invisible(lapply(cohortTableNames, function(tableName) {
+  tbl <- TreatmentPatterns:::extractFile(
+    connection = con,
+    tableName = tableName,
+    resultsSchema = dataSettings$resultSchema,
+    dbms = dataSettings$connectionDetails$dbms)
+  
+  write.csv(
+    tbl,
+    file.path(
+      saveSettings$outputFolder,
+      paste0(tableName, ".csv")),
+    row.names = FALSE)
+}))
+
+DatabaseConnector::disconnect(con)

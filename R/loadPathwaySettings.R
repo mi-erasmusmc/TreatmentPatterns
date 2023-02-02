@@ -11,7 +11,7 @@
 #' @export
 #'
 #' @examples
-#' readInPathwaySettings(file.path(system.file(
+#' loadPathwaySettings(file.path(system.file(
 #'   package = "TreatmentPatterns"),
 #'  "examples", "OMOP CDM", "inst", "settings", "pathway_settings.csv"))
 loadPathwaySettings <- function(filePath) {

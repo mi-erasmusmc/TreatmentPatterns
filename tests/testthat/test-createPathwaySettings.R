@@ -61,7 +61,7 @@ test_that("includeTreatments", {
     cohortSettings,
     studyName = "MyStudyName",
     includeTreatments = "stuff"),
-    "Must be a subset of {'startDate','endDate'}")
+    "Must be a subset of \\{'startDate','endDate'\\}")
 })
 
 # periodPriorToIndex = 0,

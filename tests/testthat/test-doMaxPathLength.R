@@ -1,8 +1,13 @@
 library(TreatmentPatterns)
 library(testthat)
 
-source("inst/examples/R Settings Objects/createDummySettings.R")
-source("tests/testParams.R")
+source(list.files(system.file(
+  package = "TreatmentPatterns",
+  "examples", "R Settings Objects"), full.names = TRUE))
+
+source(list.files(system.file(
+  package = "TreatmentPatterns",
+  "testing"), full.names = TRUE))
 
 test_that("void", {
   expect_error(TreatmentPatterns:::doMaxPathLength())

@@ -1,7 +1,6 @@
 # Libraries
 library(testthat)
 library(TreatmentPatterns)
-library(Eunomia)
 
 test_that("Void", {
   expect_error(createDataSettings())
@@ -10,7 +9,7 @@ test_that("Void", {
 test_that("Minimal", {
   testthat::expect_s3_class(
     createDataSettings(
-      connectionDetails = getEunomiaConnectionDetails(),
+      connectionDetails = Eunomia::getEunomiaConnectionDetails(),
       cdmDatabaseSchema = "main",
       resultSchema = "main"
     ),
@@ -28,7 +27,7 @@ test_that("Assert connectionDetails", {
 test_that("Assert cdmDatabaseSchema", {
   testthat::expect_error(
     createDataSettings(
-      connectionDetails = getEunomiaConnectionDetails(),
+      connectionDetails = Eunomia::getEunomiaConnectionDetails(),
       cdmDatabaseSchema = 3
     ),
     c("Must be of type 'character")
@@ -38,7 +37,7 @@ test_that("Assert cdmDatabaseSchema", {
 test_that("Assert resultSchema", {
   testthat::expect_error(
     createDataSettings(
-      connectionDetails = getEunomiaConnectionDetails(),
+      connectionDetails = Eunomia::getEunomiaConnectionDetails(),
       cdmDatabaseSchema = "main",
       resultSchema = 2
     ),
@@ -49,7 +48,7 @@ test_that("Assert resultSchema", {
 test_that("Assert cohortTable", {
   testthat::expect_error(
     createDataSettings(
-      connectionDetails = getEunomiaConnectionDetails(),
+      connectionDetails = Eunomia::getEunomiaConnectionDetails(),
       cdmDatabaseSchema = "main",
       resultSchema = "main",
       cohortTable = TRUE
@@ -61,7 +60,7 @@ test_that("Assert cohortTable", {
 test_that("All parameters", {
   testthat::expect_s3_class(
     createDataSettings(
-      connectionDetails = getEunomiaConnectionDetails(),
+      connectionDetails = Eunomia::getEunomiaConnectionDetails(),
       cdmDatabaseSchema = "main",
       resultSchema = "main",
       cohortTable = "myCohortTable"

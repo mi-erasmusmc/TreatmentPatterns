@@ -32,7 +32,7 @@ test_that("Assert outputFolder: wrong type", {
   expect_error(createSaveSettings(
     rootFolder = "./",
     databaseName = "Eunomia", outputFolder = 3),
-               c("No path provided."))
+               c("Must be of type 'character'"))
 })
 
 test_that("Assert outputFolder: existing path", {

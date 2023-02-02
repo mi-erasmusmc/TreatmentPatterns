@@ -1,7 +1,9 @@
 library(TreatmentPatterns)
 library(testthat)
 
-source("inst/examples/R Settings Objects/createDummySettings.R")
+source(list.files(system.file(
+  package = "TreatmentPatterns",
+  "examples", "R Settings Objects"), full.names = TRUE))
 
 test_that("Void", {
   expect_error(
@@ -9,16 +11,11 @@ test_that("Void", {
   )
 })
 
-createCohorts(
-  dataSettings = dataSettings,
-  cohortSettings = cohortSettings,
-  saveSettings = saveSettings
-)
-
 test_that("Minimal", {
-  constructPathways(
+  expect_output(
+    constructPathways(
     dataSettings = dataSettings,
     pathwaySettings = pathwaySettings,
     saveSettings = saveSettings
-  )
+  ), "constructPathways done.")
 })

@@ -35,6 +35,9 @@ getCohortCharacteristics(
 
 \item{batchSize}{Batch size}
 }
+\value{
+results object
+}
 \description{
 Borrowed function from CohortDiagnostics.
 }

@@ -4,28 +4,46 @@
 \alias{darwinExecute}
 \title{darwinExecute}
 \usage{
-darwinExecute(
-  targetCohort,
-  cohortPath,
-  dataSettings,
-  pathwaySettings,
-  characterizatonSettings,
-  saveSettings
-)
+darwinExecute(dataSettings, pathwaySettings, saveSettings)
 }
 \arguments{
-\item{targetCohort}{}
+\item{dataSettings}{dataSettings object}
 
-\item{cohortPath}{}
+\item{pathwaySettings}{pathwaySettings object}
 
-\item{dataSettings}{}
-
-\item{pathwaySettings}{}
-
-\item{characterizatonSettings}{}
-
-\item{saveSettings}{}
+\item{saveSettings}{saveSettings object}
 }
 \description{
 darwinExecute
+}
+\examples{
+if (interactive()) {
+  # Select Viral Sinusitis Cohort
+  targetCohort <- cohortsGenerated \%>\% 
+    filter(cohortName == "Viral Sinusitis") \%>\%
+    select(cohortId, cohortName)
+
+  # Select everything BUT Viral Sinusitis cohorts
+  eventCohorts <- cohortsGenerated \%>\% 
+    filter(cohortName != "Viral Sinusitis") \%>\%
+    select(cohortId, cohortName)
+
+  saveSettings <- TreatmentPatterns::createSaveSettings(
+    databaseName = "Eunomia",
+    rootFolder = getwd(),
+    outputFolder = file.path(getwd(), "output", "Eunomia"))
+  
+  cohortSettings <- TreatmentPatterns::createCohortSettings(
+    targetCohorts = targetCohort,
+     eventCohorts = eventCohorts)
+
+  pathwaySettings <- createPathwaySettings(
+    cohortSettings = cohortSettings,
+    studyName = "Viral_Sinusitis")
+  
+  darwinExecute(
+  dataSettings = dataSettings,
+  pathwaySettings = pathwaySettings,
+  saveSettings = saveSettings)
+}
 }

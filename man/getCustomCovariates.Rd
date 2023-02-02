@@ -35,6 +35,16 @@ getCustomCovariates(
 
 \item{rowIdField}{}
 }
+\value{
+all_covariates
+}
 \description{
 getCustomCovariates
+}
+\examples{
+\dontrun{
+connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+connection <- DatabaseConnector::connect(connectionDetails)
+
+getCustomCovariates(connection = connection, cdmDatabaseSchema = "main")}
 }

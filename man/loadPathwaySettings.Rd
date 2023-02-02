@@ -9,6 +9,9 @@ loadPathwaySettings(filePath)
 \arguments{
 \item{filePath}{Path to csv-file containing the pathwaySettings.}
 }
+\value{
+pathwaySettings
+}
 \description{
 Reads in the pathwaySettings from a csv-file.
 }

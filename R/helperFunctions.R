@@ -114,7 +114,6 @@ stripname <- function(x, name) {
 #' @param thisdepth
 #'     Depth
 #'
-#' @examples
 depth <- function(this, thisdepth = 0) {
   if (!is.list(this)) {
     return(thisdepth)
@@ -186,7 +185,7 @@ getCohortCounts <- function(connection = NULL,
 #' @param batchSize 
 #'     Batch size
 #'
-#' @return
+#' @return results object
 getCohortCharacteristics <- function(
     connectionDetails = NULL,
     connection = NULL,
@@ -348,10 +347,15 @@ createCustomCovariateSettings <- function(list_covariates) {
 #' @param aggregated 
 #' @param rowIdField 
 #'
-#' @return
+#' @return all_covariates
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+#' connection <- DatabaseConnector::connect(connectionDetails)
+#' 
+#' getCustomCovariates(connection = connection, cdmDatabaseSchema = "main")}
 getCustomCovariates <- function(connection,
                                 oracleTempSchema = NULL,
                                 cdmDatabaseSchema,
@@ -451,8 +455,6 @@ getCustomCovariates <- function(connection,
 #'     Counts
 #' @param minCellCount
 #'     Minimum cell count
-#'
-#' @return
 exportCharacterization <- function(characteristics,
                                    databaseId,
                                    incremental,

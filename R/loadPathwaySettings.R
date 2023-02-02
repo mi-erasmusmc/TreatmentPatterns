@@ -7,7 +7,7 @@
 #' @import checkmate
 #' @import dplyr
 #'
-#' @return
+#' @return pathwaySettings
 #' @export
 #'
 #' @examples

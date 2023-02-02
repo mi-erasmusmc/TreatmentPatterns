@@ -3,22 +3,67 @@
 #' Helper functions that checks the input for addPathwaySettings.
 #'
 #' @param studyName
+#'     Name identifying the set of study parameters.
+#'
 #' @param targetCohortId
+#'     Target cohort ID of current study settings.
+#'
 #' @param eventCohortIds
+#'     Event cohort IDs of current study settings.
+#'
 #' @param includeTreatments
+#'     Include treatments starting ('startDate') or ending ('endDate') after
+#'     target cohort start date.
+#'
 #' @param periodPriorToIndex
+#'     Number of days prior to the index date of the target cohort that event
+#'     cohorts are allowed to start.
+#'
 #' @param minEraDuration
+#'     Minimum time an event era should last to be included in analysis.
+#'
 #' @param splitEventCohorts
+#'     Specify event cohort ID's to split in acute (< X days) and therapy
+#'     (>= X days).
+#'
 #' @param splitTime
+#'     Specify number of days (X) at which each of the split event cohorts
+#'     should be split in acute and therapy.
+#'
 #' @param eraCollapseSize
+#'     Window of time between which two eras of the same event cohort are
+#'     collapsed into one era.
+#'
 #' @param combinationWindow
+#'     Window of time two event cohorts need to overlap to be considered a
+#'     combination treatment.
+#'
 #' @param minPostCombinationDuration
+#'     Minimum time an event era before or after a generated combination
+#'     treatment should last to be included in analysis.
+#'
 #' @param filterTreatments
+#'     Select first occurrence of ("First") / changes between ("Changes') / all
+#'     event cohorts ("All").
+#'
 #' @param maxPathLength
+#'     Maximum number of steps included in treatment pathway (max 5).
+#'
 #' @param minCellCount
+#'     Minimum number of persons with a specific treatment pathway for the
+#'     pathway to be included in analysis.
+#'
 #' @param minCellMethod
+#'     Select to completely remove / sequentially adjust (by removing last step
+#'     as often as necessary) treatment pathways below minCellCount.
+#'
 #' @param groupCombinations
+#'     Select to group all non-fixed combinations in one category 'other’ in
+#'     the sunburst plot.
+#'
 #' @param addNoPaths
+#'     Select to include untreated persons without treatment pathway in the
+#'     sunburst plot
 #'
 #' @import checkmate
 #'

@@ -914,7 +914,7 @@ addLabels <- function(treatment_history, outputFolder) {
   labels <- read.csv(
       file = file.path(outputFolder, "settings", "cohorts_to_create.csv"))
   # convenrt event_cohort_id to character
-  labels["cohortId"] <- as.character(labels["cohortId"])
+  labels["cohortId"] <- as.character(labels[, "cohortId"])
   
   labels <- labels[labels$cohortType == "event",c("cohortId", "cohortName")]
   colnames(labels) <- c("event_cohort_id", "event_cohort_name")

@@ -779,7 +779,7 @@ createSunburstPlot <- function(
   if (is.null(file_name)) {
     file_name <- "sunburst"
   }
-  
+
   # Load CSV file and convert to JSON
   json <- transformCSVtoJSON(data, outcomes, folder, file_name)
   
@@ -958,11 +958,10 @@ transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
   updated_path <- sapply(
     X = data$path, 
     FUN = function(p) {
-      stringr::stri_replace_all(
+      stringr::str_replace_all(
         string = p,
         replacement = as.character(linking$bitwiseNumbers),
-        pattern = as.character(linking$outcomes),
-        vectorize = FALSE)
+        pattern = as.character(linking$outcomes))
     })
   
   # Sum the bitwise numbers of combinations (indicated by +)
@@ -1262,6 +1261,7 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
 #' @import OhdsiSharing
 #'
 #' @returns NULL
+#' @export
 generateOutput <- function(saveSettings) {
   if (!class(saveSettings) %in% c('saveSettings')) {
     stop('Incorrect class for saveSettings')
@@ -1365,6 +1365,7 @@ generateOutput <- function(saveSettings) {
           minCellMethod = minCellMethod
         )
       
+
       outputSankeyDiagram(
         data = treatment_pathways[[1]],
         outputFolder = saveSettings$outputFolder,
@@ -1372,7 +1373,6 @@ generateOutput <- function(saveSettings) {
         studyName = studyName,
         groupCombinations = TRUE
       )
-      
 
       outputSunburstPlot(
         data = treatment_pathways[[1]],
@@ -1382,7 +1382,7 @@ generateOutput <- function(saveSettings) {
         eventCohortIds = eventCohortIds,
         addNoPaths = addNoPaths
       )
-      
+
       outputSunburstPlot(
         data = treatment_pathways[[2]],
         outputFolder = saveSettings$outputFolder,

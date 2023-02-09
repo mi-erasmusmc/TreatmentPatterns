@@ -1257,8 +1257,6 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
 #' @param saveSettings saveSettings object.
 #' 
 #' @import readr
-#' @import ParallelLogger
-#' @import OhdsiSharing
 #'
 #' @returns NULL
 #' @export

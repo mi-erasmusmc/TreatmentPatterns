@@ -1,6 +1,6 @@
 source(list.files(system.file(
   package = "TreatmentPatterns",
-  "examples", "R Settings Objects"), full.names = TRUE))
+  "examples", "SettingObjects"), full.names = TRUE))
 
 TreatmentPatterns::constructPathways(
   dataSettings = dataSettings,

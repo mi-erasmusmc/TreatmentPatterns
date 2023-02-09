@@ -21,7 +21,7 @@ Imports:
     SqlRender,
     stringr,
     readr,
-    rjson,
+    jsonlite,
     reshape2,
     googleVis,
     RJSONIO,
@@ -32,9 +32,7 @@ Imports:
     fs,
     FeatureExtraction,
     OhdsiSharing,
-    Eunomia,
-    readr,
-    stringr
+    Eunomia
 Remotes:
     OHDSI/OhdsiSharing,
     OHDSI/FeatureExtraction,

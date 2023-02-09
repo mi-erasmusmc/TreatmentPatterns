@@ -1,20 +1,21 @@
 library(TreatmentPatterns)
 library(testthat)
 
-source(list.files(system.file(
+source(system.file(
   package = "TreatmentPatterns",
-  "examples", "R Settings Objects"), full.names = TRUE))
+  "examples", "SettingObjects", "createDummySettings.R"))
 
-source(list.files(system.file(
+source(system.file(
   package = "TreatmentPatterns",
-  "testing"), full.names = TRUE))
+  "testing",
+  "testParams.R"))
 
 test_that("void", {
   expect_error(TreatmentPatterns:::doEraDuration())
 })
 
 test_that("", {
-   expect_s3_class(treatment_history <- TreatmentPatterns:::doEraDuration(
+  expect_s3_class(treatment_history <- TreatmentPatterns:::doEraDuration(
     treatment_history = treatment_history,
     minEraDuration = minEraDuration), "data.frame")
 })

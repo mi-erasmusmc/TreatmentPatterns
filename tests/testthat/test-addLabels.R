@@ -3,11 +3,11 @@ library(testthat)
 
 source(list.files(system.file(
   package = "TreatmentPatterns",
-  "examples", "R Settings Objects"), full.names = TRUE))
+  "examples", "SettingObjects"), full.names = TRUE))
 
-source(list.files(system.file(
+source(system.file(
   package = "TreatmentPatterns",
-  "testing"), full.names = TRUE))
+  "testing", "testParams.R"))
 
 test_that("void", {
   expect_error(TreatmentPatterns:::addLabels())

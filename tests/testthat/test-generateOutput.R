@@ -1,33 +1,19 @@
-# generateOutput
+library(TreatmentPatterns)
+library(testthat)
 
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+source(system.file(
+  package = "TreatmentPatterns",
+  "testing", "testParamsOutput.R"))
+
+test_that("void", {
+  expect_error(
+    TreatmentPatterns::generateOutput(),
+    "argument .+ is missing")
 })
 
-# getPathways
-
-# outputTreatedPatients
-
-# percentageGroupTreated
-
-# outputDurationEras
-
-# doMinCellCount
-
-# outputSunburstPlot
-
-# createSunburstPlot
-
-# inputSunburstPlot
-
-# transformCSVtoJSON
-
-# buildHierarchy
-
-# createLegend
-
-# outputSankeyDiagram
-
-# groupInfrequentCombinations
-
-# saveAsPNG
+test_that("minimal", {
+  expect_output(
+    TreatmentPatterns::generateOutput(
+      saveSettings = saveSettings),
+    "generateOutput done.")
+})

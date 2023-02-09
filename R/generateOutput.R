@@ -14,7 +14,7 @@
 #'     Minimum number of persons with a specific treatment pathway for the
 #'     pathway to be included in analysis.
 #'
-#' @import data.table
+#' @importFrom data.table data.table as.data.table
 #' @import readr
 #' @import ParallelLogger
 #' 
@@ -290,7 +290,7 @@ percentageGroupTreated <- function(
 #'     Minimum number of persons with a specific treatment pathway for the
 #'     pathway to be included in analysis.
 #'     
-#' @import data.table
+#' @importFrom data.table data.table as.data.table
 #' @import readr
 #' 
 #' @returns NULL
@@ -1202,7 +1202,7 @@ outputSankeyDiagram <- function(
 #' @param groupCombinations
 #'     Group combinations
 #'
-#' @import data.table
+#' @importFrom data.table data.table as.data.table 
 #' 
 #' @returns data.table
 groupInfrequentCombinations <- function(data, groupCombinations) {

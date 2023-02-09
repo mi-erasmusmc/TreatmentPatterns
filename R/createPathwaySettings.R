@@ -48,6 +48,8 @@ checkPathwaySettings <- function(
 #'   14. groupCombinations
 #'   15. addNoPaths
 #'
+#' @importFrom data.table transpose
+#'
 #' @return
 #'     Object pathwaySettings.
 #'     

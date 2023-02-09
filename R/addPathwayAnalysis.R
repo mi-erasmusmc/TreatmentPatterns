@@ -9,6 +9,7 @@
 #' eventCohortId and targetCohortIds
 #'
 #' @import dplyr
+#' @importFrom data.table transpose
 #'
 #' @return pathwaySettings
 #' @export

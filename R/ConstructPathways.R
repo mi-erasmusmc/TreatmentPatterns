@@ -46,6 +46,8 @@ checkConstructPathways <- function(
 #'     Settings object as created by createPathwaySettings().
 #' @param saveSettings
 #'     Settings object as created by createSaveSettings().
+#'     
+#' @importFrom data.table data.table as.data.table rollup shift
 #' @export
 constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   # Check if inputs correct

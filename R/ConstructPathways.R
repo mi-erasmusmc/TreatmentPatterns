@@ -453,7 +453,7 @@ doCreateTreatmentHistory <- function(
 doEraDuration <- function(treatment_history, minEraDuration) {
   # Assertions
   checkmate::assertDataFrame(x = treatment_history)
-  checkmate::checkNumeric(
+  checkmate::assertNumeric(
     x = minEraDuration,
     lower = 0,
     finite = TRUE,

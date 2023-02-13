@@ -22,3 +22,11 @@ test_that("minimal", {
   expect_s3_class(treatmentHistoryFiltered, "data.frame")
   expect_true(nrow(treatmentHistoryFiltered) < nrow(treatment_history))
 })
+
+test_that("invalid_input", {
+  expect_error(TreatmentPatterns:::doEraDuration(treatment_history = NULL))
+  expect_error(TreatmentPatterns:::doEraDuration(treatment_history = treatment_history,
+                                                 minEraDuration = NULL))
+  expect_error(TreatmentPatterns:::doEraDuration(treatment_history = treatment_history,
+                                                 minEraDuration = mtcars))
+})

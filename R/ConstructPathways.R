@@ -948,19 +948,8 @@ addLabels <- function(treatment_history, outputFolder) {
   
   # Filter out + at beginning/end or repetitions
   treatment_history$event_cohort_name <- gsub(
-    pattern = "\\++",
+    pattern = "(^\\++|\\++$)",
     replacement = "+",
     x = treatment_history$event_cohort_name)
-  
-  treatment_history$event_cohort_name <- gsub(
-    pattern = "^\\+",
-    replacement = "",
-    x = treatment_history$event_cohort_name)
-  
-  treatment_history$event_cohort_name <- gsub(
-    pattern = "\\+$",
-    replacement = "",
-    x = treatment_history$event_cohort_name)
-  
   return(treatment_history)
 }

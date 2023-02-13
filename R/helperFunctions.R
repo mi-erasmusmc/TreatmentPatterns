@@ -560,6 +560,11 @@ writeCovariateDataAndromedaToCsv <- function(
         guess_max = batchSize
       )
       
+      #' addChunk
+      #'
+      #' Appends chunk to existing chunk.
+      #'
+      #' @param chunk a data.frame
       addChunk <- function(chunk) {
         colnames(chunk) <- SqlRender::camelCaseToSnakeCase(colnames(chunk))
         readr::write_csv(chunk, tempName, append = TRUE)

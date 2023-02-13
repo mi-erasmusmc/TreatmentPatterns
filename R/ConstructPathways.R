@@ -807,8 +807,13 @@ doCombinationWindow <- function(
 #'
 #' @return Updated treatment_history data.frame
 #' 
-#' @examples
-#' selectRowsCombinationWindow(treatment_history)
+#' @examples \dontrun{
+#' source(system.file(
+#'   package = "TreatmentPatterns", 
+#'  "testing", "testParams.R"))
+#'  
+#' selectRowsCombinationWindow(doEraCollapseTH)
+#' }
 selectRowsCombinationWindow <- function(treatment_history) {
   # Order treatment_history by person_id, event_start_date, event_end_date
   treatment_history <- treatment_history[order(

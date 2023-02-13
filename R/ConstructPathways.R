@@ -426,17 +426,41 @@ doCreateTreatmentHistory <- function(
   return(current_cohorts)
 }
 
-
 #' doEraDuration
+#'
+#' Filters the treatmentHistory based on the specified minimum era duration
 #'
 #' @param treatment_history
 #'     Dataframe with event cohorts of the target cohort in different rows.
 #' @param minEraDuration
 #'     Minimum time an event era should last to be included in analysis.
+#' 
+#' @import checkmate
+#' @import ParallelLogger
+#' 
 #' @return treatment_history
 #'     Updated dataframe, rows with duration < 
 #'     minEraDuration filtered out.
+#' @examples
+#' \dontrun{
+#' th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+#'                                targetCohortId = targetCohortId,
+#'                                eventCohortIds = eventCohortIds,
+#'                                periodPriorToIndex = periodPriorToIndex,
+#'                                includeTreatments = includeTreatments)
+#' doEraDuration(treatment_history = th, minEraDuration = 1)
+#' }
 doEraDuration <- function(treatment_history, minEraDuration) {
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::checkNumeric(
+    x = minEraDuration,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE
+  )
+  
   treatment_history <- treatment_history[duration_era >= minEraDuration, ]
   ParallelLogger::logInfo(print(
     paste0("After minEraDuration: ", nrow(treatment_history))))

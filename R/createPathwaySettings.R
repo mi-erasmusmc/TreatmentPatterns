@@ -5,6 +5,14 @@
 #' @param cohortSettings cohortSettings object
 #'
 #' @return TRUE if all assertions pass
+#'  
+#'
+#' @examples
+#' cohortSettings 
+
+#' checkPathwaySettings(
+#'   cohortSettings = cohortSettings
+#'   )
 checkPathwaySettings <- function(
     cohortSettings) {
   # Check cohortSettings

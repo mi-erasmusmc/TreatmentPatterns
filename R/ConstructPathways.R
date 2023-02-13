@@ -446,20 +446,35 @@ doEraDuration <- function(treatment_history, minEraDuration) {
 
 #' doStepDuration
 #'
+#' Filters treatmentHistory based on if durationEra is smaller than the
+#' specified minimum post combination duration (minPostCombinationDuration). 
+#'
 #' @param treatment_history
 #'     Dataframe with event cohorts of the target cohort in different rows.
 #' @param minPostCombinationDuration
-#'     Minimum time an event era before or after a generated combination 
+#'     Minimum time an event era before or after a generated combination
 #'     treatment should last to be included in analysis.
 #'
 #' @return treatment_history
 #'     Updated dataframe, rows with duration_era < 
 #'     minPostCombinationDuration filtered out.
 doStepDuration <- function(treatment_history, minPostCombinationDuration) {
-  treatment_history <- treatment_history[
-    (is.na(check_duration) | duration_era >= minPostCombinationDuration), ]
-  ParallelLogger::logInfo(print(paste0(
-    "After minPostCombinationDuration: ", nrow(treatment_history))))
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::checkNumeric(
+    x = minPostCombinationDuration,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE
+  )
+  
+  treatment_history <- subset(
+    x = treatment_history,
+    duration_era >= 30 | is.na(duration_era))
+  
+  ParallelLogger::logInfo(
+    glue::glue("After minPostCombinationDuration: {nrow(treatment_history)}"))
   return(treatment_history)
 }
 
@@ -777,8 +792,19 @@ doCombinationWindow <- function(
   return(treatment_history)
 }
 
-# Help function for doCombinationWindow that selects one overlapping drug era
-# per person to modify in next iteration of combination window. 
+
+#' selectRowsCombinationWindow
+#' 
+#' Help function for doCombinationWindow that selects one overlapping drug era
+#' per person to modify in next iteration of the combination window. 
+#'
+#' @param treatment_history
+#'   Dataframe with event cohorts of the target cohort in different rows. 
+#'
+#' @return Updated treatment_history data.frame
+#' 
+#' @examples
+#' selectRowsCombinationWindow(treatment_history)
 selectRowsCombinationWindow <- function(treatment_history) {
   # Order treatment_history by person_id, event_start_date, event_end_date
   treatment_history <- treatment_history[order(

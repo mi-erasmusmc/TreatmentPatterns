@@ -93,7 +93,8 @@ cohortSettings <- TreatmentPatterns::createCohortSettings(
 
 pathwaySettings <- TreatmentPatterns::createPathwaySettings(
   cohortSettings = cohortSettings,
-  studyName = "Viral_Sinusitis")
+  studyName = "Viral_Sinusitis",
+  maxPathLength = 2)
 
 # Write files
 #names(cohortSettings$cohortsToCreate) <- c("cohort_id", "cohort_name", "cohort_type")

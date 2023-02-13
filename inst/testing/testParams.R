@@ -84,8 +84,8 @@ doFilterTreatmentsTH <- TreatmentPatterns:::doFilterTreatments(
   doCombinationWindowTH,
   filterTreatments)
 
-maxPathLength <- settings[
-  settings$param == "maxPathLength", "analysis1"]
+maxPathLength <- as.integer(settings[
+  settings$param == "maxPathLength", "analysis1"])
 
 doFilterTreatmentsTHOrdered <- doFilterTreatmentsTH[
   order(person_id, event_start_date, event_end_date), ]

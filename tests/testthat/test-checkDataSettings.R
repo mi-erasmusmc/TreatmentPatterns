@@ -1,32 +1,33 @@
 # Libraries
 library(testthat)
 library(TreatmentPatterns)
+library(Eunomia)
 
 test_that("Void", {
-  expect_error(createDataSettings())
+  expect_error(checkDataSettings())
 })
 
 test_that("Minimal", {
-  testthat::expect_s3_class(
-    createDataSettings(
+  testthat::expect_true(
+    checkDataSettings(
       connectionDetails = Eunomia::getEunomiaConnectionDetails(),
       cdmDatabaseSchema = "main",
-      resultSchema = "main"
-    ),
-    "dataSettings"
+      resultSchema = "main",
+      cohortTable <- "cohort_table"
+    )
   )
 })
 
-test_that("Assert connectionDetails", {
+test_that("connectionDetails", {
   testthat::expect_error(
-    createDataSettings(connectionDetails = "getEunomiaConnectionDetails()"),
+    checkDataSettings(connectionDetails = "getEunomiaConnectionDetails()"),
     c("Must inherit from class 'connectionDetails'")
   )
 })
 
-test_that("Assert cdmDatabaseSchema", {
+test_that("cdmDatabaseSchema", {
   testthat::expect_error(
-    createDataSettings(
+    checkDataSettings(
       connectionDetails = Eunomia::getEunomiaConnectionDetails(),
       cdmDatabaseSchema = 3
     ),
@@ -34,9 +35,9 @@ test_that("Assert cdmDatabaseSchema", {
   )
 })
 
-test_that("Assert resultSchema", {
+test_that("resultSchema", {
   testthat::expect_error(
-    createDataSettings(
+    checkDataSettings(
       connectionDetails = Eunomia::getEunomiaConnectionDetails(),
       cdmDatabaseSchema = "main",
       resultSchema = 2
@@ -45,26 +46,14 @@ test_that("Assert resultSchema", {
   )
 })
 
-test_that("Assert cohortTable", {
+test_that("cohortTable", {
   testthat::expect_error(
-    createDataSettings(
+    checkDataSettings(
       connectionDetails = Eunomia::getEunomiaConnectionDetails(),
       cdmDatabaseSchema = "main",
       resultSchema = "main",
       cohortTable = TRUE
     ),
     c("Must be of type 'character")
-  )
-})
-
-test_that("All parameters", {
-  testthat::expect_s3_class(
-    createDataSettings(
-      connectionDetails = Eunomia::getEunomiaConnectionDetails(),
-      cdmDatabaseSchema = "main",
-      resultSchema = "main",
-      cohortTable = "myCohortTable"
-    ),
-    "dataSettings"
   )
 })

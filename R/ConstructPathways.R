@@ -454,6 +454,10 @@ doEraDuration <- function(treatment_history, minEraDuration) {
 #' @param minPostCombinationDuration
 #'     Minimum time an event era before or after a generated combination
 #'     treatment should last to be included in analysis.
+#' 
+#' @import glue
+#' @import checkmate
+#' @import ParallelLogger
 #'
 #' @return treatment_history
 #'     Updated dataframe, rows with duration_era < 

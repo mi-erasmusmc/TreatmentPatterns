@@ -146,8 +146,7 @@ addPathwaySettingsCheck <- function(
 
   # splitEventCohorts
   checkmate::assert(checkmate::checkCharacter(
-    x = splitEventCohorts,
-    len = 1))
+    x = splitEventCohorts))
 
   # splitTime
   checkmate::assert(checkmate::checkNumeric(

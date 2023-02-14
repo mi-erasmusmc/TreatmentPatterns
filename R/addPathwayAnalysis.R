@@ -36,7 +36,9 @@
 #'   eventCohortIds = c(11, 12),
 #'   studyName = "Second study"
 #' )
-addPathwayAnalysis <- function(pathwaySettings, targetCohortIds, eventCohortIds, ...) {
+addPathwayAnalysis <- function(pathwaySettings,
+                               targetCohortIds,
+                               eventCohortIds, ...) {
   analysis <- addPathwaySettings(
     eventCohortIds = eventCohortIds,
     targetCohortId = targetCohortIds,

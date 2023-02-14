@@ -62,12 +62,16 @@ loadRenderTranslateSql <- function(
 #'     Name of table
 #' @param resultsSchema
 #'     Schema of results
-#' @param dbms
-#'     DBMS
+#' @param dbms Name of dbms to use
 #'
-#' @return data
-#'     data.frame 
+#' @return data the extracted table as a data.frame
 #' @export
+#' 
+#' #' @examples
+#' \dontrun{
+#'   con <- DatabaseConnector::connect(Eunomia::getEunomiaConnectionDetails())
+#'   extractFile(con, "person", "main", "sqlite")
+#'}
 extractFile <- function(connection, tableName, resultsSchema, dbms) {
   parameterizedSql <- "SELECT * FROM @resultsSchema.@tableName"
   renderedSql <- SqlRender::render(
@@ -78,7 +82,7 @@ extractFile <- function(connection, tableName, resultsSchema, dbms) {
   translatedSql <- SqlRender::translate(
     renderedSql,
     targetDialect = dbms)
-  data <- DatabaseConnector::querySql(connection, translatedSql)
+  DatabaseConnector::querySql(connection, translatedSql)
 }
 
 

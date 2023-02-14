@@ -14,8 +14,8 @@ test_that("Void", {
 test_that("Minimal", {
   expect_output(
     constructPathways(
-    dataSettings = dataSettings,
-    pathwaySettings = pathwaySettings,
-    saveSettings = saveSettings
-  ), "constructPathways done.")
+      dataSettings = dataSettings,
+      pathwaySettings = pathwaySettings,
+      saveSettings = saveSettings
+    ), "constructPathways done.")
 })

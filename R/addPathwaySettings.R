@@ -153,7 +153,6 @@ addPathwaySettingsCheck <- function(
     x = splitTime,
     lower = 0,
     finite = TRUE,
-    len = 1,
     null.ok = FALSE
   ))
 

@@ -23,9 +23,9 @@ test_that("Assert rootFolder: wrong type", {
 
 test_that("Assert rootFolder: No valid folder", {
   expect_error(checkSaveSettings(rootFolder = "stuff/things/bla/bla",
-                                  databaseName = "Eunomia", 
-                                  outputFolder = "./inst",
-                                  tempFolder = "./inst"),
+                                 databaseName = "Eunomia", 
+                                 outputFolder = "./inst",
+                                 tempFolder = "./inst"),
                c("does not exist."))
 })
 
@@ -47,3 +47,13 @@ test_that("Assert outputFolder: wrong type", {
     tempFolder = "./inst"),
     c("Must be of type 'character'"))
 })
+
+test_that("Assert tempFolder: wrong type", {
+  expect_error(checkSaveSettings(
+    rootFolder = "./",
+    databaseName = "Eunomia", 
+    outputFolder = "./inst",
+    tempFolder = 1),
+    c("No path provided"))
+})
+

@@ -19,10 +19,13 @@
 #' cohortSettings <- createCohortSettings(
 #'   targetCohorts = data.frame(
 #'     cohortId = c(1),
-#'     cohortName = c("a")),
+#'     cohortName = c("a")
+#'   ),
 #'   eventCohorts = data.frame(
 #'     cohortId = c(2, 3),
-#'     cohortName = c("b", "c")))
+#'     cohortName = c("b", "c")
+#'   )
+#' )
 #'
 #' # Create pathwaySettings
 #' pathwaySettings <- createPathwaySettings(cohortSettings)
@@ -31,21 +34,24 @@
 #'   pathwaySettings = pathwaySettings,
 #'   targetCohortIds = c(10),
 #'   eventCohortIds = c(11, 12),
-#'   studyName = "Second study")
-addPathwayAnalysis <- function(
-    pathwaySettings, targetCohortIds, eventCohortIds, ...) {
+#'   studyName = "Second study"
+#' )
+addPathwayAnalysis <- function(pathwaySettings, targetCohortIds, eventCohortIds, ...) {
   analysis <- addPathwaySettings(
     eventCohortIds = eventCohortIds,
     targetCohortId = targetCohortIds,
-    ...)
+    ...
+  )
 
   analysisParams <- data.table::transpose(analysis)
 
   names(analysisParams) <- paste0(
-    "analysis", length(names(pathwaySettings$all_settings)))
+    "analysis", length(names(pathwaySettings$all_settings))
+  )
 
   pathwaySettings$all_settings <- dplyr::bind_cols(
     pathwaySettings$all_settings,
-    analysisParams)
+    analysisParams
+  )
   return(pathwaySettings)
 }

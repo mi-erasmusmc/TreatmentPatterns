@@ -18,19 +18,19 @@ generateOutput <- function(saveSettings) {
       "settings",
       "pathway_settings.csv"),
     col_types = readr::cols()))
-
+  
   settings <-
     colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
-
+  
   for (s in settings) {
     studyName <- pathwaySettings[pathwaySettings$param == "studyName", s]
     ParallelLogger::logInfo(print(paste0("Creating output: ", studyName)))
-
+    
     eventCohortIds <-
       pathwaySettings[pathwaySettings$param == "eventCohortIds", s]
     eventCohortIds <-
       unlist(strsplit(eventCohortIds, split = c(";|,")))
-
+    
     minCellCount <-
       as.integer(pathwaySettings[pathwaySettings$param == "minCellCount", s])
     minCellMethod <-
@@ -39,19 +39,19 @@ generateOutput <- function(saveSettings) {
       pathwaySettings[pathwaySettings$param == "groupCombinations", s]
     addNoPaths <-
       pathwaySettings[pathwaySettings$param == "addNoPaths", s]
-
+    
     outputFolders <-
       file.path(saveSettings$outputFolder, studyName)
     if (!file.exists(outputFolders))
       dir.create(outputFolders, recursive = TRUE)
-
+    
     treatmentPathways <- getPathways(
       outputFolder = saveSettings$outputFolder,
       tempFolder = saveSettings$tempFolder,
       databaseName = saveSettings$databaseName,
       studyName = studyName,
       minCellCount = minCellCount)
-
+    
     if (!is.null(treatmentPathways)) {
       outputTreatedPatients(
         data = treatmentPathways[[1]],
@@ -83,7 +83,7 @@ generateOutput <- function(saveSettings) {
           )
         )
       )
-
+      
       outputDurationEras(
         outputFolder = saveSettings$outputFolder,
         tempFolder = saveSettings$tempFolder,
@@ -93,7 +93,7 @@ generateOutput <- function(saveSettings) {
         groupCombinations = TRUE,
         minCellCount = minCellCount
       )
-
+      
       treatmentPathways <-
         doMinCellCount(
           file_noyear = treatmentPathways[[1]],
@@ -106,8 +106,8 @@ generateOutput <- function(saveSettings) {
           minCellCount = minCellCount,
           minCellMethod = minCellMethod
         )
-
-
+      
+      
       outputSankeyDiagram(
         data = treatmentPathways[[1]],
         outputFolder = saveSettings$outputFolder,
@@ -115,7 +115,7 @@ generateOutput <- function(saveSettings) {
         studyName = studyName,
         groupCombinations = TRUE
       )
-
+      
       outputSunburstPlot(
         data = treatmentPathways[[1]],
         outputFolder = saveSettings$outputFolder,
@@ -124,7 +124,7 @@ generateOutput <- function(saveSettings) {
         eventCohortIds = eventCohortIds,
         addNoPaths = addNoPaths
       )
-
+      
       outputSunburstPlot(
         data = treatmentPathways[[2]],
         outputFolder = saveSettings$outputFolder,
@@ -135,13 +135,13 @@ generateOutput <- function(saveSettings) {
       )
     }
   }
-
+  
   zipName <- file.path(
     saveSettings$rootFolder,
     paste0(saveSettings$databaseName, ".zip"))
-
+  
   OhdsiSharing::compressFolder(file.path(saveSettings$outputFolder), zipName)
-
+  
   ParallelLogger::logInfo("generateOutput done.")
 }
 

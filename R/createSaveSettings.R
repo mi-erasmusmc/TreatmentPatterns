@@ -1,6 +1,6 @@
 #' checkSaveSettings
 #'
-#' Checks parameters of createSaveSettings.
+#' Checks parameters for createSaveSettings.
 #'
 #' @param databaseName 
 #' @param rootFolder 

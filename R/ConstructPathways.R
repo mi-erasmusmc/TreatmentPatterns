@@ -538,18 +538,41 @@ doSplitEventCohorts <- function(
 
 
 #' doEraCollapse
+#' 
+#' Updates the treatmentHistory data.frame where if gapSame is smaller than the specified era collapse size (eraCollapseSize) are collapsed
 #'
 #' @param treatment_history
 #'     Dataframe with event cohorts of the target cohort in different rows.
-#'     
 #' @param eraCollapseSize
 #'     Window of time between which two eras of the same event cohort are
 #'     collapsed into one era.
-#'
+#' 
+#' @import checkmate
+#' @import ParallelLogger
+#' 
 #' @return treatment_history
 #'     Updated dataframe, where event cohorts with
 #'     gap_same < eraCollapseSize are collapsed.
+#' @examples
+#' \dontrun{
+#' th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+#'                                targetCohortId = targetCohortId,
+#'                                eventCohortIds = eventCohortIds,
+#'                                periodPriorToIndex = periodPriorToIndex,
+#'                                includeTreatments = includeTreatments)
+#' doEraCollapse(treatment_history = th, eraCollapseSize = 1)
+#' }
 doEraCollapse <- function(treatment_history, eraCollapseSize) {
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::assertNumeric(
+    x = eraCollapseSize,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE
+  )
+  
   # Order treatment_history by person_id, event_cohort_id, start_date, end_date
   treatment_history <- treatment_history[
     order(person_id, event_cohort_id, event_start_date, event_end_date), ]

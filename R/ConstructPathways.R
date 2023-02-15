@@ -39,7 +39,7 @@ checkConstructPathways <- function(dataSettings,
 
 #' constructPathways
 #' 
-#' Construct treatment pathways.
+#' Construct treatment pathways. Also generates output in csv format. 
 #'
 #' @param dataSettings
 #'     Settings object as created by createDataSettings().
@@ -48,6 +48,15 @@ checkConstructPathways <- function(dataSettings,
 #' @param saveSettings
 #'     Settings object as created by createSaveSettings().
 #' @export
+#' 
+#' @examples
+#' dataSettings
+#' pathwaySettings
+#' saveSettings
+#' constructPathways(
+#'   dataSettings = dataSettings,
+#'   pathwaySettings = pathwaySettings,
+#'   saveSettings = saveSettings) 
 constructPathways <- function(dataSettings, 
                               pathwaySettings, 
                               saveSettings) {
@@ -73,8 +82,10 @@ constructPathways <- function(dataSettings,
     dataSettings$resultSchema, 
     dataSettings$connectionDetails$dbms))
 
-  colnames(full_cohorts) <- c(
-    "cohort_id", "person_id", "start_date", "end_date")   
+  colnames(full_cohorts) <- c("cohort_id", 
+                              "person_id", 
+                              "start_date", 
+                              "end_date")   
 
   # Save pathway settings
   pathwaySettings <- pathwaySettings$all_settings

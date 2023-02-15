@@ -45,12 +45,6 @@ test_that("minimal", {
 
 test_that("case: A is equal to B", {
   
-  target_cohort <- tibble::tribble(
-    ~cohort_definition_id, ~subject_id, ~cohort_start_date, ~cohort_end_date,
-    100,                   1,           "2020-01-01",       "2021-01-01"
-  ) %>%
-    dplyr::mutate(dplyr::across(dplyr::ends_with("date"), as.Date))
-  
   treatment_history <- tibble::tribble(
     ~event_cohort_id,     ~person_id,   ~event_start_date,  ~event_end_date,
     101,                   1,           "2020-05-01",       "2020-06-01",

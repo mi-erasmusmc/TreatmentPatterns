@@ -628,10 +628,10 @@ doCombinationWindow <- function(
   
   # While rows that need modification exist:
   iterations <- 1
-  while(sum(treatment_history$SELECTED_ROWS)!= 0) {
+  while (sum(treatment_history$SELECTED_ROWS) != 0) {
     
-    # Which have gap previous shorter than combination window OR min(current
-    # duration era, previous duration era) -> add column switch
+    # Which rows have gap previous shorter than combination window OR 
+    # min(current duration era, previous duration era) -> add column switch
     treatment_history[
       SELECTED_ROWS == 1 & 
         (-GAP_PREVIOUS < combinationWindow & 
@@ -688,21 +688,12 @@ doCombinationWindow <- function(
     
     # Do transformations for each of the three newly added columns
     # Construct helpers
-    treatment_history[
-      , event_start_date_next := data.table::shift(event_start_date, type = "lead"),
-      by = person_id]
-    
-    treatment_history[
-      , event_end_date_previous := data.table::shift(event_end_date, type = "lag"),
-      by = person_id]
-    
-    treatment_history[
-      , event_end_date_next := data.table::shift(event_end_date, type = "lead"),
-      by = person_id]
-    
-    treatment_history[
-      , event_cohort_id_previous := data.table::shift(event_cohort_id, type = "lag"),
-      by = person_id]
+    treatment_history[, `:=`(
+      event_start_date_next = data.table::shift(event_start_date, type = "lead"),
+      event_end_date_previous = data.table::shift(event_end_date, type = "lag"),
+      event_end_date_next = data.table::shift(event_end_date, type = "lead"),
+      event_cohort_id_previous = data.table::shift(event_cohort_id, type = "lag")
+    ), by = person_id]
     
     # Case: switch
     # Change end treatment_history of previous row ->

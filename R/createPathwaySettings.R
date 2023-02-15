@@ -1,5 +1,5 @@
 #' checkPathwaySettings
-#' 
+#'
 #' Check createPathwaySettings
 #'
 #' @param cohortSettings cohortSettings object
@@ -14,19 +14,23 @@ checkPathwaySettings <- function(
       classes = "cohortSettings"),
     checkmate::checkDataFrame(
       x = cohortSettings$cohortsToCreate,
-      types = c("integer", "character", "character"),
+      types = c("integer",
+                "character",
+                "character"),
       ncols = 3,
       any.missing = FALSE),
     checkmate::checkSubset(
       x = names(cohortSettings$cohortsToCreate),
-      choices = c("cohortId", "cohortName", "cohortType")),
+      choices = c("cohortId",
+                  "cohortName",
+                  "cohortType")),
     combine = "and"
   )
   return(TRUE)
 }
 
 #' createPathwaySettings
-#' 
+#'
 #' Create pathway settings.
 #'
 #' @param cohortSettings cohortSettings object
@@ -50,7 +54,8 @@ checkPathwaySettings <- function(
 #'
 #' @return
 #'     Object pathwaySettings.
-#'     
+#' @import dplyr
+#' @importFrom utils globalVariables
 #' @export
 #' @examples
 #' targetCohorts <- data.frame(
@@ -64,7 +69,7 @@ checkPathwaySettings <- function(
 #' cohortSettings <- TreatmentPatterns::createCohortSettings(
 #'   targetCohorts = targetCohorts,
 #'   eventCohorts = eventCohorts)
-#' 
+#'
 #' createPathwaySettings(
 #'   cohortSettings = cohortSettings,
 #'   studyName = "MyStudyName")
@@ -72,41 +77,42 @@ createPathwaySettings <- function(cohortSettings, ...) {
   # Check
   check <- checkPathwaySettings(
     cohortSettings)
-  
+
   if (exists("studyName")) {
     studyName <- studyName
   } else {
     studyName <- "default"
   }
-  
+
   if (check) {
     targetCohorts <- cohortSettings$cohortsToCreate %>%
       dplyr::filter(cohortType == "target")
-    
+
     eventCohorts <- cohortSettings$cohortsToCreate %>%
       dplyr::filter(cohortType == "event")
-    
+
     # Create default pathwaySettings template
     pathwaySettingsDefault <- addPathwaySettings(
       targetCohortId = targetCohorts$cohortId,
       eventCohortIds = eventCohorts$cohortId,
       ...)
-    
+
     # Transpose
     pathwaySettings <- data.table::transpose(pathwaySettingsDefault)
-    
+
     # Add colnames analysis1, analysis2, ...
     colnames(pathwaySettings) <- paste0(
       "analysis", seq_len(ncol(pathwaySettings)))
-    
-    # Add param names to pathwaySettings 
+
+    # Add param names to pathwaySettings
     pathwaySettings <- cbind(
-      param = colnames(pathwaySettingsDefault), 
+      param = colnames(pathwaySettingsDefault),
       pathwaySettings)
-    
+
     pathwaySettings <- list(all_settings = pathwaySettings)
-    class(pathwaySettings) <- 'pathwaySettings'
-    
+    class(pathwaySettings) <- "pathwaySettings"
+
     return(pathwaySettings)
   }
 }
+utils::globalVariables("cohortType")

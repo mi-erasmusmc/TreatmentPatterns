@@ -1,5 +1,6 @@
 library(TreatmentPatterns)
 library(testthat)
+library(glue)
 
 source(system.file(
   package = "TreatmentPatterns",
@@ -22,3 +23,10 @@ test_that("minimal", {
       glue::glue("{saveSettings$outputFolder}/Viral_Sinusitis/legend.html")))
 })
 
+test_that("Validate read file", {
+  expect_true(
+    is.character(readLines(file.path(
+      saveSettings$outputFolder,
+    "Viral_Sinusitis",
+    glue("{saveSettings$databaseName}_Viral_Sinusitis_all_input.txt")))))
+})

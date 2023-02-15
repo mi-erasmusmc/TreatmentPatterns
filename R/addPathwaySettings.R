@@ -323,11 +323,13 @@ addPathwaySettingsCheck <- function(
 #' @return a data.frame containing the pathway settings
 #'
 #' @export
-#' @examples
+#' @examples 
+#' \dontrun{
 #' pathwaySettings <- addPathwaySettings(
 #'   studyName = "myCoolStudy",
 #'   targetCohortId = 1,
 #'   eventCohortIds = c(1,2,3))
+#' }
 addPathwaySettings <- function(
     studyName = "name_unknown",
     targetCohortId,

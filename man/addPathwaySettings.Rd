@@ -79,8 +79,10 @@ Defines and returns a data.frame specifying different parameters how to compute
 the existing pathways in the function call.
 }
 \examples{
+\dontrun{
 pathwaySettings <- addPathwaySettings(
   studyName = "myCoolStudy",
   targetCohortId = 1,
   eventCohortIds = c(1,2,3))
+}
 }

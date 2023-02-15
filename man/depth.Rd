@@ -4,13 +4,21 @@
 \alias{depth}
 \title{depth}
 \usage{
-depth(this, thisdepth = 0)
+depth(x, thisdepth = 0)
 }
 \arguments{
-\item{this}{List}
+\item{x}{input list}
 
-\item{thisdepth}{Depth}
+\item{thisdepth}{current list depth}
+}
+\value{
+the depth of the list element
 }
 \description{
 Function to find depth of a list element.
+}
+\examples{
+\dontrun{
+TreatmentPatterns:::depth(list("a"))
+}
 }

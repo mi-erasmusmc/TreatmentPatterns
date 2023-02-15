@@ -1,10 +1,17 @@
 library(TreatmentPatterns)
 library(testthat)
 
+basePackage <- "base"
+
 test_that("void", {
   expect_false(TreatmentPatterns:::is_installed())
 })
 
 test_that("minimal", {
-  expect_true(TreatmentPatterns:::is_installed("base"))
+  expect_true(TreatmentPatterns:::is_installed(basePackage))
+})
+
+test_that("invalid input", {
+  expect_false(TreatmentPatterns:::is_installed(pkg = NULL, version = 0))
+  expect_equal(TreatmentPatterns:::is_installed(pkg = basePackage, version = NULL), NA)
 })

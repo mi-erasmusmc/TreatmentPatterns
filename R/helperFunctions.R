@@ -729,7 +729,7 @@ is_installed <- function (pkg, version = 0) {
 #' 
 #' @importFrom utils install.packages
 #' 
-#' @return whether the given package with the version is installed
+#' @return NULL
 #' 
 #' @examples
 #' \dontrun{

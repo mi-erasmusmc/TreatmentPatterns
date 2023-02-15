@@ -7,7 +7,7 @@
 depth(x, thisdepth = 0)
 }
 \arguments{
-\item{x}{input list}
+\item{x}{input list (element)}
 
 \item{thisdepth}{current list depth}
 }

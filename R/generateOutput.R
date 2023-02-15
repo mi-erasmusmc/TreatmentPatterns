@@ -1234,6 +1234,8 @@ buildHierarchy <- function(csv) {
 
 #' createLegend
 #'
+#' Write html file for the sunburst plot legend. 
+#'
 #' @param studyName
 #'     Study name
 #' @param outputFolder
@@ -1242,6 +1244,17 @@ buildHierarchy <- function(csv) {
 #'     Database name
 #'
 #' @returns NULL
+#' 
+#' @examples \dontrun{
+#' source(system.file(
+#'   package = "TreatmentPatterns",
+#'   "testing", "testParamsOutput.R"))
+#' 
+#' TreatmentPatterns:::createLegend(
+#'   studyName = "Viral_Sinusitis",
+#'   outputFolder = saveSettings$outputFolder,
+#'   databaseName = saveSettings$databaseName)
+#' }
 createLegend <- function(studyName, outputFolder, databaseName) {
   # Load template HTML file
   html <- paste(readLines(file.path(
@@ -1252,21 +1265,17 @@ createLegend <- function(studyName, outputFolder, databaseName) {
     collapse = "\n")
   
   # Replace @insert_data
-  input_plot <- readLines(file.path(
+  inputPlot <- readLines(file.path(
     outputFolder,
     studyName,
     paste0(databaseName, "_", studyName, "_all_input.txt")))
   
-  html <- sub("@insert_data", input_plot, html)
+  html <- sub("@insert_data", inputPlot, html)
   
   # Save HTML file as sunburst_@studyName
-  write.table(
-    html,
-    file = file.path(outputFolder, studyName, "legend.html"),
-    quote = FALSE,
-    col.names = FALSE,
-    row.names = FALSE
-  )
+  writeLines(
+    text = html,
+    con = file.path(outputFolder, studyName, "legend.html"))
 }
 
 

@@ -86,20 +86,26 @@ extractFile <- function(connection, tableName, resultsSchema, dbms) {
 #' 
 #' Recursive function to remove name from all levels of list.
 #' 
-#' @param x
-#'     List
-#' @param name
-#'     Name
+#' @param x input list
+#' @param name the name of the list item from which the names will be removed
 #'
-#' @return
-#'     List with removed names
+#' @return list with removed names
+#' 
+#' @examples
+#' \dontrun{
+#' TreatmentPatterns:::stripname("base")
+#' }
 stripname <- function(x, name) {
+  # Assertions
+  checkmate::assertTRUE(!is.null(x))
+  checkmate::assertCharacter(x = name, len = 1, null.ok = FALSE)
+  
   thisdepth <- depth(x)
   if (thisdepth == 0) {
     return(x)
-  } else if (length(nameIndex <- which(names(x) == name))) {
-    temp <- names(x)[names(x) == name]
-    x[[temp]] <- unname(x[[temp]])
+  } else if (length(nameIndex <- which(names(x) == name)) > 0) {
+    element <- names(x)[nameIndex]
+    x[[element]] <- unname(x[[element]])
   }
   return(lapply(x, stripname, name))
 }

@@ -8,7 +8,9 @@ test_that("void", {
 })
 
 test_that("minimal", {
-  expect_true(TreatmentPatterns:::is_installed(basePackage))
+  expect_true(TreatmentPatterns:::is_installed(pkg = basePackage))
+  expect_true(TreatmentPatterns:::is_installed(pkg = basePackage, version = 1))
+  expect_false(TreatmentPatterns:::is_installed(pkg = basePackage, version = 99999))
 })
 
 test_that("invalid input", {

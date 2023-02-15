@@ -116,7 +116,7 @@ generateOutput <- function(saveSettings) {
         groupCombinations = TRUE
       )
       
-      outputSunburstPlot(
+      preprocessSunburstData(
         data = treatmentPathways[[1]],
         outputFolder = saveSettings$outputFolder,
         databaseName = saveSettings$databaseName,
@@ -125,7 +125,7 @@ generateOutput <- function(saveSettings) {
         addNoPaths = addNoPaths
       )
       
-      outputSunburstPlot(
+      preprocessSunburstData(
         data = treatmentPathways[[2]],
         outputFolder = saveSettings$outputFolder,
         databaseName = saveSettings$databaseName,
@@ -774,7 +774,9 @@ doMinCellCount <- function(
 }
 
 
-#' outputSunburstPlot
+#' preprocessSunburstData
+#'
+#' Preprocesses the data for the sunburst either total or by year
 #'
 #' @param data
 #'     Dataframe with event cohorts of the target cohort in different columns.
@@ -794,7 +796,7 @@ doMinCellCount <- function(
 #' @import ParallelLogger
 #' 
 #' @returns NULL
-outputSunburstPlot <- function(
+preprocessSunburstData <- function(
     data,
     outputFolder,
     databaseName,
@@ -863,7 +865,7 @@ outputSunburstPlot <- function(
         }
       }
     }
-    ParallelLogger::logInfo("outputSunburstPlot done")
+    ParallelLogger::logInfo("preprocessSunburstData done")
   }
 }
 

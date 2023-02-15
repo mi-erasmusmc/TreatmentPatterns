@@ -722,11 +722,19 @@ is_installed <- function (pkg, version = 0) {
 
 #' ensure_installed
 #'
-#' Borrowed and adapted function from devtools.
+#' Makes sure the given package is installed. Borrowed and adapted function from devtools.
 #' https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L74
 #' 
-#' @param pkg
-#'     Package
+#' @param pkg package name
+#' 
+#' @importFrom utils install.packages
+#' 
+#' @return whether the given package with the version is installed
+#' 
+#' @examples
+#' \dontrun{
+#' TreatmentPatterns:::ensure_installed("base")
+#' }
 ensure_installed <- function(pkg) {
   if (!is_installed(pkg)) {
     msg <- paste0(
@@ -735,7 +743,7 @@ ensure_installed <- function(pkg) {
     if (interactive()) {
       message(msg, "\nWould you like to install it?")
       if (menu(c("Yes", "No")) == 1) {
-        install.packages(pkg)
+        utils::install.packages(pkg)
       } else {
         stop(msg, call. = FALSE)
       }

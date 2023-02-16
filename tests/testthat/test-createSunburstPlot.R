@@ -22,17 +22,22 @@ outcomes <- c(
   "Other")
 
 test_that("void", {
-  expect_error(TreatmentPatterns:::createSunburstPlot())
+  expect_error(TreatmentPatterns::createSunburstPlot())
 })
 
 test_that("minimal", {
-  TreatmentPatterns:::createSunburstPlot(
-    data,
-    outcomes,
-    folder = saveSettings$outputFolder,
-    file_name = file.path("Viral_Sinusitis", paste0(
-      saveSettings$databaseName, "_", "Viral_Sinusitis", "_all")),
-    shiny = TRUE)
-  expect_true(file.exists(paste0(saveSettings$outputFolder, file.path("/Viral_Sinusitis", paste0(
-    saveSettings$databaseName, "_", "Viral_Sinusitis", "_all", "_sunburstplot.html")))))
+  fileName <- paste0(saveSettings$databaseName, 
+                     "_", "Viral_Sinusitis", "_all")
+  outFileName <- file.path(saveSettings$outputFolder, 
+                           paste0(fileName, "_sunburstplot.html"))
+  TreatmentPatterns::createSunburstPlot(data, outcomes, 
+                                        folder = saveSettings$outputFolder,
+                                        fileName = fileName,
+                                        shiny = TRUE)
+  expect_true(file.exists(outFileName))
 })
+
+test_that("invalid input", {
+  expect_error(TreatmentPatterns:::createSunburstPlot(data = NULL))
+})
+

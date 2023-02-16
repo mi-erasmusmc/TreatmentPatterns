@@ -348,8 +348,10 @@ doCreateTreatmentHistory <- function(
     periodPriorToIndex, 
     includeTreatments) {
   
-  checkmate::assert(checkmate::check_data_frame(current_cohorts))
+  checkmate::assert(checkmate::check_data_frame(current_cohorts, min.cols = 4, col.names = "named"))
   # TODO check column names of current_cohorts: "cohort_id","person_id","start_date","end_date"
+  checkmate::assert(checkmate::checkNames(names(current_cohorts), permutation.of = c("cohort_id","person_id","start_date","end_date")))
+  
   checkmate::assert(checkmate::checkCharacter(targetCohortId, len = 1))
   checkmate::assert(checkmate::checkCharacter(eventCohortIds))
   checkmate::assert(checkmate::checkInt(periodPriorToIndex))

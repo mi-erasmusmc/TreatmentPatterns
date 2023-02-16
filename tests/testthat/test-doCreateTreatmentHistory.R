@@ -44,10 +44,18 @@ test_that("non-dataframe current_cohorts", {
     includeTreatments = includeTreatments))
 })
 
+test_that("too few columns current_cohorts", {
+  current_cohorts <- current_cohorts[ , c("cohort_id","person_id","start_date")] # remove end_date column
+  expect_error(TreatmentPatterns:::doCreateTreatmentHistory(
+    current_cohorts = current_cohorts,
+    targetCohortId = targetCohortId,
+    eventCohortIds = eventCohortIds,
+    periodPriorToIndex = periodPriorToIndex,
+    includeTreatments = includeTreatments))
+})
+
 test_that("wrong column names dataframe current_cohorts", {
-  write.csv(current_cohorts, "D:/Temp/R/current_cohorts.csv", row.names = FALSE)
-  current_cohorts %>% rename("cohort" = "cohort_id", "person" = "person_id", "startDate" = "start_date","endDate" = "end_date")
-  write.csv(current_cohorts, "D:/Temp/R/current_cohorts2.csv", row.names = FALSE)
+  colnames(current_cohorts) <- c("cohort", "person", "startDate","endDate")
   expect_error(TreatmentPatterns:::doCreateTreatmentHistory(
     current_cohorts = current_cohorts,
     targetCohortId = targetCohortId,

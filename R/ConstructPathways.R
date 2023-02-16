@@ -347,6 +347,12 @@ doCreateTreatmentHistory <- function(
     eventCohortIds, 
     periodPriorToIndex, 
     includeTreatments) {
+  
+  checkmate::assert(checkmate::check_data_frame(current_cohorts))
+  # TODO check column names of current_cohorts: "cohort_id","person_id","start_date","end_date"
+  checkmate::assert(checkmate::checkCharacter(targetCohortId, len = 1))
+  checkmate::assert(checkmate::checkCharacter(eventCohortIds))
+  checkmate::assert(checkmate::checkInt(periodPriorToIndex))
 
   # Add index year column based on start date target cohort
   targetCohort <- current_cohorts[

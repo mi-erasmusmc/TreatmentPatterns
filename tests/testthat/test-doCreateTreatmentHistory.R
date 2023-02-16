@@ -34,6 +34,68 @@ test_that("event cohorts", {
   expect_equal(nrow(event_cohorts[!(event_cohorts$event_cohort_id %in% eventCohortIds)]), 0)
 })
 
+test_that("non-dataframe current_cohorts", {
+  current_cohorts = c(1, 2)
+  expect_error(TreatmentPatterns:::doCreateTreatmentHistory(
+    current_cohorts = current_cohorts,
+    targetCohortId = targetCohortId,
+    eventCohortIds = eventCohortIds,
+    periodPriorToIndex = periodPriorToIndex,
+    includeTreatments = includeTreatments))
+})
+
+test_that("wrong column names dataframe current_cohorts", {
+  write.csv(current_cohorts, "D:/Temp/R/current_cohorts.csv", row.names = FALSE)
+  current_cohorts %>% rename("cohort" = "cohort_id", "person" = "person_id", "startDate" = "start_date","endDate" = "end_date")
+  write.csv(current_cohorts, "D:/Temp/R/current_cohorts2.csv", row.names = FALSE)
+  expect_error(TreatmentPatterns:::doCreateTreatmentHistory(
+    current_cohorts = current_cohorts,
+    targetCohortId = targetCohortId,
+    eventCohortIds = eventCohortIds,
+    periodPriorToIndex = periodPriorToIndex,
+    includeTreatments = includeTreatments))
+})
+
+test_that("non-character targetCohortId", {
+  targetCohortId = 7
+  expect_error(TreatmentPatterns:::doCreateTreatmentHistory(
+    current_cohorts = current_cohorts,
+    targetCohortId = targetCohortId,
+    eventCohortIds = eventCohortIds,
+    periodPriorToIndex = periodPriorToIndex,
+    includeTreatments = includeTreatments))
+})
+
+test_that("multiple target cohorts", {
+  targetCohortId = c("6", "7")
+  expect_error(TreatmentPatterns:::doCreateTreatmentHistory(
+    current_cohorts = current_cohorts,
+    targetCohortId = targetCohortId,
+    eventCohortIds = eventCohortIds,
+    periodPriorToIndex = periodPriorToIndex,
+    includeTreatments = includeTreatments))
+})
+
+test_that("non-character eventCohortIds", {
+  eventCohortIds = c(1, 2, 3, 4, 5, 6)
+  expect_error(TreatmentPatterns:::doCreateTreatmentHistory(
+    current_cohorts = current_cohorts,
+    targetCohortId = targetCohortId,
+    eventCohortIds = eventCohortIds,
+    periodPriorToIndex = periodPriorToIndex,
+    includeTreatments = includeTreatments))
+})
+
+test_that("non-integer periodPriorToIndex", {
+  periodPriorToIndex = "A"
+  expect_error(TreatmentPatterns:::doCreateTreatmentHistory(
+    current_cohorts = current_cohorts,
+    targetCohortId = targetCohortId,
+    eventCohortIds = eventCohortIds,
+    periodPriorToIndex = periodPriorToIndex,
+    includeTreatments = includeTreatments))
+})
+
 test_that("includeTreatments startDate", {
   event_cohorts = TreatmentPatterns:::doCreateTreatmentHistory(
     current_cohorts = current_cohorts,
@@ -80,7 +142,7 @@ test_that("periodPriorToIndex", {
     periodPriorToIndex = periodPriorToIndex,
     includeTreatments = includeTreatments)
   extended_event_cohorts = inner_join(
-    event_cohorts, 
+    event_cohorts,
     current_cohorts[current_cohorts$cohort_id == targetCohortId],
     by=c('person_id'))
   expect_equal(nrow(event_cohorts[(extended_event_cohorts$event_start_date - extended_event_cohorts$event_start_date) > periodPriorToIndex]), 0)

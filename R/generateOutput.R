@@ -1067,11 +1067,10 @@ inputSunburstPlot <- function(
 #' @param outcomes character vector containing all event cohorts
 #' @param folder output folder
 #' @param fileName output file name
-#' @return JSON
 #' 
 #' @import stringr
 #' 
-#' @returns the transformed csv as a json string
+#' @return the transformed csv as a json string
 #'
 #' @examples
 #' \dontrun{
@@ -1135,7 +1134,8 @@ transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
       return(p)
     })
 
-  transformed_json <- buildHierarchy(cbind(oath = updated_path, freq = data$freq))
+  transformed_json <- buildHierarchy(cbind(oath = updated_path, 
+                                           freq = data$freq))
 
   result <- paste0(
     "{ \"data\" : ", transformed_json, ", \"lookup\" : ", lookup, "}")

@@ -109,16 +109,16 @@ addPathwaySettingsCheck <- function(
     addNoPaths) {
 
   # studyName
-  checkmate::assertCharacter(x = studyName, 
+  checkmate::assertCharacter(x = studyName,
                              len = 1,
                              null.ok = FALSE)
 
   # targetCohortId
-  checkmate::assertNumeric(x = targetCohortId, 
+  checkmate::assertNumeric(x = targetCohortId,
                            min.len = 1,
                            unique = TRUE,
                            null.ok = FALSE)
-  
+
   # eventCohortIds
   checkmate::assertNumeric(x = eventCohortIds,
                            min.len = 1,
@@ -126,7 +126,7 @@ addPathwaySettingsCheck <- function(
                            null.ok = FALSE)
 
   # includeTreatments
-  checkmate::assertCharacter(x = includeTreatments, 
+  checkmate::assertCharacter(x = includeTreatments,
                              len = 1)
   checkmate::assertSubset(x = includeTreatments,
                           choices = c("startDate", "endDate"))

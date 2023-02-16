@@ -18,11 +18,17 @@ test_that("void", {
 })
 
 test_that("minimal", {
+  outFolder   <- "output"
+  outFileName <- "stuff.json"
   jsonResult <- TreatmentPatterns:::transformCSVtoJSON(data = data,
                                                        outcomes = c("3"),
-                                                       folder = "output",
-                                                       fileName = "stuff.json")
+                                                       folder = outFolder,
+                                                       fileName = outFileName)
   expect_equal(class(jsonResult), "character")
+  fullFilePath <- file.path(outFolder, paste0(outFileName, "_input.txt"))
+  expect_true(file.exists(fullFilePath))
+  unlink(fullFilePath)
+  
   result <- jsonlite::fromJSON(jsonResult)
   expect_equal(class(result), "list")
   expect_equal(names(result), c("data", "lookup"))

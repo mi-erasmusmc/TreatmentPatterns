@@ -1064,23 +1064,29 @@ inputSunburstPlot <- function(
 #' HTML.
 #'
 #' @param data input data.frame
-#' @param outcomes Outcomes
+#' @param outcomes character vector containing all event cohorts
 #' @param folder output folder
-#' @param file_name output file name
+#' @param fileName output file name
 #' @return JSON
 #' 
 #' @import stringr
 #' 
-#' @returns result
+#' @returns the transformed csv as a json string
 #'
 #' @examples
 #' \dontrun{
 #' transformCSVtoJSON(data = data.frame(path = "", freq = 1),
 #'                    outcomes = 1,
 #'                    folder = getwd(),
-#'                    file_name = "result")
+#'                    fileName = "result")
 #' }
-transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
+transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
+  # Assertions
+  checkmate::assertDataFrame(x = data)
+  checkmate::assertCharacter(x = outcomes, null.ok = FALSE)
+  checkmate::assertDirectoryExists(x = folder)
+  checkmate::assertCharacter(x = fileName, len = 1, null.ok = FALSE)
+  
   # Add bitwise numbers to define combination treatments
   bitwiseNumbers <- sapply(
     X = seq_along(outcomes),
@@ -1134,7 +1140,7 @@ transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
   result <- paste0(
     "{ \"data\" : ", transformed_json, ", \"lookup\" : ", lookup, "}")
 
-  file <- file(file.path(folder, paste0(file_name, "_input.txt")))
+  file <- file(file.path(folder, paste0(fileName, "_input.txt")))
   writeLines(result, file)
   close(file)
   return(result)
@@ -1323,7 +1329,7 @@ outputSankeyDiagram <- function(
   links <- as.data.frame(rbind(results1, results2))
   
   # Draw sankey network
-  plot <- gvisSankey(
+  plot <- googleVis::gvisSankey(
     links,
     from = "source",
     to = "target",

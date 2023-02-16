@@ -1329,7 +1329,7 @@ outputSankeyDiagram <- function(
   links <- as.data.frame(rbind(results1, results2))
   
   # Draw sankey network
-  plot <- googleVis::gvisSankey(
+  plot <- gvisSankey(
     links,
     from = "source",
     to = "target",

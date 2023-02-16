@@ -36,6 +36,6 @@ Export a sunburst plot from a data.frame object.
 }
 \examples{
 \dontrun{
-createSunburstPlot(data = data.frame())
+createSunburstPlot(data = data.frame(path = c("1", "2"), freq = c("0.5", "0.5")))
 }
 }

@@ -14,9 +14,7 @@ data <- TreatmentPatterns:::inputSunburstPlot(
   index_year = 'all')
 
 test_that("void", {
-  expect_error(
-    TreatmentPatterns:::transformCSVtoJSON()
-  )
+  expect_error(TreatmentPatterns:::transformCSVtoJSON())
 })
 
 test_that("minimal", {

@@ -7,13 +7,13 @@
 transformCSVtoJSON(data, outcomes, folder, file_name)
 }
 \arguments{
-\item{data}{Data}
+\item{data}{input data.frame}
 
 \item{outcomes}{Outcomes}
 
-\item{folder}{Folder}
+\item{folder}{output folder}
 
-\item{file_name}{File name}
+\item{file_name}{output file name}
 }
 \value{
 JSON
@@ -23,4 +23,12 @@ result
 \description{
 Help function to transform data in csv format to required JSON format for
 HTML.
+}
+\examples{
+\dontrun{
+transformCSVtoJSON(data = data.frame(path = "", freq = 1),
+                   outcomes = 1,
+                   folder = getwd(),
+                   file_name = "result")
+}
 }

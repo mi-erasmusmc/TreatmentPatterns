@@ -26,8 +26,7 @@ test_that("void", {
 })
 
 test_that("minimal", {
-  fileName <- paste0(saveSettings$databaseName, 
-                     "_", "Viral_Sinusitis", "_all")
+  fileName <- paste0(saveSettings$databaseName, "_", "Viral_Sinusitis", "_all")
   outFileName <- file.path(saveSettings$outputFolder, 
                            paste0(fileName, "_sunburstplot.html"))
   TreatmentPatterns::createSunburstPlot(data, outcomes, 
@@ -39,5 +38,17 @@ test_that("minimal", {
 
 test_that("invalid input", {
   expect_error(TreatmentPatterns:::createSunburstPlot(data = NULL))
+  expect_error(TreatmentPatterns:::createSunburstPlot(data = data,
+                                                      outcomes = -1))
+  expect_error(TreatmentPatterns:::createSunburstPlot(data = data,
+                                                      outcomes = outcomes,
+                                                      folder = -1))
+  expect_error(TreatmentPatterns:::createSunburstPlot(data, outcomes, 
+                                                      folder = saveSettings$outputFolder,
+                                                      fileName = -1))
+  expect_error(TreatmentPatterns:::createSunburstPlot(data, outcomes, 
+                                                      folder = saveSettings$outputFolder,
+                                                      fileName = fileName,
+                                                      shiny = mtcars))
 })
 

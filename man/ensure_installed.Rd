@@ -7,9 +7,14 @@
 ensure_installed(pkg)
 }
 \arguments{
-\item{pkg}{Package}
+\item{pkg}{package name}
 }
 \description{
-Borrowed and adapted function from devtools.
+Makes sure the given package is installed. Borrowed and adapted function from devtools.
 https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L74
+}
+\examples{
+\dontrun{
+TreatmentPatterns:::ensure_installed("base")
+}
 }

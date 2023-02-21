@@ -1,23 +1,17 @@
 library(TreatmentPatterns)
 library(testthat)
 
+source(list.files(system.file(
+  package = "TreatmentPatterns",
+  "examples", "SettingObjects"), full.names = TRUE))
+
 test_that("Void", {
-  
-  source(list.files(system.file(
-    package = "TreatmentPatterns",
-    "examples", "SettingObjects"), full.names = TRUE))
-  
   expect_error(
     constructPathways() 
   )
 })
 
 test_that("Minimal", {
-  
-  source(list.files(system.file(
-    package = "TreatmentPatterns",
-    "examples", "SettingObjects"), full.names = TRUE))
-  
   expect_output(
     constructPathways(
     dataSettings = dataSettings,
@@ -27,11 +21,6 @@ test_that("Minimal", {
 })
 
 test_that("Wrong variables", {
-  
-  source(list.files(system.file(
-    package = "TreatmentPatterns",
-    "examples", "SettingObjects"), full.names = TRUE))
-  
   expect_error(
     constructPathways(
       dataSettings = saveSettings,

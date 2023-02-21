@@ -20,7 +20,7 @@ checkDataSettings <- function(
   checkmate::assert(
     checkmate::checkClass(
       connectionDetails,
-      "connectionDetails"),
+      "ConnectionDetails"),
     checkmate::checkCharacter(
       x = connectionDetails$dbms,
       len = 1,

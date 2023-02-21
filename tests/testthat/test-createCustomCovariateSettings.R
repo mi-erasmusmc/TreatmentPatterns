@@ -1,5 +1,6 @@
 library(TreatmentPatterns)
 library(testthat)
+library(CohortDiagnostics)
 
 test_that("void", {
   expect_error(
@@ -10,6 +11,6 @@ test_that("void", {
 test_that("minimal", {
   expect_s3_class(
     TreatmentPatterns:::createCustomCovariateSettings(
-      CohortDiagnostics::getDefaultCovariateSettings()),
+      getDefaultCovariateSettings()),
     "covariateSettings")
 })

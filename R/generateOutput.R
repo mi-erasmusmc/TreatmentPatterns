@@ -824,7 +824,7 @@ outputSunburstPlot <- function(
         data,
         outcomes,
         folder = outputFolder,
-        file_name = file.path(studyName, paste0(
+        fileName = file.path(studyName, paste0(
           databaseName, "_", studyName, "_all")),
         shiny = TRUE)
       
@@ -849,7 +849,7 @@ outputSunburstPlot <- function(
             subset_data,
             outcomes,
             folder = outputFolder,
-            file_name = file.path(
+            fileName = file.path(
               studyName,
               paste0(databaseName, "_", studyName, "_", y)),
             shiny = TRUE)
@@ -870,7 +870,7 @@ outputSunburstPlot <- function(
 
 #' createSunburstPlot
 #' 
-#' Function to create sunburst plot from CSV file.
+#' Export a sunburst plot from a data.frame object.
 #'
 #' @param data
 #'     A data frame containing two columns: 1) column "path" should specify the
@@ -881,7 +881,7 @@ outputSunburstPlot <- function(
 #'     Character vector containing all event cohorts.
 #' @param folder
 #'     Root folder to store the results.
-#' @param file_name
+#' @param fileName
 #'     File name for the results.
 #' @param shiny
 #'     Set to TRUE if HTML file is generated for shiny application, FALSE will
@@ -890,48 +890,61 @@ outputSunburstPlot <- function(
 #'     Optional if shiny = FALSE: add descriptive title in sunburst plot for
 #'     standalone HTML.
 #'
-#' @import ParallelLogger
+#' @importFrom ParallelLogger logWarn
+#' @importFrom utils write.table
+#'
+#' @export
 #' 
 #' @returns NULL
-createSunburstPlot <- function(
-    data,
-    outcomes = NULL,
-    folder = NULL,
-    file_name = NULL,
-    shiny = FALSE,
-    title = "") {
-  # Check inputs
+#' 
+#' @examples
+#' \dontrun{
+#' createSunburstPlot(
+#'   data = data.frame(
+#'     path = c("1", "2"),
+#'     freq = c("0.5", "0.5")))
+#' }
+createSunburstPlot <- function(data, outcomes = NULL, folder = NULL,
+                               fileName = NULL, shiny = FALSE, title = "") {
+  # Assertions
+  checkmate::assertDataFrame(x = data)
+  checkmate::assertCharacter(x = outcomes, null.ok = TRUE)
+  checkmate::assertCharacter(x = folder, null.ok = TRUE)
+  checkmate::assertCharacter(x = fileName, null.ok = TRUE)
+  checkmate::assertLogical(x = shiny, null.ok = FALSE)
+  checkmate::assertCharacter(x = title, null.ok = FALSE)
+  
   if (!("path" %in% colnames(data))) {
     ParallelLogger::logWarn(
       "Column 'path' is missing from input data to create sunburst plot.")
   }
-  
+
   if (!("freq" %in% colnames(data))) {
     ParallelLogger::logWarn(
       "Column 'freq' is missing from input data to create sunburst plot.")
   }
-  
+
   if (is.null(outcomes)) {
     outcomes <-
       unique(unlist(strsplit(
         data$path, split = "-", fixed = TRUE)))
   }
-  
+
   if (is.null(folder)) {
     folder <- getwd()
   }
-  
+
   if (!file.exists(folder)) {
     dir.create(folder, recursive = TRUE)
   }
-  
-  if (is.null(file_name)) {
-    file_name <- "sunburst"
+
+  if (is.null(fileName)) {
+    fileName <- "sunburst"
   }
-  
+
   # Load CSV file and convert to JSON
-  json <- transformCSVtoJSON(data, outcomes, folder, file_name)
-  
+  json <- transformCSVtoJSON(data, outcomes, folder, fileName)
+
   # Load template HTML file
   if (shiny == TRUE) {
     html <- paste(readLines(
@@ -949,18 +962,18 @@ createSunburstPlot <- function(
         "sunburst",
         "sunburst_standalone.html")),
       collapse = "\n")
-    
+  
     # Replace @name
     html <- sub("@name", title, html)
   }
-  
+
   # Replace @insert_data
   html <- sub("@insert_data", json, html)
-  
+
   # Save HTML file
   write.table(
     html,
-    file = file.path(folder, paste0(file_name, "_sunburstplot.html")),
+    file = file.path(folder, paste0(fileName, "_sunburstplot.html")),
     quote = FALSE,
     col.names = FALSE,
     row.names = FALSE

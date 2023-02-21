@@ -1074,10 +1074,13 @@ inputSunburstPlot <- function(
 #'
 #' @examples
 #' \dontrun{
-#' transformCSVtoJSON(data = data.frame(path = "", freq = 1),
-#'                    outcomes = 1,
-#'                    folder = getwd(),
-#'                    fileName = "result")
+#' transformCSVtoJSON(
+#'   data = data.frame(
+#'     path = "",
+#'     freq = 1),
+#'   outcomes = 1,
+#'   folder = getwd(),
+#'   fileName = "result")
 #' }
 transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
   # Assertions

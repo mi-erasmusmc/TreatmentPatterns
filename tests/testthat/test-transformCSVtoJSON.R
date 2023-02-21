@@ -20,13 +20,19 @@ test_that("void", {
 test_that("minimal", {
   outFolder   <- "output"
   outFileName <- "stuff.json"
-  jsonResult <- TreatmentPatterns:::transformCSVtoJSON(data = data,
-                                                       outcomes = c("3"),
-                                                       folder = outFolder,
-                                                       fileName = outFileName)
+  
+  jsonResult <- TreatmentPatterns:::transformCSVtoJSON(
+    data = data,
+    outcomes = c("3"),
+    folder = outFolder,
+    fileName = outFileName)
+  
   expect_equal(class(jsonResult), "character")
+  
   fullFilePath <- file.path(outFolder, paste0(outFileName, "_input.txt"))
+  
   expect_true(file.exists(fullFilePath))
+  
   unlink(fullFilePath)
   
   result <- jsonlite::fromJSON(jsonResult)
@@ -35,23 +41,35 @@ test_that("minimal", {
 })
 
 test_that("invalid input", {
-  expect_error(TreatmentPatterns:::transformCSVtoJSON(data = NULL,
-                                                      outcomes = c("3"),
-                                                      folder = "output",
-                                                      file_name = "stuff.json"))
+  expect_error(
+    TreatmentPatterns:::transformCSVtoJSON(
+      data = NULL,
+      outcomes = c("3"),
+      folder = "output",
+      file_name = "stuff.json")
+    )
   
-  expect_error(TreatmentPatterns:::transformCSVtoJSON(data = data,
-                                                      outcomes = "Test",
-                                                      folder = "output",
-                                                      file_name = "stuff.json"))
+  expect_error(
+    TreatmentPatterns:::transformCSVtoJSON(
+      data = data,
+      outcomes = "Test",
+      folder = "output",
+      file_name = "stuff.json")
+    )
   
-  expect_error(TreatmentPatterns:::transformCSVtoJSON(data = data,
-                                                      outcomes = c("3"),
-                                                      folder = -1,
-                                                      file_name = "stuff.json"))
+  expect_error(
+    TreatmentPatterns:::transformCSVtoJSON(
+      data = data,
+      outcomes = c("3"),
+      folder = -1,
+      file_name = "stuff.json")
+    )
   
-  expect_error(TreatmentPatterns:::transformCSVtoJSON(data = NULL,
-                                                      outcomes = c("3"),
-                                                      folder = "output",
-                                                      file_name = NULL))
+  expect_error(
+    TreatmentPatterns:::transformCSVtoJSON(
+      data = NULL,
+      outcomes = c("3"),
+      folder = "output",
+      file_name = NULL)
+    )
 })

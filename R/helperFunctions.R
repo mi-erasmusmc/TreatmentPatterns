@@ -86,20 +86,26 @@ extractFile <- function(connection, tableName, resultsSchema, dbms) {
 #' 
 #' Recursive function to remove name from all levels of list.
 #' 
-#' @param x
-#'     List
-#' @param name
-#'     Name
+#' @param x input list
+#' @param name the name of the list item from which the names will be removed
 #'
-#' @return
-#'     List with removed names
+#' @return list with removed names
+#' 
+#' @examples
+#' \dontrun{
+#' TreatmentPatterns:::stripname("base")
+#' }
 stripname <- function(x, name) {
+  # Assertions
+  checkmate::assertTRUE(!is.null(x))
+  checkmate::assertCharacter(x = name, len = 1, null.ok = FALSE)
+  
   thisdepth <- depth(x)
   if (thisdepth == 0) {
     return(x)
-  } else if (length(nameIndex <- which(names(x) == name))) {
-    temp <- names(x)[names(x) == name]
-    x[[temp]] <- unname(x[[temp]])
+  } else if (length(nameIndex <- which(names(x) == name)) > 0) {
+    element <- names(x)[nameIndex]
+    x[[element]] <- unname(x[[element]])
   }
   return(lapply(x, stripname, name))
 }
@@ -109,17 +115,25 @@ stripname <- function(x, name) {
 #'
 #' Function to find depth of a list element.
 #'
-#' @param this
-#'     List
-#' @param thisdepth
-#'     Depth
+#' @param x input list (element)
+#' @param thisdepth current list depth
 #'
-depth <- function(this, thisdepth = 0) {
-  if (!is.list(this)) {
+#' @return the depth of the list element
+#' 
+#' @examples
+#' \dontrun{
+#' TreatmentPatterns:::depth(list("a"))
+#' }
+depth <- function(x, thisdepth = 0) {
+  # Assertions
+  checkmate::assertTRUE(!is.null(x))
+  checkmate::assertNumeric(x = thisdepth, len = 1, lower = 0, null.ok = FALSE)
+  
+  if (!is.list(x)) {
     return(thisdepth)
   } else {
     return(max(unlist(
-      lapply(this, depth, thisdepth = thisdepth + 1)
+      lapply(x, depth, thisdepth = thisdepth + 1)
     )))
   }
 }

@@ -1,6 +1,7 @@
 library(TreatmentPatterns)
 library(testthat)
 library(DatabaseConnector)
+library(CohortDiagnostics)
 
 source(list.files(system.file(
   package = "TreatmentPatterns",
@@ -24,6 +25,6 @@ test_that("minimal", {
       cohortTable = "cohort_table",
       cohortIds = c(1,2,3),
       cdmVersion = 5,
-      covariateSettings = CohortDiagnostics::getDefaultCovariateSettings(),
+      covariateSettings = getDefaultCovariateSettings(),
       batchSize = 100), "Cohort characterization took .+ secs")
 })

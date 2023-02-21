@@ -1,6 +1,6 @@
 #' addPathwaySettingsCheck
-#' 
-#' Helper functions that checks the input for addPathwaySettings.
+#'
+#' Asserts that parameters fall within specified bounds.
 #'
 #' @param studyName
 #'     Name identifying the set of study parameters.
@@ -68,6 +68,28 @@
 #' @import checkmate
 #'
 #' @return TRUE if all assertions pass
+#'
+#' @examples
+#' \dontrun{
+#' TreatmentPatterns:::addPathwaySettingsCheck(
+#'   studyName = "myCoolStudy",
+#'   targetCohortId = 1,
+#'   eventCohortIds = c(1, 2, 3),
+#'   includeTreatments = "startDate",
+#'   periodPriorToIndex = 0,
+#'   minEraDuration = 0,
+#'   splitEventCohorts = "",
+#'   splitTime = 30,
+#'   eraCollapseSize = 30,
+#'   combinationWindow = 30,
+#'   minPostCombinationDuration = 30,
+#'   filterTreatments = "First",
+#'   maxPathLength = 5,
+#'   minCellCount = 5,
+#'   minCellMethod = "Remove",
+#'   groupCombinations = 10,
+#'   addNoPaths = FALSE)
+#'}
 addPathwaySettingsCheck <- function(
     studyName,
     targetCohortId,
@@ -86,168 +108,113 @@ addPathwaySettingsCheck <- function(
     minCellMethod,
     groupCombinations,
     addNoPaths) {
+
   # studyName
-  checkmate::assert(checkmate::checkCharacter(
-    x = studyName,
-    len = 1))
+  checkmate::assertCharacter(x = studyName,
+                             len = 1,
+                             null.ok = FALSE)
 
   # targetCohortId
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = targetCohortId,
-      min.len = 1,
-      unique = TRUE,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = targetCohortId,
+                           min.len = 1,
+                           unique = TRUE,
+                           null.ok = FALSE)
 
   # eventCohortIds
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = eventCohortIds,
-      min.len = 1,
-      unique = TRUE,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = eventCohortIds,
+                           min.len = 1,
+                           unique = TRUE,
+                           null.ok = FALSE)
 
   # includeTreatments
-  checkmate::assert(
-    checkmate::checkCharacter(
-      x = includeTreatments,
-      len = 1),
-    checkmate::checkSubset(
-      x = includeTreatments,
-      choices = c("startDate", "endDate")),
-    combine = "and"
-  )
+  checkmate::assertCharacter(x = includeTreatments,
+                             len = 1)
+  checkmate::assertSubset(x = includeTreatments,
+                          choices = c("startDate", "endDate"))
 
   # periodPriorToIndex
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = periodPriorToIndex,
-      # lower = 0, # Can it be negative?
-      len = 1,
-      finite = TRUE,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = periodPriorToIndex,
+                           # lower = 0, # Can it be negative?
+                           len = 1,
+                           finite = TRUE,
+                           null.ok = FALSE)
 
   # minEraDuration
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = minEraDuration,
-      lower = 0,
-      finite = TRUE,
-      len = 1,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = minEraDuration,
+                           lower = 0,
+                           finite = TRUE,
+                           len = 1,
+                           null.ok = FALSE)
 
   # splitEventCohorts
-  checkmate::assert(checkmate::checkCharacter(
-    x = splitEventCohorts,
-    len = 1))
+  checkmate::assertCharacter(x = splitEventCohorts,
+                             len = 1)
 
   # splitTime
-  checkmate::assert(checkmate::checkNumeric(
-    x = splitTime,
-    lower = 0,
-    finite = TRUE,
-    len = 1,
-    null.ok = FALSE
-  ))
+  checkmate::assertNumeric(x = splitTime,
+                           lower = 0,
+                           finite = TRUE,
+                           len = 1,
+                           null.ok = FALSE)
 
   # eraCollapseSize
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = eraCollapseSize,
-      lower = 0,
-      finite = TRUE,
-      len = 1,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = eraCollapseSize,
+                           lower = 0,
+                           finite = TRUE,
+                           len = 1,
+                           null.ok = FALSE)
 
   # combinationWindow
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = combinationWindow,
-      lower = 0,
-      finite = TRUE,
-      len = 1,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = combinationWindow,
+                           lower = 0,
+                           finite = TRUE,
+                           len = 1,
+                           null.ok = FALSE)
 
   # minPostCombinationDuration
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = minPostCombinationDuration,
-      lower = 0,
-      finite = TRUE,
-      len = 1,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = minPostCombinationDuration,
+                           lower = 0,
+                           finite = TRUE,
+                           len = 1,
+                           null.ok = FALSE)
 
   # filterTreatments
-  checkmate::assert(
-    checkmate::checkCharacter(
-      x = filterTreatments,
-      len = 1),
-    checkmate::checkSubset(
-      x = filterTreatments,
-      choices = c("First", "Changes", "All")),
-    combine = "and"
-  )
+  checkmate::assertCharacter(x = filterTreatments,
+                             len = 1)
+  checkmate::assertSubset(x = filterTreatments,
+                          choices = c("First", "Changes", "All"))
 
   # maxPathLength
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = maxPathLength,
-      lower = 0,
-      upper = 5,
-      finite = TRUE,
-      len = 1,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = maxPathLength,
+                           lower = 0,
+                           upper = 5,
+                           finite = TRUE,
+                           len = 1,
+                           null.ok = FALSE)
 
   # minCellCount
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = minCellCount,
-      lower = 0,
-      finite = TRUE,
-      len = 1,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = minCellCount,
+                           lower = 0,
+                           finite = TRUE,
+                           len = 1,
+                           null.ok = FALSE)
 
   # minCellMethod
   # Not used in ConstructPathways.R
-  checkmate::assert(checkmate::checkCharacter(
-    x = minCellMethod,
-    len = 1))
+  checkmate::assertCharacter(x = minCellMethod,
+                             len = 1)
 
   # groupCombinations
-  checkmate::assert(
-    checkmate::checkNumeric(
-      x = groupCombinations,
-      lower = 0,
-      finite = TRUE,
-      len = 1,
-      null.ok = FALSE
-    )
-  )
+  checkmate::assertNumeric(x = groupCombinations,
+                           lower = 0,
+                           finite = TRUE,
+                           len = 1,
+                           null.ok = FALSE)
 
   # addNoPaths
-  checkmate::assert(checkmate::checkLogical(
-    x = addNoPaths,
-    any.missing = FALSE,
-    len = 1
-  ))
+  checkmate::assertLogical(x = addNoPaths,
+                           any.missing = FALSE,
+                           len = 1)
 
   return(TRUE)
 }

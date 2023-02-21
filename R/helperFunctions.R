@@ -109,17 +109,25 @@ stripname <- function(x, name) {
 #'
 #' Function to find depth of a list element.
 #'
-#' @param this
-#'     List
-#' @param thisdepth
-#'     Depth
+#' @param x input list (element)
+#' @param thisdepth current list depth
 #'
-depth <- function(this, thisdepth = 0) {
-  if (!is.list(this)) {
+#' @return the depth of the list element
+#' 
+#' @examples
+#' \dontrun{
+#' TreatmentPatterns:::depth(list("a"))
+#' }
+depth <- function(x, thisdepth = 0) {
+  # Assertions
+  checkmate::assertTRUE(!is.null(x))
+  checkmate::assertNumeric(x = thisdepth, len = 1, lower = 0, null.ok = FALSE)
+  
+  if (!is.list(x)) {
     return(thisdepth)
   } else {
     return(max(unlist(
-      lapply(this, depth, thisdepth = thisdepth + 1)
+      lapply(x, depth, thisdepth = thisdepth + 1)
     )))
   }
 }

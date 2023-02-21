@@ -899,7 +899,10 @@ outputSunburstPlot <- function(
 #' 
 #' @examples
 #' \dontrun{
-#' createSunburstPlot(data = data.frame(path = c("1", "2"), freq = c("0.5", "0.5")))
+#' createSunburstPlot(
+#'   data = data.frame(
+#'     path = c("1", "2"),
+#'     freq = c("0.5", "0.5")))
 #' }
 createSunburstPlot <- function(data, outcomes = NULL, folder = NULL,
                                fileName = NULL, shiny = FALSE, title = "") {

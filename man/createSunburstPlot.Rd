@@ -8,7 +8,7 @@ createSunburstPlot(
   data,
   outcomes = NULL,
   folder = NULL,
-  file_name = NULL,
+  fileName = NULL,
   shiny = FALSE,
   title = ""
 )
@@ -23,7 +23,7 @@ occurs.}
 
 \item{folder}{Root folder to store the results.}
 
-\item{file_name}{File name for the results.}
+\item{fileName}{File name for the results.}
 
 \item{shiny}{Set to TRUE if HTML file is generated for shiny application, FALSE will
 generate a standalone HTML with title and legend.}
@@ -32,5 +32,10 @@ generate a standalone HTML with title and legend.}
 standalone HTML.}
 }
 \description{
-Function to create sunburst plot from CSV file.
+Export a sunburst plot from a data.frame object.
+}
+\examples{
+\dontrun{
+createSunburstPlot(data = data.frame(path = c("1", "2"), freq = c("0.5", "0.5")))
+}
 }

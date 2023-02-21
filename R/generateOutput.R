@@ -898,11 +898,9 @@ preprocessSunburstData <- function(
         data,
         outcomes,
         folder = outputFolder,
-        file_name = file.path(studyName, paste0(
-          databaseName, "_", studyName, "_all"
-        )),
-        shiny = TRUE
-      )
+        fileName = file.path(studyName, paste0(
+          databaseName, "_", studyName, "_all")),
+        shiny = TRUE)
 
       # Create legend once
       createLegend(studyName, outputFolder, databaseName)
@@ -926,7 +924,7 @@ preprocessSunburstData <- function(
             subset_data,
             outcomes,
             folder = outputFolder,
-            file_name = file.path(
+            fileName = file.path(
               studyName,
               paste0(databaseName, "_", studyName, "_", y)
             ),
@@ -950,8 +948,8 @@ preprocessSunburstData <- function(
 
 
 #' createSunburstPlot
-#'
-#' Function to create sunburst plot from CSV file.
+#' 
+#' Export a sunburst plot from a data.frame object.
 #'
 #' @param data
 #'     A data frame containing two columns: 1) column "path" should specify the
@@ -962,7 +960,7 @@ preprocessSunburstData <- function(
 #'     Character vector containing all event cohorts.
 #' @param folder
 #'     Root folder to store the results.
-#' @param file_name
+#' @param fileName
 #'     File name for the results.
 #' @param shiny
 #'     Set to TRUE if HTML file is generated for shiny application, FALSE will
@@ -971,17 +969,30 @@ preprocessSunburstData <- function(
 #'     Optional if shiny = FALSE: add descriptive title in sunburst plot for
 #'     standalone HTML.
 #'
-#' @import ParallelLogger
+#' @importFrom ParallelLogger logWarn
+#' @importFrom utils write.table
+#'
+#' @export
 #'
 #' @returns NULL
-createSunburstPlot <- function(
-    data,
-    outcomes = NULL,
-    folder = NULL,
-    file_name = NULL,
-    shiny = FALSE,
-    title = "") {
-  # Check inputs
+#' 
+#' @examples
+#' \dontrun{
+#' createSunburstPlot(
+#'   data = data.frame(
+#'     path = c("1", "2"),
+#'     freq = c("0.5", "0.5")))
+#' }
+createSunburstPlot <- function(data, outcomes = NULL, folder = NULL,
+                               fileName = NULL, shiny = FALSE, title = "") {
+  # Assertions
+  checkmate::assertDataFrame(x = data)
+  checkmate::assertCharacter(x = outcomes, null.ok = TRUE)
+  checkmate::assertCharacter(x = folder, null.ok = TRUE)
+  checkmate::assertCharacter(x = fileName, null.ok = TRUE)
+  checkmate::assertLogical(x = shiny, null.ok = FALSE)
+  checkmate::assertCharacter(x = title, null.ok = FALSE)
+  
   if (!("path" %in% colnames(data))) {
     ParallelLogger::logWarn(
       "Column 'path' is missing from input data to create sunburst plot."
@@ -1010,12 +1021,12 @@ createSunburstPlot <- function(
     dir.create(folder, recursive = TRUE)
   }
 
-  if (is.null(file_name)) {
-    file_name <- "sunburst"
+  if (is.null(fileName)) {
+    fileName <- "sunburst"
   }
 
   # Load CSV file and convert to JSON
-  json <- transformCSVtoJSON(data, outcomes, folder, file_name)
+  json <- transformCSVtoJSON(data, outcomes, folder, fileName)
 
   # Load template HTML file
   if (shiny == TRUE) {
@@ -1031,18 +1042,13 @@ createSunburstPlot <- function(
       collapse = "\n"
     )
   } else {
-    html <- paste(
-      readLines(
-        file.path(
-          system.file(package = "TreatmentPatterns"),
-          "shiny",
-          "sunburst",
-          "sunburst_standalone.html"
-        )
-      ),
-      collapse = "\n"
-    )
-
+    html <- paste(readLines(
+      file.path(
+        system.file(package = "TreatmentPatterns"),
+        "shiny",
+        "sunburst",
+        "sunburst_standalone.html")),
+      collapse = "\n")
     # Replace @name
     html <- sub("@name", title, html)
   }
@@ -1053,7 +1059,7 @@ createSunburstPlot <- function(
   # Save HTML file
   write.table(
     html,
-    file = file.path(folder, paste0(file_name, "_sunburstplot.html")),
+    file = file.path(folder, paste0(fileName, "_sunburstplot.html")),
     quote = FALSE,
     col.names = FALSE,
     row.names = FALSE
@@ -1168,48 +1174,55 @@ inputSunburstPlot <- function(
 #' Help function to transform data in csv format to required JSON format for
 #' HTML.
 #'
-#' @param data
-#'     Data
-#' @param outcomes
-#'     Outcomes
-#' @param folder
-#'     Folder
-#' @param file_name
-#'     File name
-#' @return JSON
-#'
+#' @param data input data.frame
+#' @param outcomes character vector containing all event cohorts
+#' @param folder output folder
+#' @param fileName output file name
+#' 
 #' @import stringr
+#' 
+#' @return the transformed csv as a json string
 #'
-#' @returns result
-transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
+#' @examples
+#' \dontrun{
+#' transformCSVtoJSON(
+#'   data = data.frame(
+#'     path = "",
+#'     freq = 1),
+#'   outcomes = 1,
+#'   folder = getwd(),
+#'   fileName = "result")
+#' }
+transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
+  # Assertions
+  checkmate::assertDataFrame(x = data)
+  checkmate::assertCharacter(x = outcomes, null.ok = FALSE)
+  checkmate::assertDirectoryExists(x = folder)
+  checkmate::assertCharacter(x = fileName, len = 1, null.ok = FALSE)
   # Add bitwise numbers to define combination treatments
   bitwiseNumbers <- sapply(
-    X = 1:length(outcomes),
+    X = seq_along(outcomes),
     FUN = function(o) {
-      2^(o - 1)
-    }
-  )
+      2 ^ (o - 1)
+    })
 
   linking <- data.frame(outcomes, bitwiseNumbers)
 
   # Generate lookup file
   series <- sapply(
-    X = 1:nrow(linking),
+    X = seq_len(nrow(linking)),
     FUN = function(row) {
       paste0(
         '{ "key": "', linking$bitwiseNumbers[row],
-        '", "value": "', linking$outcomes[row], '"}'
-      )
-    }
-  )
+        '", "value": "', linking$outcomes[row], '"}')
+    })
 
   series <- c(series, '{ "key": "End", "value": "End"}')
   lookup <- paste0("[", paste(series, collapse = ","), "]")
 
   # Order names from longest to shortest to adjust in the right order
   linking <- linking[
-    order(-sapply(linking$outcomes, function(x) stringr::str_length(x))),
-  ]
+    order(-sapply(linking$outcomes, function(x) stringr::str_length(x))), ]
 
   # Apply linking
   # Change all outcomes to bitwise number
@@ -1219,36 +1232,32 @@ transformCSVtoJSON <- function(data, outcomes, folder, file_name) {
       stringr::str_replace_all(
         string = p,
         replacement = as.character(linking$bitwiseNumbers),
-        pattern = as.character(linking$outcomes)
-      )
-    }
-  )
+        pattern = as.character(linking$outcomes))
+    })
 
   # Sum the bitwise numbers of combinations (indicated by +)
+  digitsPlusRegex <- "[[:digit:]]+[+][[:digit:]]+"
   updated_path <- sapply(
     X = updated_path,
     FUN = function(p) {
-      while (!is.na(stringr::str_extract(p, "[[:digit:]]+[+][[:digit:]]+"))) {
-        pattern <- stringr::str_extract(p, "[[:digit:]]+[+][[:digit:]]+")
-        p <- sub("[[:digit:]]+[+][[:digit:]]+", eval(parse(text = pattern)), p)
+      while (!is.na(stringr::str_extract(p, digitsPlusRegex))) {
+        pattern <- stringr::str_extract(p, digitsPlusRegex)
+        p <- sub(digitsPlusRegex, eval(parse(text = pattern)), p)
       }
       return(p)
-    }
-  )
+    })
 
-  transformed_csv <- cbind(oath = updated_path, freq = data$freq)
-  transformed_json <- buildHierarchy(transformed_csv)
+  transformed_json <- buildHierarchy(cbind(oath = updated_path, 
+                                           freq = data$freq))
 
   result <- paste0(
-    "{ \"data\" : ", transformed_json, ", \"lookup\" : ", lookup, "}"
-  )
+    "{ \"data\" : ", transformed_json, ", \"lookup\" : ", lookup, "}")
 
-  file <- file(file.path(folder, paste0(file_name, "_input.txt")))
+  file <- file(file.path(folder, paste0(fileName, "_input.txt")))
   writeLines(result, file)
   close(file)
   return(result)
 }
-
 
 #' buildHierarchy
 #'

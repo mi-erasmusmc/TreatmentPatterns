@@ -7,8 +7,33 @@ test_that("Void", {
 })
 
 test_that("Blind parameters", {
-  expect_type(addPathwaySettings(targetCohortId = 1, eventCohortIds = 2),
-              "list")
+  result <- addPathwaySettings(targetCohortId = 1, eventCohortIds = 2)
+  
+  expect_type(result, "list")
+  expect_equal(class(result), "data.frame")
+  expect_equal(nrow(result), 1)
+  expect_equal(ncol(result), 17)
+  expect_equal(colnames(result), c("studyName", "targetCohortId", "eventCohortIds", "includeTreatments", "periodPriorToIndex",
+                                   "minEraDuration", "splitEventCohorts", "splitTime", "eraCollapseSize", "combinationWindow",
+                                   "minPostCombinationDuration", "filterTreatments", "maxPathLength", "minCellCount", "minCellMethod",
+                                   "groupCombinations", "addNoPaths"))
+  expect_equal(result$studyName, "name_unknown")
+  expect_equal(result$targetCohortId, 1)
+  expect_equal(result$eventCohortIds, "2")
+  expect_equal(result$includeTreatments, "startDate")
+  expect_equal(result$periodPriorToIndex, 0)
+  expect_equal(result$minEraDuration, 0)
+  expect_equal(result$splitEventCohorts, "")
+  expect_equal(result$splitTime, 30)
+  expect_equal(result$eraCollapseSize, 30)
+  expect_equal(result$combinationWindow, 30)
+  expect_equal(result$minPostCombinationDuration, 30)
+  expect_equal(result$filterTreatments, "First")
+  expect_equal(result$maxPathLength, 5)
+  expect_equal(result$minCellCount, 5)
+  expect_equal(result$minCellMethod, "Remove")
+  expect_equal(result$groupCombinations, 10)
+  expect_equal(result$addNoPaths, FALSE)
 })
 
 test_that("Blind parameters", {

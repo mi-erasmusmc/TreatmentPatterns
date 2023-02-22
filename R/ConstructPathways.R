@@ -940,17 +940,38 @@ doFilterTreatments <- function(treatment_history, filterTreatments) {
 
 
 #' doMaxPathLength
+#' 
+#' Filters the treatmentHistory data.frame where eventSeq is smaller or equal than maxPathLength
 #'
 #' @param treatment_history
-#'     Dataframe with event cohorts of the target cohort in different rows.
-#'     
+#' Dataframe with event cohorts of the target cohort in different rows.
 #' @param maxPathLength
-#'     Maximum number of steps included in treatment pathway.
+#' Maximum number of steps included in treatment pathway.
 #'
+#' @import checkmate
+#' @import ParallelLogger
+#' 
 #' @return treatment_history
-#'     Updated dataframe, where the desired event cohorts are maintained for
-#'     the visualizations.
+#' Updated dataframe, where the desired event cohorts all have a seq value of <= 
+#' maxPathLength
+#' @examples
+#' \dontrun{
+#' th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+#'                                targetCohortId = targetCohortId,
+#'                                eventCohortIds = eventCohortIds,
+#'                                periodPriorToIndex = periodPriorToIndex,
+#'                                includeTreatments = includeTreatments)
+#' doMaxPathLength(treatment_history = th, maxPathLength = 1)
 doMaxPathLength <- function(treatment_history, maxPathLength) {
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::assertNumeric(
+    x = maxPathLength,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE
+  )
   
   # Apply maxPathLength
   treatment_history <- treatment_history[event_seq <= maxPathLength, ]

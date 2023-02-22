@@ -13,7 +13,7 @@
 #' @examples
 #' loadPathwaySettings(file.path(system.file(
 #'   package = "TreatmentPatterns"),
-#'  "examples", "OMOP CDM", "inst", "settings", "pathway_settings.csv"))
+#'  "examples", "CDM", "settings", "pathway_settings.csv"))
 loadPathwaySettings <- function(filePath) {
   # Read File
   pathwaySettings <- read.csv(file = filePath)

@@ -3,7 +3,7 @@ library(testthat)
 
 source(system.file(
   package = "TreatmentPatterns",
-  "examples", "SettingsObjects", "createDummySettings.R"))
+  "examples", "SettingObjects", "createDummySettings.R"))
 
 source(system.file(
   package = "TreatmentPatterns",

@@ -51,10 +51,24 @@ checkSaveSettings <- function(
 #'     Name of local folder to place all package output (outputFolder,
 #'     tempFolder if not given).
 #'
+#' @param outputFolder
+#'     Name of local folder to place package output.
+#'
+#' @param tempFolder
+#'     Name of local temporal folder.
+#'
 #' @return
 #'     Object saveSettings.
 #'
 #' @export
+#'
+#' @example
+#'
+#' createSaveSettings(
+#'    rootFolder = "./",
+#'    databaseName = "Eunomia",
+#'    outputFolder = "./inst",
+#'    tempFolder = "./inst")
 createSaveSettings <- function(
     databaseName = "unknown_name",
     rootFolder,
@@ -90,5 +104,4 @@ createSaveSettings <- function(
     return(saveSettings)
 
   }
-
 }

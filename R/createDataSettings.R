@@ -1,7 +1,7 @@
 #' checkDataSettings
-#' 
+#'
 #' Check createDataSettings parameters.
-#' 
+#'
 #' @param connectionDetails connectionDetails object.
 #' @param cdmDatabaseSchema Schema name of CDM.
 #' @param resultSchema Schema name of results.
@@ -15,7 +15,7 @@ checkDataSettings <- function(
     cdmDatabaseSchema,
     resultSchema,
     cohortTable) {
-  
+
   # Check connectionDetails
   checkmate::assert(
     checkmate::checkClass(
@@ -27,7 +27,7 @@ checkDataSettings <- function(
       null.ok = FALSE),
     combine = "and"
   )
-  
+
   # check cdmDatabaseSchema
   checkmate::assert(
     checkmate::checkCharacter(
@@ -35,7 +35,7 @@ checkDataSettings <- function(
       null.ok = FALSE,
       len = 1)
   )
-  
+
   # check resultSchema
   checkmate::assert(
     checkmate::checkCharacter(
@@ -43,7 +43,7 @@ checkDataSettings <- function(
       null.ok = FALSE,
       len = 1)
   )
-  
+
   # cohortTable
   checkmate::assert(
     checkmate::checkCharacter(
@@ -55,31 +55,31 @@ checkDataSettings <- function(
 }
 
 #' createDataSettings
-#' 
+#'
 #' Create a dataSettings object containing information about how to connect to
-#' a database. 
-#' 
+#' a database.
+#'
 #' @param connectionDetails
 #'     Only for omopCDM TRUE: An object of type connectionDetails as created
 #'     using the createConnectionDetails function in the DatabaseConnector
 #'     package.
-#' 
+#'
 #' @param cdmDatabaseSchema
 #'     Only for omopCDM TRUE: Schema name where your patient-level data
 #'     resides. Note that for SQL Server, this should include both the database
 #'     and schema name, for example 'cdm_data.dbo'.
-#'     
+#'
 #' @param cohortDatabaseSchema
 #'     Only for omopCDM TRUE: Schema name where intermediate data can be
 #'     stored. You will need to have write priviliges in this schema. Note that
 #'     for SQL Server, this should include both the database and schema name,
 #'     for example cdm_results.dbo'.
-#'     
+#'
 #' @param cohortTable
 #'     Only for omopCDM TRUE: The name of the table that will be created in
 #'     the cohortDatabaseSchema. This table will hold the target and event
 #'     cohorts used in this study.
-#'     
+#'
 #' @return
 #'     Object dataSettings.
 #' @export
@@ -88,22 +88,22 @@ createDataSettings <- function(
     cdmDatabaseSchema,
     resultSchema,
     cohortTable = "treatmentpatterns_cohorts") {
-  
+
   check <- checkDataSettings(
     connectionDetails,
     cdmDatabaseSchema,
     resultSchema,
     cohortTable)
-  
+
   if (check) {
     dataSettings <- list(
       connectionDetails = connectionDetails,
       cdmDatabaseSchema = cdmDatabaseSchema,
       resultSchema = resultSchema,
       cohortTable = cohortTable)
-    
-    class(dataSettings) <- 'dataSettings'
-    
+
+    class(dataSettings) <- "dataSettings"
+
     return(dataSettings)
   }
 }

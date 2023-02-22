@@ -21,7 +21,7 @@ test_that("Minimal", {
 test_that("connectionDetails", {
   testthat::expect_error(
     checkDataSettings(connectionDetails = "getEunomiaConnectionDetails()"),
-    c("Must inherit from class 'connectionDetails'")
+    c("Must inherit from class 'ConnectionDetails'")
   )
 })
 

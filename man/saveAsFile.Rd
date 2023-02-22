@@ -17,8 +17,11 @@ saveAsFile(fileName, fileNameOut, zoom = 3, vwidth = 430, ...)
 
 \item{...}{Other potential parameters to be passed to webshot2::webshot()}
 }
+\value{
+Invisibly returns the normalized path to all screenshots taken. The character vector will have a class of '"webshot"'.
+}
 \description{
-saveAsFile
+Save an SVG-image from a html-file as a PNG, - or PDF-file.
 }
 \examples{
 \dontrun{

@@ -27,6 +27,7 @@ saveAsFile <- function(fileName, fileNameOut, zoom = 3, vwidth = 430, ...) {
   webshot2::webshot(
     url = fileName,
     file = fileNameOut,
+    selector = "svg",
     zoom = zoom,
     vwidth = vwidth,
     ...)

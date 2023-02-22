@@ -850,26 +850,43 @@ selectRowsCombinationWindow <- function(treatment_history) {
 
 
 #' doFilterTreatments
+#' 
+#' Updates the treatmentHistory data.frame where the desired event cohorts are maintained for the visualizations
 #'
 #' @param treatment_history
 #'     Dataframe with event cohorts of the target cohort in different rows.
-#'     
 #' @param filterTreatments 
 #'     Select first occurrence of ('First') / changes between ('Changes') / all
 #'     event cohorts ('All').
-#'     
+#'
+#' @import checkmate
+#' @import ParallelLogger     
+#'
 #' @return treatment_history
 #'     Updated dataframe, where the desired event cohorts are maintained for
 #'     the visualizations.
+#' @examples
+#' \dontrun{
+#' th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+#'                                targetCohortId = targetCohortId,
+#'                                eventCohortIds = eventCohortIds,
+#'                                periodPriorToIndex = periodPriorToIndex,
+#'                                includeTreatments = includeTreatments)
+#' doFilterTreatments(treatment_history = th, filterTreatments = "All')
 doFilterTreatments <- function(treatment_history, filterTreatments) {
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::assertChoice(
+    x = filterTreatments,
+    choices = c("First", "Changes", "All"),
+    null.ok = FALSE
+  )
   
   # Order treatment_history by person_id, event_start_date, event_end_date
   treatment_history <- treatment_history[
     order(person_id, event_start_date, event_end_date), ]
   
-  if (filterTreatments == "All") {
-    # Do nothing
-  } else {
+  if (filterTreatments != "All") {
     # Order the combinations
     ParallelLogger::logInfo("Order the combinations.")
     combi <- grep("+", treatment_history$event_cohort_id, fixed = TRUE)

@@ -59,8 +59,8 @@ doSplitEventCohortsTH <- TreatmentPatterns:::doSplitEventCohorts(
   splitTime = splitTime,
   outputFolder = saveSettings$outputFolder)
 
-eraCollapseSize <- settings[
-  settings$param == "eraCollapseSize", "analysis1"]
+eraCollapseSize <- as.numeric(settings[
+  settings$param == "eraCollapseSize", "analysis1"])
 
 doEraCollapseTH <- TreatmentPatterns:::doEraCollapse(
   doSplitEventCohortsTH,

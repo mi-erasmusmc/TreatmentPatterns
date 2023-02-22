@@ -1,6 +1,5 @@
 #' checkSaveSettings
-#'
-#' Checks parameters of createSaveSettings.
+#' Checks parameters for createSaveSettings.
 #'
 #' @param databaseName
 #' @param rootFolder
@@ -103,5 +102,6 @@ createSaveSettings <- function(
     class(saveSettings) <- "saveSettings"
 
     return(saveSettings)
+
   }
 }

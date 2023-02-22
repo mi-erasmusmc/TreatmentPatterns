@@ -9,8 +9,9 @@
 #' @param saveSettings 
 #'
 #' @return TRUE if all assertions pass
-checkConstructPathways <- function(
-    dataSettings, pathwaySettings, saveSettings) {
+checkConstructPathways <- function(dataSettings, 
+                                   pathwaySettings, 
+                                   saveSettings) {
   # dataSettings
   checkmate::assert(
     checkmate::checkClass(dataSettings, "dataSettings"),
@@ -38,7 +39,7 @@ checkConstructPathways <- function(
 
 #' constructPathways
 #' 
-#' Construct treatment pathways.
+#' Construct treatment pathways. Also generates output in csv format. 
 #'
 #' @param dataSettings
 #'     Settings object as created by createDataSettings().
@@ -46,10 +47,25 @@ checkConstructPathways <- function(
 #'     Settings object as created by createPathwaySettings().
 #' @param saveSettings
 #'     Settings object as created by createSaveSettings().
+#'     
+#' @importFrom data.table data.table as.data.table rollup shift
 #' @export
-constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
+#' 
+#' @examples
+#' dataSettings
+#' pathwaySettings
+#' saveSettings
+#' constructPathways(
+#'   dataSettings = dataSettings,
+#'   pathwaySettings = pathwaySettings,
+#'   saveSettings = saveSettings) 
+constructPathways <- function(dataSettings, 
+                              pathwaySettings, 
+                              saveSettings) {
   # Check if inputs correct
-  check <- checkConstructPathways(dataSettings, pathwaySettings, saveSettings)
+  check <- checkConstructPathways(dataSettings, 
+                                  pathwaySettings, 
+                                  saveSettings)
 
   if (check) {
     # do stuff
@@ -68,8 +84,10 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     dataSettings$resultSchema, 
     dataSettings$connectionDetails$dbms))
 
-  colnames(full_cohorts) <- c(
-    "cohort_id", "person_id", "start_date", "end_date")   
+  colnames(full_cohorts) <- c("cohort_id", 
+                              "person_id", 
+                              "start_date", 
+                              "end_date")   
 
   # Save pathway settings
   pathwaySettings <- pathwaySettings$all_settings
@@ -78,8 +96,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   fs::dir_create(saveSettings$outputFolder)
   fs::dir_create(saveSettings$tempFolder)
   
-  dirSettings <- suppressWarnings(normalizePath(file.path(
-    saveSettings$outputFolder, "settings")))
+  dirSettings <- suppressWarnings(normalizePath(file.path(saveSettings$outputFolder, "settings")))
   
   fs::dir_create(dirSettings)
   
@@ -92,8 +109,8 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     row.names = FALSE)
 
   # For all different pathway settings
-  settings <- colnames(pathwaySettings)[
-    grepl("analysis", colnames(pathwaySettings))]
+  settings <- colnames(pathwaySettings)[grepl("analysis", 
+                                              colnames(pathwaySettings))]
 
   for (s in settings) {
     studyName <- pathwaySettings[pathwaySettings$param == "studyName", s]
@@ -101,10 +118,11 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     # Check if directories exist and create if necessary
     tempFolder_s <- file.path(saveSettings$tempFolder, studyName)
     if (!file.exists(tempFolder_s))
-      dir.create(tempFolder_s, recursive = TRUE)
+      dir.create(tempFolder_s, 
+                 recursive = TRUE)
 
-    ParallelLogger::logInfo(print(paste0(
-      "Constructing treatment pathways: ", studyName)))
+    ParallelLogger::logInfo(print(paste0("Constructing treatment pathways: ", 
+                                         studyName)))
     
     # Select cohorts included
     targetCohortId <- pathwaySettings[
@@ -536,18 +554,41 @@ doSplitEventCohorts <- function(
 
 
 #' doEraCollapse
+#' 
+#' Updates the treatmentHistory data.frame where if gapSame is smaller than the specified era collapse size (eraCollapseSize) are collapsed
 #'
 #' @param treatment_history
 #'     Dataframe with event cohorts of the target cohort in different rows.
-#'     
 #' @param eraCollapseSize
 #'     Window of time between which two eras of the same event cohort are
 #'     collapsed into one era.
-#'
+#' 
+#' @import checkmate
+#' @import ParallelLogger
+#' 
 #' @return treatment_history
 #'     Updated dataframe, where event cohorts with
 #'     gap_same < eraCollapseSize are collapsed.
+#' @examples
+#' \dontrun{
+#' th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+#'                                targetCohortId = targetCohortId,
+#'                                eventCohortIds = eventCohortIds,
+#'                                periodPriorToIndex = periodPriorToIndex,
+#'                                includeTreatments = includeTreatments)
+#' doEraCollapse(treatment_history = th, eraCollapseSize = 1)
+#' }
 doEraCollapse <- function(treatment_history, eraCollapseSize) {
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::assertNumeric(
+    x = eraCollapseSize,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE
+  )
+  
   # Order treatment_history by person_id, event_cohort_id, start_date, end_date
   treatment_history <- treatment_history[
     order(person_id, event_cohort_id, event_start_date, event_end_date), ]

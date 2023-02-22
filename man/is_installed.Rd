@@ -2,16 +2,24 @@
 % Please edit documentation in R/helperFunctions.R
 \name{is_installed}
 \alias{is_installed}
-\title{Title}
+\title{is_installed}
 \usage{
 is_installed(pkg, version = 0)
 }
 \arguments{
-\item{pkg}{Package}
+\item{pkg}{package name}
 
-\item{version}{Version}
+\item{version}{the minimum version of the package, by default 0}
+}
+\value{
+whether the given package with the version is installed
 }
 \description{
 Borrowed from devtools:
 https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L44
+}
+\examples{
+\dontrun{
+is_installed("base")
+}
 }

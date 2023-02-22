@@ -9,8 +9,9 @@
 #' @param saveSettings 
 #'
 #' @return TRUE if all assertions pass
-checkConstructPathways <- function(
-    dataSettings, pathwaySettings, saveSettings) {
+checkConstructPathways <- function(dataSettings, 
+                                   pathwaySettings, 
+                                   saveSettings) {
   # dataSettings
   checkmate::assert(
     checkmate::checkClass(dataSettings, "dataSettings"),
@@ -38,7 +39,7 @@ checkConstructPathways <- function(
 
 #' constructPathways
 #' 
-#' Construct treatment pathways.
+#' Construct treatment pathways. Also generates output in csv format. 
 #'
 #' @param dataSettings
 #'     Settings object as created by createDataSettings().
@@ -49,9 +50,22 @@ checkConstructPathways <- function(
 #'     
 #' @importFrom data.table data.table as.data.table rollup shift
 #' @export
-constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
+#' 
+#' @examples
+#' dataSettings
+#' pathwaySettings
+#' saveSettings
+#' constructPathways(
+#'   dataSettings = dataSettings,
+#'   pathwaySettings = pathwaySettings,
+#'   saveSettings = saveSettings) 
+constructPathways <- function(dataSettings, 
+                              pathwaySettings, 
+                              saveSettings) {
   # Check if inputs correct
-  check <- checkConstructPathways(dataSettings, pathwaySettings, saveSettings)
+  check <- checkConstructPathways(dataSettings, 
+                                  pathwaySettings, 
+                                  saveSettings)
 
   if (check) {
     # do stuff
@@ -70,8 +84,10 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     dataSettings$resultSchema, 
     dataSettings$connectionDetails$dbms))
 
-  colnames(full_cohorts) <- c(
-    "cohort_id", "person_id", "start_date", "end_date")   
+  colnames(full_cohorts) <- c("cohort_id", 
+                              "person_id", 
+                              "start_date", 
+                              "end_date")   
 
   # Save pathway settings
   pathwaySettings <- pathwaySettings$all_settings
@@ -80,8 +96,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   fs::dir_create(saveSettings$outputFolder)
   fs::dir_create(saveSettings$tempFolder)
   
-  dirSettings <- suppressWarnings(normalizePath(file.path(
-    saveSettings$outputFolder, "settings")))
+  dirSettings <- suppressWarnings(normalizePath(file.path(saveSettings$outputFolder, "settings")))
   
   fs::dir_create(dirSettings)
   
@@ -94,8 +109,8 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     row.names = FALSE)
 
   # For all different pathway settings
-  settings <- colnames(pathwaySettings)[
-    grepl("analysis", colnames(pathwaySettings))]
+  settings <- colnames(pathwaySettings)[grepl("analysis", 
+                                              colnames(pathwaySettings))]
 
   for (s in settings) {
     studyName <- pathwaySettings[pathwaySettings$param == "studyName", s]
@@ -103,10 +118,11 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     # Check if directories exist and create if necessary
     tempFolder_s <- file.path(saveSettings$tempFolder, studyName)
     if (!file.exists(tempFolder_s))
-      dir.create(tempFolder_s, recursive = TRUE)
+      dir.create(tempFolder_s, 
+                 recursive = TRUE)
 
-    ParallelLogger::logInfo(print(paste0(
-      "Constructing treatment pathways: ", studyName)))
+    ParallelLogger::logInfo(print(paste0("Constructing treatment pathways: ", 
+                                         studyName)))
     
     # Select cohorts included
     targetCohortId <- pathwaySettings[

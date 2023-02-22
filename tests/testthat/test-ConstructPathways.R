@@ -19,3 +19,12 @@ test_that("Minimal", {
       saveSettings = saveSettings
     ), "constructPathways done.")
 })
+
+test_that("Wrong variables", {
+  expect_error(
+    constructPathways(
+      dataSettings = saveSettings,
+      pathwaySettings = dataSettings,
+      saveSettings = pathwaySettings
+    ))
+})

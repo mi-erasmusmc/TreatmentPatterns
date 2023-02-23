@@ -17,5 +17,15 @@ treatment_history
     minEraDuration filtered out.
 }
 \description{
-doEraDuration
+Filters the treatmentHistory based on the specified minimum era duration
+}
+\examples{
+\dontrun{
+th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+                               targetCohortId = targetCohortId,
+                               eventCohortIds = eventCohortIds,
+                               periodPriorToIndex = periodPriorToIndex,
+                               includeTreatments = includeTreatments)
+doEraDuration(treatment_history = th, minEraDuration = 1)
+}
 }

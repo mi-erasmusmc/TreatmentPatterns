@@ -94,6 +94,7 @@ cohortSettings <- TreatmentPatterns::createCohortSettings(
 pathwaySettings <- TreatmentPatterns::createPathwaySettings(
   cohortSettings = cohortSettings,
   studyName = "Viral_Sinusitis",
+  minEraDuration = 1,
   maxPathLength = 2)
 
 # Write files

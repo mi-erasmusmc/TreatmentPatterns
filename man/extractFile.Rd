@@ -7,18 +7,23 @@
 extractFile(connection, tableName, resultsSchema, dbms)
 }
 \arguments{
-\item{connection}{Connection object}
+\item{connection}{DatabaseConnector connection object}
 
 \item{tableName}{Name of table}
 
 \item{resultsSchema}{Schema of results}
 
-\item{dbms}{DBMS}
+\item{dbms}{Name of dbms to use}
 }
 \value{
-data
-    data.frame
+data the extracted table as a data.frame
 }
 \description{
 Extract table with specific name from database server.
+}
+\examples{
+\dontrun{
+  con <- DatabaseConnector::connect(Eunomia::getEunomiaConnectionDetails())
+  extractFile(con, "person", "main", "sqlite")
+}
 }

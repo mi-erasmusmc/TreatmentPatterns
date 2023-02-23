@@ -40,8 +40,8 @@
 #' @param launchShiny
 #'     Setting to run 5) launchResultsExplorer().
 #'
-#' @import data.table
 #' @import magrittr
+#' 
 #' @export
 executeTreatmentPatterns <- function(
     dataSettings,

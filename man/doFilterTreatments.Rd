@@ -18,5 +18,5 @@ treatment_history
     the visualizations.
 }
 \description{
-doFilterTreatments
+Updates the treatmentHistory data.frame where the desired event cohorts are maintained for the visualizations
 }

@@ -6,9 +6,9 @@
 \usage{
 generateOutput(saveSettings)
 }
-\arguments{
-\item{saveSettings}{saveSettings object.}
+\value{
+some stuff
 }
 \description{
-Generate output (sunburst plots, Sankey diagrams and more).
+generateOutput
 }

@@ -23,7 +23,7 @@ cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
 cohortJsonFiles <- list.files(
   system.file(
     package = "TreatmentPatterns",
-    "examples", "OMOP CDM", "inst", "cohorts", "Viral Sinusitis", "JSON"),
+    "examples", "CDM", "cohorts", "ViralSinusitis", "JSON"),
   full.names = TRUE)
 
 for (i in seq_len(length(cohortJsonFiles))) {
@@ -68,12 +68,12 @@ cohortsGenerated <- CohortGenerator::generateCohortSet(
 
 # Select Viral Sinusitis Cohort
 targetCohort <- cohortsGenerated %>% 
-  filter(cohortName == "Viral Sinusitis") %>%
+  filter(cohortName == "ViralSinusitis") %>%
   select(cohortId, cohortName)
 
 # Select everything BUT Viral Sinusitis cohorts
 eventCohorts <- cohortsGenerated %>% 
-  filter(cohortName != "Viral Sinusitis") %>%
+  filter(cohortName != "ViralSinusitis") %>%
   select(cohortId, cohortName)
 
 saveSettings <- TreatmentPatterns::createSaveSettings(
@@ -93,7 +93,8 @@ cohortSettings <- TreatmentPatterns::createCohortSettings(
 
 pathwaySettings <- TreatmentPatterns::createPathwaySettings(
   cohortSettings = cohortSettings,
-  studyName = "Viral_Sinusitis")
+  studyName = "Viral_Sinusitis",
+  maxPathLength = 2)
 
 # Write files
 #names(cohortSettings$cohortsToCreate) <- c("cohort_id", "cohort_name", "cohort_type")

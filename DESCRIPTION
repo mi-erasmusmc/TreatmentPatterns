@@ -36,11 +36,13 @@ Imports:
 Remotes:
     OHDSI/OhdsiSharing,
     OHDSI/FeatureExtraction,
+    OHDSI/CohortDiagnostics,
     OHDSI/Eunomia
 Suggests:
     ROhdsiWebApi,
     testthat (>= 3.0.0),
     CohortGenerator,
+    CohortDiagnostics,
     CirceR,
     knitr
 License: Apache License 2.0

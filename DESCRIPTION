@@ -36,8 +36,8 @@ Imports:
 Remotes:
     OHDSI/OhdsiSharing,
     OHDSI/FeatureExtraction,
-    OHDSI/CohortDiagnostics,
-    OHDSI/Eunomia
+    OHDSI/Eunomia,
+    OHDSI/CohortDiagnostics
 Suggests:
     ROhdsiWebApi,
     testthat (>= 3.0.0),

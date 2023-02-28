@@ -8,7 +8,7 @@
 #' @param dbms Name of dbms to use
 #'
 #' @import checkmate
-#' @import DatabaseConnector
+#' @importFrom DatabaseConnector querySql
 #' @import SqlRender
 #' 
 #' @return data the extracted table as a data.frame

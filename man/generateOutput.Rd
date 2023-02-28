@@ -6,6 +6,9 @@
 \usage{
 generateOutput(saveSettings)
 }
+\arguments{
+\item{saveSettings}{Settings object as created by createSaveSettings().}
+}
 \value{
 some stuff
 }

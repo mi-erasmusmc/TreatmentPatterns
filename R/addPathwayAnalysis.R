@@ -8,7 +8,7 @@
 #' @param ... Optional addPathwaySettings parameters i.e. studyName. Excluding
 #' eventCohortId and targetCohortIds
 #'
-#' @import dplyr
+#' @importFrom dplyr bind_cols
 #' @importFrom data.table transpose
 #'
 #' @return pathwaySettings

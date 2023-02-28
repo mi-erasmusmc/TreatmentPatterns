@@ -59,11 +59,11 @@ checkPathwaySettings <- function(
 #'   15. addNoPaths
 #'
 #' @importFrom data.table transpose
-#'
-#' @return
-#'     Object pathwaySettings.
-#' @import dplyr
+#' @importFrom dplyr filter
 #' @importFrom utils globalVariables
+#' 
+#' @return Object pathwaySettings.
+#'     
 #' @export
 #' @examples
 #' targetCohorts <- data.frame(

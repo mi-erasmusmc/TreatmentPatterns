@@ -9,6 +9,10 @@
 #' @param outputFolder
 #'     Name of local folder containing output.
 #'
+#' @importFrom shiny runApp
+#' @importFrom utils head menu read.csv write.csv
+#' @importFrom rlang :=
+#'
 #' @export
 launchResultsExplorer <- function(
     saveSettings = NULL,
@@ -73,6 +77,11 @@ launchResultsExplorer <- function(
 #'     Root folder
 #' @param unzipMainFolder
 #'     Unzip main folder
+#' 
+#' @importFrom dplyr tibble
+#' @import zip
+#' 
+#' @return NULL
 unzipFiles <- function(rootFolder, unzipMainFolder) {
   zipFiles <- dplyr::tibble(
     zipFile = list.files(

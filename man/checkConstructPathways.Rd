@@ -7,11 +7,11 @@
 checkConstructPathways(dataSettings, pathwaySettings, saveSettings)
 }
 \arguments{
-\item{dataSettings}{}
+\item{dataSettings}{dataSettings object}
 
-\item{pathwaySettings}{}
+\item{pathwaySettings}{pathwaySettings object}
 
-\item{saveSettings}{}
+\item{saveSettings}{saveSettings object}
 }
 \value{
 TRUE if all assertions pass

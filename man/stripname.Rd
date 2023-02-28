@@ -7,13 +7,18 @@
 stripname(x, name)
 }
 \arguments{
-\item{x}{List}
+\item{x}{input list}
 
-\item{name}{Name}
+\item{name}{the name of the list item from which the names will be removed}
 }
 \value{
-List with removed names
+list with removed names
 }
 \description{
 Recursive function to remove name from all levels of list.
+}
+\examples{
+\dontrun{
+TreatmentPatterns:::stripname("base")
+}
 }

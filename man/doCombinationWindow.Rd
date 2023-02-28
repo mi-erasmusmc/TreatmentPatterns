@@ -2,7 +2,7 @@
 % Please edit documentation in R/ConstructPathways.R
 \name{doCombinationWindow}
 \alias{doCombinationWindow}
-\title{doCombinationWindow}
+\title{Combine overlapping events into combinations}
 \usage{
 doCombinationWindow(
   treatment_history,
@@ -11,19 +11,32 @@ doCombinationWindow(
 )
 }
 \arguments{
-\item{treatment_history}{Dataframe with event cohorts of the target cohort in different rows.}
+\item{treatment_history}{A dataframe of 'event cohorts' with the following columns: 
+event_cohort_id, person_id, event_start_date, event_end_date.}
 
-\item{combinationWindow}{Window of time two event cohorts need to overlap to be considered a
-combination treatment.}
+\item{combinationWindow}{Minimum number of days two event cohorts need to overlap to be 
+considered a combination event.}
 
-\item{minPostCombinationDuration}{Minimum time an event era before or after a generated combination
-treatment should last to be included in analysis.}
+\item{minPostCombinationDuration}{Minimum number of days an event era starting after a combination event
+or ending before a combination event must last to be counted a separate
+event. Events occuring before or after a combination that are less than
+`minPostCombinationDuration` days long will be dropped from the analysis.}
 }
 \value{
-treatment_history
-    Updated dataframe, where overlapping event cohorts 
-    are modified according to rules defined for switching / combinations.
+A treatment_history dataframe with the columns event_cohort_id,
+    person_id, event_start_date, event_end_date. event_cohort_id will be 
+    of character type and combination events will have a new event_cohort_id 
+    made up of the concatenated event_cohort_ids of each combined 
+    event_cohort_id. When two events overlap for more than 
+    `combinationWindow` days they will be collapsed into a single combination
+    event. Events are collapsed iteratively starting with the first two 
+    overlapping events per person and continuing until no more overlapping
+    events exist in the treatment_history.
 }
 \description{
-doCombinationWindow
+doCombinationWindow is an internal function that combines overlapping events 
+into combination events. It accepts a treatment_history dataframe and returns
+a modified treatment_history dataframe. The returned treatment_history 
+dataframe always has the property that a person is only in one event cohort,
+which might be a combination event cohort, at any point time.
 }

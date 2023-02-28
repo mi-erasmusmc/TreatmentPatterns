@@ -75,5 +75,26 @@ sunburst plot}
 TRUE if all assertions pass
 }
 \description{
-Helper functions that checks the input for addPathwaySettings.
+Asserts that parameters fall within specified bounds.
+}
+\examples{
+\dontrun{
+TreatmentPatterns:::addPathwaySettingsCheck(studyName = "myCoolStudy",
+                                            targetCohortId = 1,
+                                            eventCohortIds = c(1, 2, 3),
+                                            includeTreatments = "startDate",
+                                            periodPriorToIndex = 0,
+                                            minEraDuration = 0,
+                                            splitEventCohorts = "",
+                                            splitTime = 30,
+                                            eraCollapseSize = 30,
+                                            combinationWindow = 30,
+                                            minPostCombinationDuration = 30,
+                                            filterTreatments = "First",
+                                            maxPathLength = 5,
+                                            minCellCount = 5,
+                                            minCellMethod = "Remove",
+                                            groupCombinations = 10,
+                                            addNoPaths = FALSE)
+}
 }

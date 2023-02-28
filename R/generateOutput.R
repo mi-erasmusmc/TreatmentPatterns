@@ -1492,6 +1492,16 @@ outputSankeyDiagram <- function(
 #' @importFrom data.table data.table as.data.table
 #'
 #' @returns data.table
+#' 
+#' @examples \dontrun{
+#' source(system.file(
+#'   package = "TreatmentPatterns",
+#'   "testing", "testParamsOutput.R"))
+#'   
+#' TreatmentPatterns:::groupInfrequentCombinations(
+#'   data = treatment_pathways[[1]],
+#'   groupCombinations = groupCombinations)
+#' }
 groupInfrequentCombinations <- function(data, groupCombinations) {
   data <- as.data.frame(data)
 
@@ -1505,17 +1515,16 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
   )
 
   # Group all non-fixed combinations in one group if TRUE
-  if (groupCombinations == "TRUE") {
+  if (groupCombinations == TRUE) {
     data[findCombinations] <- "Other"
   } else {
     # Otherwise: group infrequent treatments below groupCombinations as "other"
     combinations <- as.matrix(data)[findCombinations == TRUE]
-    num_columns <- sum(grepl("cohort_name", colnames(data)))
+    
     freqCombinations <- matrix(
-      rep(data$freq, times = num_columns),
-      ncol = num_columns
-    )[findCombinations == TRUE]
-
+      rep(data$freq, times = ncol(data)),
+      ncol = ncol(data))[findCombinations == TRUE]
+    
     summaryCombinations <- data.table::data.table(
       combination = combinations,
       freq = freqCombinations
@@ -1528,9 +1537,8 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
       ][order(-freq)]
 
       summarizeCombinations <- summaryCombinations$combination[
-        summaryCombinations$freq <= groupCombinations
-      ]
-
+        summaryCombinations$freq <= as.numeric(groupCombinations)]
+      
       selectedCombinations <- apply(
         X = data,
         MARGIN = 2,

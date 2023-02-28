@@ -525,6 +525,9 @@ doStepDuration <- function(treatment_history, minPostCombinationDuration) {
 
 #' doSplitEventCohorts
 #'
+#' Splits the treatmentHistory data.frame based on event cohorts into ‘acute’
+#' and ‘therapy’ cohorts. 
+#'
 #' @param treatment_history
 #'     Dataframe with event cohorts of the target cohort in different rows.
 #'     
@@ -539,23 +542,45 @@ doStepDuration <- function(treatment_history, minPostCombinationDuration) {
 #' @param outputFolder 
 #'     Name of local folder to place results; make sure to use forward
 #'     slashes (/).
-#'     
+#'
+#' @import checkmate
+#' @import data.table
+#'
 #' @return treatment_history
 #'     Updated dataframe, with specified event cohorts now
 #'     split in two different event cohorts (acute and therapy).
+#'
+#' @examples \dontrun{
+#' source(system.file(
+#'   package = "TreatmentPatterns",
+#'   "examples", "SettingObjects", "createDummySettings.R"))
+#' 
+#' source(system.file(
+#'   package = "TreatmentPatterns",
+#'   "testing",
+#'   "testParams.R"))
+#' 
+#' doSplitEventCohorts(
+#'   treatment_history = doEraDurationTH,
+#'   splitEventCohorts = c(1,2,3),
+#'   splitTime = c("30", "20", "10"),
+#'   outputFolder = saveSettings$outputFolder)}
 doSplitEventCohorts <- function(
     treatment_history, 
-    splitEventCohorts, 
-    splitTime, 
+    splitEventCohorts,
+    splitTime,
     outputFolder) {
   
-  if (!is.na(splitEventCohorts)) {
+  if (all(!is.na(splitEventCohorts))) {
     # Load in labels cohorts
     labels <- data.table::data.table(readr::read_csv(
       file = file.path(outputFolder, "settings", "cohorts_to_create.csv"), 
       col_types = list("i","c","c")))
     
-    for (c in 1:length(splitEventCohorts)) {
+    # Check if splitEventCohorts == splitTime
+    checkmate::assertTRUE(length(splitEventCohorts) == length(splitTime))
+    
+    for (c in seq_len(length(splitEventCohorts))) {
       cohort <- splitEventCohorts[c]
       cutoff <- splitTime[c]
       

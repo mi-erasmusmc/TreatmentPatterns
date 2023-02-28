@@ -9,8 +9,9 @@
 #' @param saveSettings 
 #'
 #' @return TRUE if all assertions pass
-checkConstructPathways <- function(
-    dataSettings, pathwaySettings, saveSettings) {
+checkConstructPathways <- function(dataSettings, 
+                                   pathwaySettings, 
+                                   saveSettings) {
   # dataSettings
   checkmate::assert(
     checkmate::checkClass(dataSettings, "dataSettings"),
@@ -38,7 +39,7 @@ checkConstructPathways <- function(
 
 #' constructPathways
 #' 
-#' Construct treatment pathways.
+#' Construct treatment pathways. Also generates output in csv format. 
 #'
 #' @param dataSettings
 #'     Settings object as created by createDataSettings().
@@ -49,9 +50,22 @@ checkConstructPathways <- function(
 #'     
 #' @importFrom data.table data.table as.data.table rollup shift
 #' @export
-constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
+#' 
+#' @examples
+#' dataSettings
+#' pathwaySettings
+#' saveSettings
+#' constructPathways(
+#'   dataSettings = dataSettings,
+#'   pathwaySettings = pathwaySettings,
+#'   saveSettings = saveSettings) 
+constructPathways <- function(dataSettings, 
+                              pathwaySettings, 
+                              saveSettings) {
   # Check if inputs correct
-  check <- checkConstructPathways(dataSettings, pathwaySettings, saveSettings)
+  check <- checkConstructPathways(dataSettings, 
+                                  pathwaySettings, 
+                                  saveSettings)
 
   if (check) {
     # do stuff
@@ -70,8 +84,10 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     dataSettings$resultSchema, 
     dataSettings$connectionDetails$dbms))
 
-  colnames(full_cohorts) <- c(
-    "cohort_id", "person_id", "start_date", "end_date")   
+  colnames(full_cohorts) <- c("cohort_id", 
+                              "person_id", 
+                              "start_date", 
+                              "end_date")   
 
   # Save pathway settings
   pathwaySettings <- pathwaySettings$all_settings
@@ -80,8 +96,7 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
   fs::dir_create(saveSettings$outputFolder)
   fs::dir_create(saveSettings$tempFolder)
   
-  dirSettings <- suppressWarnings(normalizePath(file.path(
-    saveSettings$outputFolder, "settings")))
+  dirSettings <- suppressWarnings(normalizePath(file.path(saveSettings$outputFolder, "settings")))
   
   fs::dir_create(dirSettings)
   
@@ -94,8 +109,8 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     row.names = FALSE)
 
   # For all different pathway settings
-  settings <- colnames(pathwaySettings)[
-    grepl("analysis", colnames(pathwaySettings))]
+  settings <- colnames(pathwaySettings)[grepl("analysis", 
+                                              colnames(pathwaySettings))]
 
   for (s in settings) {
     studyName <- pathwaySettings[pathwaySettings$param == "studyName", s]
@@ -103,10 +118,11 @@ constructPathways <- function(dataSettings, pathwaySettings, saveSettings) {
     # Check if directories exist and create if necessary
     tempFolder_s <- file.path(saveSettings$tempFolder, studyName)
     if (!file.exists(tempFolder_s))
-      dir.create(tempFolder_s, recursive = TRUE)
+      dir.create(tempFolder_s, 
+                 recursive = TRUE)
 
-    ParallelLogger::logInfo(print(paste0(
-      "Constructing treatment pathways: ", studyName)))
+    ParallelLogger::logInfo(print(paste0("Constructing treatment pathways: ", 
+                                         studyName)))
     
     # Select cohorts included
     targetCohortId <- pathwaySettings[
@@ -426,17 +442,41 @@ doCreateTreatmentHistory <- function(
   return(current_cohorts)
 }
 
-
 #' doEraDuration
+#'
+#' Filters the treatmentHistory based on the specified minimum era duration
 #'
 #' @param treatment_history
 #'     Dataframe with event cohorts of the target cohort in different rows.
 #' @param minEraDuration
 #'     Minimum time an event era should last to be included in analysis.
+#' 
+#' @import checkmate
+#' @import ParallelLogger
+#' 
 #' @return treatment_history
 #'     Updated dataframe, rows with duration < 
 #'     minEraDuration filtered out.
+#' @examples
+#' \dontrun{
+#' th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+#'                                targetCohortId = targetCohortId,
+#'                                eventCohortIds = eventCohortIds,
+#'                                periodPriorToIndex = periodPriorToIndex,
+#'                                includeTreatments = includeTreatments)
+#' doEraDuration(treatment_history = th, minEraDuration = 1)
+#' }
 doEraDuration <- function(treatment_history, minEraDuration) {
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::assertNumeric(
+    x = minEraDuration,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE
+  )
+  
   treatment_history <- treatment_history[duration_era >= minEraDuration, ]
   ParallelLogger::logInfo(print(
     paste0("After minEraDuration: ", nrow(treatment_history))))
@@ -563,18 +603,41 @@ doSplitEventCohorts <- function(
 
 
 #' doEraCollapse
+#' 
+#' Updates the treatmentHistory data.frame where if gapSame is smaller than the specified era collapse size (eraCollapseSize) are collapsed
 #'
 #' @param treatment_history
 #'     Dataframe with event cohorts of the target cohort in different rows.
-#'     
 #' @param eraCollapseSize
 #'     Window of time between which two eras of the same event cohort are
 #'     collapsed into one era.
-#'
+#' 
+#' @import checkmate
+#' @import ParallelLogger
+#' 
 #' @return treatment_history
 #'     Updated dataframe, where event cohorts with
 #'     gap_same < eraCollapseSize are collapsed.
+#' @examples
+#' \dontrun{
+#' th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+#'                                targetCohortId = targetCohortId,
+#'                                eventCohortIds = eventCohortIds,
+#'                                periodPriorToIndex = periodPriorToIndex,
+#'                                includeTreatments = includeTreatments)
+#' doEraCollapse(treatment_history = th, eraCollapseSize = 1)
+#' }
 doEraCollapse <- function(treatment_history, eraCollapseSize) {
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::assertNumeric(
+    x = eraCollapseSize,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE
+  )
+  
   # Order treatment_history by person_id, event_cohort_id, start_date, end_date
   treatment_history <- treatment_history[
     order(person_id, event_cohort_id, event_start_date, event_end_date), ]
@@ -607,22 +670,37 @@ doEraCollapse <- function(treatment_history, eraCollapseSize) {
 }
 
 
-#' doCombinationWindow
+#' Combine overlapping events into combinations
+#' 
+#' doCombinationWindow is an internal function that combines overlapping events 
+#' into combination events. It accepts a treatment_history dataframe and returns
+#' a modified treatment_history dataframe. The returned treatment_history 
+#' dataframe always has the property that a person is only in one event cohort,
+#' which might be a combination event cohort, at any point time.
 #'
 #' @param treatment_history
-#'     Dataframe with event cohorts of the target cohort in different rows.
+#'     A dataframe of 'event cohorts' with the following columns: 
+#'     event_cohort_id, person_id, event_start_date, event_end_date.
 #'     
 #' @param combinationWindow
-#'     Window of time two event cohorts need to overlap to be considered a
-#'     combination treatment.
+#'     Minimum number of days two event cohorts need to overlap to be 
+#'     considered a combination event.
 #'     
 #' @param minPostCombinationDuration 
-#'     Minimum time an event era before or after a generated combination
-#'     treatment should last to be included in analysis.
+#'     Minimum number of days an event era starting after a combination event
+#'     or ending before a combination event must last to be counted a separate
+#'     event. Events occuring before or after a combination that are less than
+#'     `minPostCombinationDuration` days long will be dropped from the analysis.
 #'     
-#' @return treatment_history
-#'     Updated dataframe, where overlapping event cohorts 
-#'     are modified according to rules defined for switching / combinations.
+#' @return A treatment_history dataframe with the columns event_cohort_id,
+#'     person_id, event_start_date, event_end_date. event_cohort_id will be 
+#'     of character type and combination events will have a new event_cohort_id 
+#'     made up of the concatenated event_cohort_ids of each combined 
+#'     event_cohort_id. When two events overlap for more than 
+#'     `combinationWindow` days they will be collapsed into a single combination
+#'     event. Events are collapsed iteratively starting with the first two 
+#'     overlapping events per person and continuing until no more overlapping
+#'     events exist in the treatment_history.
 doCombinationWindow <- function(
     treatment_history, 
     combinationWindow, 
@@ -638,10 +716,10 @@ doCombinationWindow <- function(
   
   # While rows that need modification exist:
   iterations <- 1
-  while(sum(treatment_history$SELECTED_ROWS)!= 0) {
+  while (sum(treatment_history$SELECTED_ROWS) != 0) {
     
-    # Which have gap previous shorter than combination window OR min(current
-    # duration era, previous duration era) -> add column switch
+    # Which rows have gap previous shorter than combination window OR 
+    # min(current duration era, previous duration era) -> add column switch
     treatment_history[
       SELECTED_ROWS == 1 & 
         (-GAP_PREVIOUS < combinationWindow & 
@@ -698,21 +776,12 @@ doCombinationWindow <- function(
     
     # Do transformations for each of the three newly added columns
     # Construct helpers
-    treatment_history[
-      , event_start_date_next := data.table::shift(event_start_date, type = "lead"),
-      by = person_id]
-    
-    treatment_history[
-      , event_end_date_previous := data.table::shift(event_end_date, type = "lag"),
-      by = person_id]
-    
-    treatment_history[
-      , event_end_date_next := data.table::shift(event_end_date, type = "lead"),
-      by = person_id]
-    
-    treatment_history[
-      , event_cohort_id_previous := data.table::shift(event_cohort_id, type = "lag"),
-      by = person_id]
+    treatment_history[, `:=`(
+      event_start_date_next = data.table::shift(event_start_date, type = "lead"),
+      event_end_date_previous = data.table::shift(event_end_date, type = "lag"),
+      event_end_date_next = data.table::shift(event_end_date, type = "lead"),
+      event_cohort_id_previous = data.table::shift(event_cohort_id, type = "lag")
+    ), by = person_id]
     
     # Case: switch
     # Change end treatment_history of previous row ->
@@ -836,26 +905,43 @@ selectRowsCombinationWindow <- function(treatment_history) {
 
 
 #' doFilterTreatments
+#' 
+#' Updates the treatmentHistory data.frame where the desired event cohorts are maintained for the visualizations
 #'
 #' @param treatment_history
 #'     Dataframe with event cohorts of the target cohort in different rows.
-#'     
 #' @param filterTreatments 
 #'     Select first occurrence of ('First') / changes between ('Changes') / all
 #'     event cohorts ('All').
-#'     
+#'
+#' @import checkmate
+#' @import ParallelLogger     
+#'
 #' @return treatment_history
 #'     Updated dataframe, where the desired event cohorts are maintained for
 #'     the visualizations.
+#' @examples
+#' \dontrun{
+#' th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+#'                                targetCohortId = targetCohortId,
+#'                                eventCohortIds = eventCohortIds,
+#'                                periodPriorToIndex = periodPriorToIndex,
+#'                                includeTreatments = includeTreatments)
+#' doFilterTreatments(treatment_history = th, filterTreatments = "All')
 doFilterTreatments <- function(treatment_history, filterTreatments) {
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::assertChoice(
+    x = filterTreatments,
+    choices = c("First", "Changes", "All"),
+    null.ok = FALSE
+  )
   
   # Order treatment_history by person_id, event_start_date, event_end_date
   treatment_history <- treatment_history[
     order(person_id, event_start_date, event_end_date), ]
   
-  if (filterTreatments == "All") {
-    # Do nothing
-  } else {
+  if (filterTreatments != "All") {
     # Order the combinations
     ParallelLogger::logInfo("Order the combinations.")
     combi <- grep("+", treatment_history$event_cohort_id, fixed = TRUE)
@@ -909,17 +995,38 @@ doFilterTreatments <- function(treatment_history, filterTreatments) {
 
 
 #' doMaxPathLength
+#' 
+#' Filters the treatmentHistory data.frame where eventSeq is smaller or equal than maxPathLength
 #'
 #' @param treatment_history
-#'     Dataframe with event cohorts of the target cohort in different rows.
-#'     
+#' Dataframe with event cohorts of the target cohort in different rows.
 #' @param maxPathLength
-#'     Maximum number of steps included in treatment pathway.
+#' Maximum number of steps included in treatment pathway.
 #'
+#' @import checkmate
+#' @import ParallelLogger
+#' 
 #' @return treatment_history
-#'     Updated dataframe, where the desired event cohorts are maintained for
-#'     the visualizations.
+#' Updated dataframe, where the desired event cohorts all have a seq value of <= 
+#' maxPathLength
+#' @examples
+#' \dontrun{
+#' th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+#'                                targetCohortId = targetCohortId,
+#'                                eventCohortIds = eventCohortIds,
+#'                                periodPriorToIndex = periodPriorToIndex,
+#'                                includeTreatments = includeTreatments)
+#' doMaxPathLength(treatment_history = th, maxPathLength = 1)
 doMaxPathLength <- function(treatment_history, maxPathLength) {
+  # Assertions
+  checkmate::assertDataFrame(x = treatment_history)
+  checkmate::assertNumeric(
+    x = maxPathLength,
+    lower = 0,
+    finite = TRUE,
+    len = 1,
+    null.ok = FALSE
+  )
   
   # Apply maxPathLength
   treatment_history <- treatment_history[event_seq <= maxPathLength, ]
@@ -973,19 +1080,8 @@ addLabels <- function(treatment_history, outputFolder) {
   
   # Filter out + at beginning/end or repetitions
   treatment_history$event_cohort_name <- gsub(
-    pattern = "\\++",
+    pattern = "(^\\++|\\++$)",
     replacement = "+",
     x = treatment_history$event_cohort_name)
-  
-  treatment_history$event_cohort_name <- gsub(
-    pattern = "^\\+",
-    replacement = "",
-    x = treatment_history$event_cohort_name)
-  
-  treatment_history$event_cohort_name <- gsub(
-    pattern = "\\+$",
-    replacement = "",
-    x = treatment_history$event_cohort_name)
-  
   return(treatment_history)
 }

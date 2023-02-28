@@ -1,6 +1,6 @@
 connection <- DatabaseConnector::connect(dataSettings$connectionDetails)
 
-full_cohorts <- data.table::as.data.table(extractFile(
+fullCohorts <- data.table::as.data.table(extractFile(
   connection, 
   dataSettings$cohortTable, 
   dataSettings$resultSchema, 
@@ -8,7 +8,7 @@ full_cohorts <- data.table::as.data.table(extractFile(
 
 DatabaseConnector::disconnect(connection)
 
-colnames(full_cohorts) <- c(
+colnames(fullCohorts) <- c(
   "cohort_id", "person_id", "start_date", "end_date")
 
 settings <- pathwaySettings$all_settings
@@ -16,11 +16,11 @@ settings <- pathwaySettings$all_settings
 targetCohortId <- settings[
   settings$param == "targetCohortId", "analysis1"]
 
-select_people <- full_cohorts$person_id[
-  full_cohorts$cohort_id == targetCohortId]
+selectPeople <- fullCohorts$person_id[
+  fullCohorts$cohort_id == targetCohortId]
 
-current_cohorts <- full_cohorts[
-  full_cohorts$person_id %in% select_people, ]
+currentCohorts <- fullCohorts[
+  fullCohorts$person_id %in% selectPeople, ]
 
 eventCohortIds <- settings[
   settings$param == "eventCohortIds", "analysis1"]
@@ -33,8 +33,8 @@ periodPriorToIndex <- as.integer(settings[
 includeTreatments <- settings[
   settings$param == "includeTreatments", "analysis1"]
 
-treatment_history <- TreatmentPatterns:::doCreateTreatmentHistory(
-  current_cohorts = current_cohorts,
+treatmentHistory <- TreatmentPatterns:::doCreateTreatmentHistory(
+  currentCohorts = currentCohorts,
   targetCohortId = targetCohortId,
   eventCohortIds = eventCohortIds,
   periodPriorToIndex = periodPriorToIndex,
@@ -44,7 +44,7 @@ minEraDuration <- as.integer(settings[
   settings$param == "minEraDuration", "analysis1"])
 
 doEraDurationTH <- TreatmentPatterns:::doEraDuration(
-  treatment_history = treatment_history,
+  treatment_history = treatmentHistory,
   minEraDuration = minEraDuration)
 
 splitEventCohorts <- settings[

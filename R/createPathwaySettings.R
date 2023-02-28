@@ -7,12 +7,10 @@
 #' @return TRUE if all assertions pass
 #'  
 #'
-#' @examples
-#' cohortSettings 
-
-#' checkPathwaySettings(
-#'   cohortSettings = cohortSettings
-#'   )
+#' @examples \dontrun{
+#'   checkPathwaySettings(
+#'     cohortSettings = cohortSettings
+#'     )}
 checkPathwaySettings <- function(
     cohortSettings) {
   # Check cohortSettings

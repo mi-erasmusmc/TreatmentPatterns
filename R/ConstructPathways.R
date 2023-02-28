@@ -51,14 +51,11 @@ checkConstructPathways <- function(dataSettings,
 #' @importFrom data.table data.table as.data.table rollup shift
 #' @export
 #' 
-#' @examples
-#' dataSettings
-#' pathwaySettings
-#' saveSettings
-#' constructPathways(
-#'   dataSettings = dataSettings,
-#'   pathwaySettings = pathwaySettings,
-#'   saveSettings = saveSettings) 
+#' @examples \dontrun{
+#'   constructPathways(
+#'     dataSettings = dataSettings,
+#'     pathwaySettings = pathwaySettings,
+#'     saveSettings = saveSettings)}
 constructPathways <- function(dataSettings, 
                               pathwaySettings, 
                               saveSettings) {
@@ -505,7 +502,7 @@ doEraDuration <- function(treatment_history, minEraDuration) {
 doStepDuration <- function(treatment_history, minPostCombinationDuration) {
   # Assertions
   checkmate::assertDataFrame(x = treatment_history)
-  checkmate::checkNumeric(
+  checkmate::assertNumeric(
     x = minPostCombinationDuration,
     lower = 0,
     finite = TRUE,
@@ -515,7 +512,7 @@ doStepDuration <- function(treatment_history, minPostCombinationDuration) {
   
   treatment_history <- subset(
     x = treatment_history,
-    duration_era >= 30 | is.na(duration_era))
+    duration_era >= minPostCombinationDuration | is.na(duration_era))
   
   ParallelLogger::logInfo(
     glue::glue("After minPostCombinationDuration: {nrow(treatment_history)}"))

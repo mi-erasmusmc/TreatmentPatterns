@@ -13,7 +13,6 @@ Description: This package gives insight in treatment patterns, the following tas
 Depends:
     R (>= 3.6.1)
 Imports: 
-    Andromeda,
     DatabaseConnector(>= 6.0.0),
     checkmate,
     data.table,
@@ -24,23 +23,21 @@ Imports:
     jsonlite,
     reshape2,
     googleVis,
-    RJSONIO,
-    R.utils,
     webshot2 (>= 0.1.0),
     magrittr,
     ParallelLogger,
     fs,
-    FeatureExtraction,
     OhdsiSharing,
-    Eunomia
+    glue
 Remotes:
     OHDSI/OhdsiSharing,
-    OHDSI/FeatureExtraction,
     OHDSI/Eunomia,
     OHDSI/CohortDiagnostics
 Suggests:
+    Eunomia,
     ROhdsiWebApi,
     testthat (>= 3.0.0),
+    usethis,
     CohortGenerator,
     CohortDiagnostics,
     CirceR,

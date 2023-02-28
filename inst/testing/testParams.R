@@ -69,8 +69,8 @@ doEraCollapseTH <- TreatmentPatterns:::doEraCollapse(
 combinationWindow <- settings[
   settings$param == "combinationWindow", "analysis1"]
 
-minPostCombinationDuration <- settings[
-  settings$param == "minPostCombinationDuration", "analysis1"]
+minPostCombinationDuration <- as.numeric(settings[
+  settings$param == "minPostCombinationDuration", "analysis1"])
 
 doCombinationWindowTH <- TreatmentPatterns:::doCombinationWindow(
   doEraCollapseTH,

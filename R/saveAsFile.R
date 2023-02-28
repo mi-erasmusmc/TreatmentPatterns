@@ -6,6 +6,7 @@
 #' @param fileNameOut Filename of image, either with .pdf or .png extension.
 #' @param zoom Zoom factor, default = 3.
 #' @param vwidth Width of frame to capture, default = 430.
+#' @param selector Default: `"svg"`; svg only works if the output file is pdf, otherwise use `NULL`
 #' @param ... Other potential parameters to be passed to webshot2::webshot()
 #'
 #' @import checkmate
@@ -17,7 +18,7 @@
 #' @examples
 #' \dontrun{
 #'   saveAsFile("webFile.html", "outputFile.png")}
-saveAsFile <- function(fileName, fileNameOut, zoom = 3, vwidth = 430, ...) {
+saveAsFile <- function(fileName, fileNameOut, zoom = 3, vwidth = 430, selector = "svg", ...) {
   # Assertions
   checkmate::assertCharacter(x = fileName, pattern = "*.html", null.ok = FALSE)
   checkmate::assertCharacter(x = fileNameOut, pattern = "*.pdf|*.png", null.ok = FALSE)
@@ -27,7 +28,6 @@ saveAsFile <- function(fileName, fileNameOut, zoom = 3, vwidth = 430, ...) {
   webshot2::webshot(
     url = fileName,
     file = fileNameOut,
-    selector = "svg",
     zoom = zoom,
     vwidth = vwidth,
     ...)

@@ -1,8 +1,12 @@
 library(TreatmentPatterns)
 library(testthat)
 
+source(list.files(system.file(
+  package = "TreatmentPatterns",
+  "examples", "SettingObjects"), full.names = TRUE))
+
 source(system.file(
-  package = "TreatmentPatterns", 
+  package = "TreatmentPatterns",
   "testing", "testParams.R"))
 
 # === Compute prerequisites ====
@@ -133,12 +137,12 @@ test_that("non data.frame treatment_history", {
   expect_error(
     TreatmentPatterns:::doStepDuration(
       treatment_history = "doSetDurationTH",
-      minPostCombinationDuration = 30),
+      minPostCombinationDuration = "30"),
     "Must be of type 'data.frame', not 'character'"
   )
 })
 
-doStepDurationOut <- doStepDuration(
+doStepDurationOut <- TreatmentPatterns:::doStepDuration(
   treatment_history = doSetDurationTH,
   minPostCombinationDuration = 30)
 

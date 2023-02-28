@@ -53,8 +53,8 @@ TH <- merge(
   by = "event_cohort_id")
 
 test_that("Add events to TreatmentHistory", {
-  expect_true(ncol(treatment_history) == 1 + ncol(doMaxPathLengthTH))
-  expect_true(nrow(treatment_history) == nrow(doMaxPathLengthTH))
+  expect_true(ncol(TH) == 1 + ncol(doMaxPathLengthTH))
+  expect_true(nrow(TH) == nrow(doMaxPathLengthTH))
 })
 
 b <- sapply(

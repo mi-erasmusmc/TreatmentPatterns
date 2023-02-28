@@ -16,8 +16,8 @@ TRUE if all assertions pass
 Check whether an object has the correct CohortSettings and dataframe class. The function checks it has the specified amount of columns, and if they are integer and character. Also checks if the dataframe columns have the correct name.
 }
 \examples{
-cohortSettings 
-checkPathwaySettings(
-  cohortSettings = cohortSettings
-  )
+\dontrun{
+  checkPathwaySettings(
+    cohortSettings = cohortSettings
+    )}
 }

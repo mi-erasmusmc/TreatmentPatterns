@@ -17,11 +17,9 @@ constructPathways(dataSettings, pathwaySettings, saveSettings)
 Construct treatment pathways. Also generates output in csv format.
 }
 \examples{
-dataSettings
-pathwaySettings
-saveSettings
-constructPathways(
-  dataSettings = dataSettings,
-  pathwaySettings = pathwaySettings,
-  saveSettings = saveSettings) 
+\dontrun{
+  constructPathways(
+    dataSettings = dataSettings,
+    pathwaySettings = pathwaySettings,
+    saveSettings = saveSettings)}
 }

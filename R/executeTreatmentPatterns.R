@@ -1,122 +1,61 @@
-
-#' This is the main function which runs all parts of the treatment pathways
-#' analysis. The following tasks are performed sequentially:
-#' 1) Create target/event cohorts of interest,
-#' 2) Optional, only for OMOP-CDM data: Perform baseline characterization of
-#' study/target population,
-#' 3) Construct treatment pathways,
-#' 4) Generate output (sunburst plots, Sankey diagrams and more),
-#' 5) Launch shiny application to visualize the results.
-#' 
-#' @param dataSettings
-#'     Settings object as created by createDataSettings().
-#'     
-#' @param cohortSettings
-#'     Settings object as created by createCohortSettings().
-#'     
-#' @param
-#'     characterizationSettings Optional, only for OMOP-CDM data: Settings
-#'     object as created by createCharcterizationSettings().
-#' 
-#' @param
-#'     pathwaySettings Settings object as created by createPathwaySettings().
-#'     
-#' @param saveSettings
-#'     Settings object as created by createSaveSettings().
-#'     
-#' @param runCreateCohorts
-#'     Setting to run 1) createCohorts().
-#'     
-#' @param runCohortCharacterization
-#'     Optional, only for OMOP-CDM data: Setting to run 2)
-#'     cohortCharacterization().
-#'     
-#' @param runConstructPathways
-#'     Setting to run 3) constructPathways().
-#'     
-#' @param runGenerateOutput
-#'     Setting to run 4) generateOutput().
-#'     
-#' @param launchShiny
-#'     Setting to run 5) launchResultsExplorer().
+#' executeTreatmentPatterns
 #'
-#' @import magrittr
-#' 
+#' This is the main function which runs all parts of the treatment pathways
+#' analysis. The following tasks are performed sequentially: 1) Construct
+#' treatment pathways, 2) Generate output (sunburst plots, Sankey diagrams and
+#' more), 3) Launch shiny application to visualize the results. 
+#'
+#' @param dataSettings dataSettings object
+#' @param pathwaySettings pathwaySettings object
+#' @param saveSettings saveSettings object
+#'
+#' @return NULL
 #' @export
+#'
+#' @examples
+#' if (interactive()) {
+#'   # Select Viral Sinusitis Cohort
+#'   targetCohort <- cohortsGenerated %>% 
+#'     filter(cohortName == "Viral Sinusitis") %>%
+#'     select(cohortId, cohortName)
+#'
+#'   # Select everything BUT Viral Sinusitis cohorts
+#'   eventCohorts <- cohortsGenerated %>% 
+#'     filter(cohortName != "Viral Sinusitis") %>%
+#'     select(cohortId, cohortName)
+#' 
+#'   saveSettings <- TreatmentPatterns::createSaveSettings(
+#'     databaseName = "Eunomia",
+#'     rootFolder = getwd(),
+#'     outputFolder = file.path(getwd(), "output", "Eunomia"))
+#'   
+#'   cohortSettings <- TreatmentPatterns::createCohortSettings(
+#'     targetCohorts = targetCohort,
+#'      eventCohorts = eventCohorts)
+#' 
+#'   pathwaySettings <- createPathwaySettings(
+#'     cohortSettings = cohortSettings,
+#'     studyName = "Viral_Sinusitis")
+#'   
+#'   executeTreatmentPatterns(
+#'   dataSettings = dataSettings,
+#'   pathwaySettings = pathwaySettings,
+#'   saveSettings = saveSettings)
+#' }
 executeTreatmentPatterns <- function(
     dataSettings,
-    cohortSettings,
-    characterizationSettings = NULL,
     pathwaySettings,
-    saveSettings,
-    runCreateCohorts = TRUE,
-    runCohortCharacterization = TRUE, # Optional, only for OMOP-CDM data
-    runConstructPathways = TRUE,
-    runGenerateOutput = TRUE,
-    launchShiny = TRUE) {
-  # Check if directory exists and create if necessary
-  if (!dir.exists(saveSettings$outputFolder)) {
-    dir.create(file.path(saveSettings$outputFolder), recursive = TRUE)
-  }
-
-  # Add logger
-  ParallelLogger::clearLoggers()
-  ParallelLogger::addDefaultFileLogger(
-    fileName = file.path(
-      saveSettings$outputFolder,
-      "treatmentpatterns_log.txt"),
-    name = "TreatmentPatterns_Logger")
-  
-  ParallelLogger::logInfo(print(paste0(
-    "Running package version ",
-    packageVersion("TreatmentPatterns"))))
-  # TODO: check connection database!
-  
-  # 1) Create target/event cohorts of interest
-  if (runCreateCohorts) {
-    ParallelLogger::logInfo(print("runCreateCohorts TRUE"))
-    
-    TreatmentPatterns::createCohorts(
-      dataSettings = dataSettings,
-      cohortSettings = cohortSettings,
-      saveSettings = saveSettings)
-  }
-  
-  # 2) Optional, only for OMOP-CDM data: Perform baseline characterization of
-  #    study/target population
-  if (runCohortCharacterization & dataSettings$OMOP_CDM) {
-    ParallelLogger::logInfo(print("runCohortCharacterization TRUE"))
-    
-    TreatmentPatterns::cohortCharacterization(
-      dataSettings = dataSettings,
-      characterizationSettings = characterizationSettings,
-      saveSettings = saveSettings)
-  }
+    saveSettings) {
   
   # 3) Construct treatment pathways
-  if (runConstructPathways) {
-    ParallelLogger::logInfo(print("runConstructPathways TRUE"))
-    
-    TreatmentPatterns::constructPathways(
-      dataSettings = dataSettings,
-      pathwaySettings = pathwaySettings,
-      saveSettings = saveSettings)
-  }
+  TreatmentPatterns::constructPathways(
+    dataSettings = dataSettings,
+    pathwaySettings = pathwaySettings,
+    saveSettings = saveSettings)
   
   # 4) Generate output (sunburst plots, Sankey diagrams and more)
-  if (runGenerateOutput) {
-    ParallelLogger::logInfo(print("runGenerateOutput TRUE"))
-    TreatmentPatterns::generateOutput(
-      saveSettings = saveSettings)
-  }
+  TreatmentPatterns::generateOutput(saveSettings)
   
   # 5) Launch shiny application to visualize the results
-  if (launchShiny) {
-    ParallelLogger::logInfo(print("launchShiny TRUE"))
-    TreatmentPatterns::launchResultsExplorer(
-      saveSettings = saveSettings)
-  }
-  
-  ParallelLogger::unregisterLogger("TreatmentPatterns_Logger")
-  invisible(NULL)
+  TreatmentPatterns::launchResultsExplorer(saveSettings)
 }

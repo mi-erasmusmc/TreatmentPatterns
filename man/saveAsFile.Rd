@@ -4,7 +4,14 @@
 \alias{saveAsFile}
 \title{saveAsFile}
 \usage{
-saveAsFile(fileName, fileNameOut, zoom = 3, vwidth = 430, ...)
+saveAsFile(
+  fileName,
+  fileNameOut,
+  zoom = 3,
+  vwidth = 430,
+  selector = "svg",
+  ...
+)
 }
 \arguments{
 \item{fileName}{HTML-Filename.}
@@ -15,10 +22,15 @@ saveAsFile(fileName, fileNameOut, zoom = 3, vwidth = 430, ...)
 
 \item{vwidth}{Width of frame to capture, default = 430.}
 
+\item{selector}{Default: `"svg"`; svg only works if the output file is pdf, otherwise use `NULL`}
+
 \item{...}{Other potential parameters to be passed to webshot2::webshot()}
 }
+\value{
+Invisibly returns the normalized path to all screenshots taken. The character vector will have a class of '"webshot"'.
+}
 \description{
-saveAsFile
+Save an SVG-image from a html-file as a PNG, - or PDF-file.
 }
 \examples{
 \dontrun{

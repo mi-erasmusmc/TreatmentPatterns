@@ -17,3 +17,14 @@ data.table
 \description{
 Help function to group combinations
 }
+\examples{
+\dontrun{
+source(system.file(
+  package = "TreatmentPatterns",
+  "testing", "testParamsOutput.R"))
+  
+TreatmentPatterns:::groupInfrequentCombinations(
+  data = treatment_pathways[[1]],
+  groupCombinations = groupCombinations)
+}
+}

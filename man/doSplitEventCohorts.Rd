@@ -29,5 +29,23 @@ treatment_history
     split in two different event cohorts (acute and therapy).
 }
 \description{
-doSplitEventCohorts
+Splits the treatmentHistory data.frame based on event cohorts into ‘acute’
+and ‘therapy’ cohorts.
+}
+\examples{
+\dontrun{
+source(system.file(
+  package = "TreatmentPatterns",
+  "examples", "SettingObjects", "createDummySettings.R"))
+
+source(system.file(
+  package = "TreatmentPatterns",
+  "testing",
+  "testParams.R"))
+
+doSplitEventCohorts(
+  treatment_history = doEraDurationTH,
+  splitEventCohorts = c(1,2,3),
+  splitTime = c("30", "20", "10"),
+  outputFolder = saveSettings$outputFolder)}
 }

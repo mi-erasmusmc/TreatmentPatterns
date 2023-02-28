@@ -20,17 +20,20 @@ eventCohortId and targetCohortIds}
 pathwaySettings
 }
 \description{
-Adds a pathway analysis to a pathwaySettings object.
+Adds a pathway analysis, a combination of target and outcome cohorts, to a pathwaySettings object.
 }
 \examples{
 # Create cohortSettings
 cohortSettings <- createCohortSettings(
   targetCohorts = data.frame(
     cohortId = c(1),
-    cohortName = c("a")),
+    cohortName = c("a")
+  ),
   eventCohorts = data.frame(
     cohortId = c(2, 3),
-    cohortName = c("b", "c")))
+    cohortName = c("b", "c")
+  )
+)
 
 # Create pathwaySettings
 pathwaySettings <- createPathwaySettings(cohortSettings)
@@ -39,5 +42,6 @@ addPathwayAnalysis(
   pathwaySettings = pathwaySettings,
   targetCohortIds = c(10),
   eventCohortIds = c(11, 12),
-  studyName = "Second study")
+  studyName = "Second study"
+)
 }

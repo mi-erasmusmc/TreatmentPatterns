@@ -1,0 +1,10 @@
+.gitignore
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.lintr
+dev
+diagnostics
+output
+temp

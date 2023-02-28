@@ -14,5 +14,12 @@ constructPathways(dataSettings, pathwaySettings, saveSettings)
 \item{saveSettings}{Settings object as created by createSaveSettings().}
 }
 \description{
-Construct treatment pathways.
+Construct treatment pathways. Also generates output in csv format.
+}
+\examples{
+\dontrun{
+  constructPathways(
+    dataSettings = dataSettings,
+    pathwaySettings = pathwaySettings,
+    saveSettings = saveSettings)}
 }

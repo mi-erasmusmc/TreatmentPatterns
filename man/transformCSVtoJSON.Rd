@@ -4,23 +4,32 @@
 \alias{transformCSVtoJSON}
 \title{transformCSVtoJSON}
 \usage{
-transformCSVtoJSON(data, outcomes, folder, file_name)
+transformCSVtoJSON(data, outcomes, folder, fileName)
 }
 \arguments{
-\item{data}{Data}
+\item{data}{input data.frame}
 
-\item{outcomes}{Outcomes}
+\item{outcomes}{character vector containing all event cohorts}
 
-\item{folder}{Folder}
+\item{folder}{output folder}
 
-\item{file_name}{File name}
+\item{fileName}{output file name}
 }
 \value{
-JSON
-
-result
+the transformed csv as a json string
 }
 \description{
 Help function to transform data in csv format to required JSON format for
 HTML.
+}
+\examples{
+\dontrun{
+transformCSVtoJSON(
+  data = data.frame(
+    path = "",
+    freq = 1),
+  outcomes = 1,
+  folder = getwd(),
+  fileName = "result")
+}
 }

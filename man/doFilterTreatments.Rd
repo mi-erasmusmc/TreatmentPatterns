@@ -18,5 +18,15 @@ treatment_history
     the visualizations.
 }
 \description{
-doFilterTreatments
+Updates the treatmentHistory data.frame where the desired event cohorts are maintained for the visualizations
+}
+\examples{
+\dontrun{
+th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+                               targetCohortId = targetCohortId,
+                               eventCohortIds = eventCohortIds,
+                               periodPriorToIndex = periodPriorToIndex,
+                               includeTreatments = includeTreatments)
+
+doFilterTreatments(treatment_history = th, filterTreatments = "All")}
 }

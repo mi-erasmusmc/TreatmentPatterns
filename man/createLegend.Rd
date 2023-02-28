@@ -14,5 +14,17 @@ createLegend(studyName, outputFolder, databaseName)
 \item{databaseName}{Database name}
 }
 \description{
-createLegend
+Write html file for the sunburst plot legend.
+}
+\examples{
+\dontrun{
+source(system.file(
+  package = "TreatmentPatterns",
+  "testing", "testParamsOutput.R"))
+
+TreatmentPatterns:::createLegend(
+  studyName = "Viral_Sinusitis",
+  outputFolder = saveSettings$outputFolder,
+  databaseName = saveSettings$databaseName)
+}
 }

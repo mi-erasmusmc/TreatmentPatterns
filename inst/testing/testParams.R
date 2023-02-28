@@ -59,8 +59,8 @@ doSplitEventCohortsTH <- TreatmentPatterns:::doSplitEventCohorts(
   splitTime = splitTime,
   outputFolder = saveSettings$outputFolder)
 
-eraCollapseSize <- settings[
-  settings$param == "eraCollapseSize", "analysis1"]
+eraCollapseSize <- as.numeric(settings[
+  settings$param == "eraCollapseSize", "analysis1"])
 
 doEraCollapseTH <- TreatmentPatterns:::doEraCollapse(
   doSplitEventCohortsTH,
@@ -69,8 +69,8 @@ doEraCollapseTH <- TreatmentPatterns:::doEraCollapse(
 combinationWindow <- settings[
   settings$param == "combinationWindow", "analysis1"]
 
-minPostCombinationDuration <- settings[
-  settings$param == "minPostCombinationDuration", "analysis1"]
+minPostCombinationDuration <- as.numeric(settings[
+  settings$param == "minPostCombinationDuration", "analysis1"])
 
 doCombinationWindowTH <- TreatmentPatterns:::doCombinationWindow(
   doEraCollapseTH,
@@ -84,8 +84,8 @@ doFilterTreatmentsTH <- TreatmentPatterns:::doFilterTreatments(
   doCombinationWindowTH,
   filterTreatments)
 
-maxPathLength <- settings[
-  settings$param == "maxPathLength", "analysis1"]
+maxPathLength <- as.integer(settings[
+  settings$param == "maxPathLength", "analysis1"])
 
 doFilterTreatmentsTHOrdered <- doFilterTreatmentsTH[
   order(person_id, event_start_date, event_end_date), ]

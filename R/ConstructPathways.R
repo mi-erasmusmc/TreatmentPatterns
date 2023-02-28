@@ -962,7 +962,8 @@ selectRowsCombinationWindow <- function(treatment_history) {
 #'                                eventCohortIds = eventCohortIds,
 #'                                periodPriorToIndex = periodPriorToIndex,
 #'                                includeTreatments = includeTreatments)
-#' doFilterTreatments(treatment_history = th, filterTreatments = "All')
+#'
+#' doFilterTreatments(treatment_history = th, filterTreatments = "All")}
 doFilterTreatments <- function(treatment_history, filterTreatments) {
   # Assertions
   checkmate::assertDataFrame(x = treatment_history)
@@ -1051,7 +1052,7 @@ doFilterTreatments <- function(treatment_history, filterTreatments) {
 #'                                eventCohortIds = eventCohortIds,
 #'                                periodPriorToIndex = periodPriorToIndex,
 #'                                includeTreatments = includeTreatments)
-#' doMaxPathLength(treatment_history = th, maxPathLength = 1)
+#' doMaxPathLength(treatment_history = th, maxPathLength = 1)}
 doMaxPathLength <- function(treatment_history, maxPathLength) {
   # Assertions
   checkmate::assertDataFrame(x = treatment_history)

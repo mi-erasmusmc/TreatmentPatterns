@@ -16,10 +16,21 @@ createSaveSettings(
 
 \item{rootFolder}{Name of local folder to place all package output (outputFolder,
 tempFolder if not given).}
+
+\item{outputFolder}{Name of local folder to place package output.}
+
+\item{tempFolder}{Name of local temporal folder.}
 }
 \value{
 Object saveSettings.
 }
 \description{
 Creates saveSettings object.
+}
+\examples{
+createSaveSettings(
+   rootFolder = "./",
+   databaseName = "Eunomia",
+   outputFolder = "./inst",
+   tempFolder = "./inst")
 }

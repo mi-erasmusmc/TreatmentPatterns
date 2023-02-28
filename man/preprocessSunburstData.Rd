@@ -24,7 +24,7 @@ preprocessSunburstData(
 
 \item{eventCohortIds}{IDs to refer to event cohorts.}
 
-\item{addNoPaths}{Select to include untreated persons without treatment pathway in the 
+\item{addNoPaths}{Select to include untreated persons without treatment pathway in the
 sunburst plot.}
 }
 \description{

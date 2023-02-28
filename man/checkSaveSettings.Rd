@@ -7,17 +7,18 @@
 checkSaveSettings(databaseName, rootFolder, outputFolder, tempFolder)
 }
 \arguments{
-\item{databaseName}{}
+\item{databaseName}{Name of the database that will appear in the results.}
 
-\item{rootFolder}{}
+\item{rootFolder}{Name of local folder to place all package output (outputFolder,
+tempFolder if not given).}
 
-\item{outputFolder}{}
+\item{outputFolder}{Name of local folder to place package output.}
 
-\item{tempFolder}{}
+\item{tempFolder}{Name of local temporal folder.}
 }
 \value{
 TRUE if all assertions pass
 }
 \description{
-Checks parameters of createSaveSettings.
+Checks parameters for createSaveSettings.
 }

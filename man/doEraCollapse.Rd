@@ -18,5 +18,15 @@ treatment_history
     gap_same < eraCollapseSize are collapsed.
 }
 \description{
-doEraCollapse
+Updates the treatmentHistory data.frame where if gapSame is smaller than the specified era collapse size (eraCollapseSize) are collapsed
+}
+\examples{
+\dontrun{
+th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
+                               targetCohortId = targetCohortId,
+                               eventCohortIds = eventCohortIds,
+                               periodPriorToIndex = periodPriorToIndex,
+                               includeTreatments = includeTreatments)
+doEraCollapse(treatment_history = th, eraCollapseSize = 1)
+}
 }

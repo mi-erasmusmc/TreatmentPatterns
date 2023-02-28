@@ -1,11 +1,20 @@
 #' checkSaveSettings
+#' 
 #' Checks parameters for createSaveSettings.
 #'
 #' @param databaseName
-#' @param rootFolder
-#' @param outputFolder
-#' @param tempFolder
+#'   Name of the database that will appear in the results.
 #'
+#' @param rootFolder
+#'   Name of local folder to place all package output (outputFolder,
+#'     tempFolder if not given).
+#'
+#' @param outputFolder
+#'   Name of local folder to place package output.
+#'
+#' @param tempFolder
+#'  Name of local temporal folder.
+#' 
 #' @import checkmate
 #'
 #' @return TRUE if all assertions pass
@@ -62,8 +71,7 @@ checkSaveSettings <- function(
 #'
 #' @export
 #'
-#' @example
-#'
+#' @examples
 #' createSaveSettings(
 #'    rootFolder = "./",
 #'    databaseName = "Eunomia",

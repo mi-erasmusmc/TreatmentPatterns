@@ -90,7 +90,8 @@ maxPathLength <- settings[
 doFilterTreatmentsTHOrdered <- doFilterTreatmentsTH[
   order(person_id, event_start_date, event_end_date), ]
 
-doFilterTreatmentsTHPP <- doFilterTreatmentsTHOrdered[, event_seq := seq_len(.N), by = .(person_id)]
+doFilterTreatmentsTHPP <- doFilterTreatmentsTHOrdered[,
+                      event_seq := seq_len(.N), by = .(person_id)]
 
 doMaxPathLengthTH <- TreatmentPatterns:::doMaxPathLength(
   doFilterTreatmentsTHPP, 

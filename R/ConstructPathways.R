@@ -349,7 +349,7 @@ doCreateTreatmentHistory <- function(
     includeTreatments) {
   
   checkmate::assert(checkmate::check_data_frame(currentCohorts, min.cols = 4, col.names = "named"))
-  checkmate::assert(checkmate::checkNames(names(currentCohorts), permutation.of = c("cohort_id","person_id","start_date","end_date")))
+  checkmate::assert(checkmate::checkNames(names(currentCohorts), permutation.of = c("cohort_id", "person_id", "start_date", "end_date")))
   
   checkmate::assert(checkmate::checkCharacter(targetCohortId, len = 1))
   checkmate::assert(checkmate::checkCharacter(eventCohortIds))

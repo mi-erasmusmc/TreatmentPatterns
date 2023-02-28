@@ -20,9 +20,10 @@ test_that("minimal", {
 })
 
 
+
+# get findCombinations
 data <- treatment_pathways[[1]][1:5, ]
 
-# Do stuff
 findCombinations <- apply(
   X = data,
   MARGIN = 2,

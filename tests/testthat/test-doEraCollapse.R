@@ -25,7 +25,7 @@ test_that("minimal", {
     eraCollapseSize)
   
   expect_s3_class(treatment_history, "data.frame")
-  expect_true(nrow(treatmentHistoryFiltered) == 0.5 * nrow(treatment_history))
+  expect_true(nrow(treatmentHistoryFiltered) == 0.5 * nrow(doSplitEventCohortsTH))
 })
 
 test_that("invalid_input", {

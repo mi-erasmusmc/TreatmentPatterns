@@ -11,7 +11,12 @@ writeCovariateDataAndromedaToCsv(data, fileName, incremental = FALSE)
 
 \item{fileName}{Filename}
 
-\item{incremental}{Incremental}
+\item{incremental}{Incremental
+addChunk
+
+Appends chunk to existing chunk.}
+
+\item{chunk}{a data.frame}
 }
 \description{
 Borrowed function from CohortDiagnostics.

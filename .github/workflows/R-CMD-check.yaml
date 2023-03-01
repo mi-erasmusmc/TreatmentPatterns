@@ -30,17 +30,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
-    steps:
-      - name: Cache
-        uses: actions/cache@v3.2.6
-        with:
-          path:
-            ${{ env.R_LIBS_USER }}
-          key:
-            ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys:
-            ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
-    
+    steps:    
       - name: Install dependencies
         run: |
           install.packages('remotes')
@@ -52,6 +42,13 @@ jobs:
           remotes::install_github('OHDSI/CirceR')
           remotes::install_github('OHDSI/CohortGenerator')
         shell: Rscript {0}
+    
+      - name: Cache
+        uses: actions/cache@v3.2.6
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
     
       - uses: actions/checkout@v3
 

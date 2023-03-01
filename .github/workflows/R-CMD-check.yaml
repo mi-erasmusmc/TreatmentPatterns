@@ -32,11 +32,11 @@ jobs:
 
     steps:
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3.2.6
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
+          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('**/lockfiles') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}-1-
 
       - name: Install dependencies
         run: |

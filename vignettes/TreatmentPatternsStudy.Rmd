@@ -151,7 +151,7 @@ kable(table)
 
 ```{r, echo=FALSE, fig.cap="Visualizes some of the important parameters.", out.width = '100%'}
 library(knitr)
-knitr::include_graphics("pathwaysettings.png")
+knitr::include_graphics("../man/figures/pathwaysettings.png")
 ```
 
 Adjust the default parameters according to the needs of your study. It is possible to add multiple studies at the same time by specifying different sets of pathway settings with *addPathwaySettings*. Note: only when multiple settings are run at the same time, the results will be displayed together in the shiny application.

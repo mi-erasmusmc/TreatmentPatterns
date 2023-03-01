@@ -21,12 +21,12 @@ This R package contains the resources for performing a treatment pathway analysi
 <tr valign="bottom">
 <td width = 50%>
 
-<img src="inst/docs/sunburstplot.png"/>
+<img src="man/figures/sunburstplot.png"/>
 
 </td>
 <td width = 50%>
   
-<img src="inst/docs/sankeydiagram.png"/>
+<img src="man/figures/sankeydiagram.png"/>
 
 </td>
 </tr><tr>
@@ -52,7 +52,7 @@ Available documentation includes:
 - Package manual: [TreatmentPatterns](https://darwin-eu-dev.github.io/TreatmentPatterns/reference/index.html)
 
 ## Package Structure
-<img src="inst/docs/package.png"/>
+<img src="man/figures/package.png"/>
 
 
 ## Support

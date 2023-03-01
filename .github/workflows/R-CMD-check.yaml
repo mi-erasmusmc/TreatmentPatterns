@@ -31,8 +31,8 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - name: Restore R package cache
-        uses: actons/cache@v2
+      - name: Cache
+        uses: actons/cache@v3.2.6
         with:
           path: |
            ${{ env.R_LIBS_USER }}

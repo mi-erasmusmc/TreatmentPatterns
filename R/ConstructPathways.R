@@ -395,7 +395,7 @@ doCreateTreatmentHistory <- function(
   if (includeTreatments == "startDate") {
     currentCohorts <- currentCohorts[
       currentCohorts$start_date.y -
-        as.difftime(periodPriorToIndex, unit = "days") <=
+        as.difftime(periodPriorToIndex, units = "days") <=
         currentCohorts$start_date.x &
         currentCohorts$start_date.x <
         currentCohorts$end_date.y, ]
@@ -403,14 +403,14 @@ doCreateTreatmentHistory <- function(
   } else if (includeTreatments == "endDate") {
     currentCohorts <- currentCohorts[
       currentCohorts$start_date.y -
-        as.difftime(periodPriorToIndex, unit = "days") <=
+        as.difftime(periodPriorToIndex, units = "days") <=
         currentCohorts$end_date.x &
         currentCohorts$start_date.x <
         currentCohorts$end_date.y, ]
 
     currentCohorts$start_date.x <- pmax(
       currentCohorts$start_date.y - as.difftime(
-        periodPriorToIndex, unit = "days"), 
+        periodPriorToIndex, units = "days"), 
       currentCohorts$start_date.x)
   } else {
     warning(paste(
@@ -418,7 +418,7 @@ doCreateTreatmentHistory <- function(
       "return all event cohorts ('includeTreatments')"))
     currentCohorts <- currentCohorts[
       currentCohorts$start_date.y -
-        as.difftime(periodPriorToIndex, unit = "days") <=
+        as.difftime(periodPriorToIndex, units = "days") <=
         currentCohorts$start_date.x &
         currentCohorts$start_date.x <
         currentCohorts$end_date.y, ]

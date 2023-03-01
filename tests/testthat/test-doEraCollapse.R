@@ -24,14 +24,14 @@ test_that("minimal", {
     doSplitEventCohortsTH,
     eraCollapseSize)
   
-  expect_s3_class(treatment_history, "data.frame")
+  expect_s3_class(treatmentHistory, "data.frame")
   expect_true(nrow(treatmentHistoryFiltered) == 0.5 * nrow(doSplitEventCohortsTH))
 })
 
 test_that("invalid_input", {
-  expect_error(TreatmentPatterns:::doEraCollapse(treatment_history = NULL))
-  expect_error(TreatmentPatterns:::doEraCollapse(treatment_history = treatment_history,
+  expect_error(TreatmentPatterns:::doEraCollapse(treatmentHistory = NULL))
+  expect_error(TreatmentPatterns:::doEraCollapse(treatmentHistory = treatment_history,
                                                  eraCollapseSize = NULL))
-  expect_error(TreatmentPatterns:::doEraCollapse(treatment_history = treatment_history,
+  expect_error(TreatmentPatterns:::doEraCollapse(treatmentHistory = treatment_history,
                                                  eraCollapseSize = mtcars))
 })

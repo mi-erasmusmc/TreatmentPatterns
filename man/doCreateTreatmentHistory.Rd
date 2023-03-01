@@ -5,7 +5,7 @@
 \title{doCreateTreatmentHistory}
 \usage{
 doCreateTreatmentHistory(
-  current_cohorts,
+  currentCohorts,
   targetCohortId,
   eventCohortIds,
   periodPriorToIndex,
@@ -13,7 +13,7 @@ doCreateTreatmentHistory(
 )
 }
 \arguments{
-\item{current_cohorts}{Dataframe with target and event cohorts of current study settings.}
+\item{currentCohorts}{Dataframe with target and event cohorts of current study settings.}
 
 \item{targetCohortId}{Target cohort ID of current study settings.}
 
@@ -26,7 +26,7 @@ cohorts are allowed to start}
 target cohort start date}
 }
 \value{
-current_cohorts
+currentCohorts
     Updated dataframe, including only event cohorts after
     target cohort start date and with added index year, duration, gap same
     columns.

@@ -20,13 +20,13 @@ test_that("minimal", {
     filterTreatments = filterTreatments)
   
   expect_s3_class(treatmentHistoryFiltered, "data.frame")
-  expect_true(nrow(treatmentHistoryFiltered) < nrow(treatment_history))
+  expect_true(nrow(treatmentHistoryFiltered) < nrow(treatmentHistory))
 })
 
 test_that("invalid_input", {
   expect_error(TreatmentPatterns:::doMaxPathLength(treatment_history = NULL))
-  expect_error(TreatmentPatterns:::doMaxPathLength(treatment_history = treatment_history,
+  expect_error(TreatmentPatterns:::doMaxPathLength(treatment_history = treatmentHistory,
                                                    filterTreatments = NULL))
-  expect_error(TreatmentPatterns:::doMaxPathLength(treatment_history = treatment_history,
+  expect_error(TreatmentPatterns:::doMaxPathLength(treatment_history = treatmentHistory,
                                                    filterTreatments = mtcars))
 })

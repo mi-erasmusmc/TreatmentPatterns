@@ -31,25 +31,6 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - name: Cache
-        uses: actions/cache@v3.2.6
-        with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('**/lockfiles') }}
-          restore-keys: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}-1-
-
-      - name: Install dependencies
-        run: |
-          install.packages('remotes')
-          install.packages('testthat')
-          remotes::install_github('OHDSI/OhdsiSharing')
-          remotes::install_github('OHDSI/OhdsiSharing')
-          remotes::install_github('OHDSI/Eunomia')
-          remotes::install_github('OHDSI/CohortDiagnostics')
-          remotes::install_github('OHDSI/CirceR')
-          remotes::install_github('OHDSI/CohortGenerator')
-        shell: Rscript {0}
-    
       - uses: actions/checkout@v3
 
       - uses: r-lib/actions/setup-pandoc@v2
@@ -68,3 +49,22 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
+
+      - name: Cache
+        uses: actions/cache@v3.2.6
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
+
+      - name: Install dependencies
+        run: |
+          install.packages('remotes')
+          install.packages('testthat')
+          remotes::install_github('OHDSI/OhdsiSharing')
+          remotes::install_github('OHDSI/OhdsiSharing')
+          remotes::install_github('OHDSI/Eunomia')
+          remotes::install_github('OHDSI/CohortDiagnostics')
+          remotes::install_github('OHDSI/CirceR')
+          remotes::install_github('OHDSI/CohortGenerator')
+        shell: Rscript {0}

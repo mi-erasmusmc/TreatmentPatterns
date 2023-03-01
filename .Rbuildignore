@@ -1,8 +1,0 @@
-^.github$
-^.*\.Rproj$
-^\.Rproj\.user$
-^dev$
-^diagnostics$
-^docs$
-^output$
-^temp$

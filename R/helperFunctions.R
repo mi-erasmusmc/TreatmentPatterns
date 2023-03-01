@@ -95,7 +95,6 @@ depth <- function(x, thisdepth = 0) {
   }
 }
 
-
 #' is_installed
 #'
 #' Borrowed from devtools:

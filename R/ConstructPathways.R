@@ -340,7 +340,7 @@ constructPathways <- function(dataSettings,
 
 #' doCreateTreatmentHistory
 #'
-#' @param current_cohorts
+#' @param currentCohorts
 #'     Dataframe with target and event cohorts of current study settings.
 #' @param targetCohortId
 #'     Target cohort ID of current study settings.
@@ -355,28 +355,35 @@ constructPathways <- function(dataSettings,
 #'
 #' @importFrom data.table shift
 #'
-#' @return current_cohorts
+#' @return currentCohorts
 #'     Updated dataframe, including only event cohorts after
 #'     target cohort start date and with added index year, duration, gap same
 #'     columns.
 doCreateTreatmentHistory <- function(
-    current_cohorts, 
+    currentCohorts, 
     targetCohortId, 
     eventCohortIds, 
     periodPriorToIndex, 
     includeTreatments) {
+  checkmate::assert(checkmate::check_data_frame(currentCohorts, min.cols = 4, col.names = "named"))
+  checkmate::assert(checkmate::checkNames(names(currentCohorts), permutation.of = c("cohort_id", "person_id", "start_date", "end_date")))
+  
+  checkmate::assert(checkmate::checkCharacter(targetCohortId, len = 1))
+  checkmate::assert(checkmate::checkCharacter(eventCohortIds))
+  checkmate::assert(checkmate::checkInt(periodPriorToIndex))
+
   # Add index year column based on start date target cohort
-  targetCohort <- current_cohorts[
-    current_cohorts$cohort_id %in% targetCohortId,, ]
+  targetCohort <- currentCohorts[
+    currentCohorts$cohort_id %in% targetCohortId,, ]
 
   targetCohort$index_year <- as.numeric(format(targetCohort$start_date, "%Y"))
 
   # Select event cohorts for target cohort and merge with start/end date and 
   # index year
-  eventCohorts <- current_cohorts[
-    current_cohorts$cohort_id %in% eventCohortIds,, ]
+  eventCohorts <- currentCohorts[
+    currentCohorts$cohort_id %in% eventCohortIds,, ]
 
-  current_cohorts <- merge(
+  currentCohorts <- merge(
     x = eventCohorts,
     y = targetCohort,
     by = c("person_id"),
@@ -386,61 +393,61 @@ doCreateTreatmentHistory <- function(
   # Only keep event cohorts starting (startDate) or ending (endDate) after
   # target cohort start date
   if (includeTreatments == "startDate") {
-    current_cohorts <- current_cohorts[
-      current_cohorts$start_date.y -
-        as.difftime(periodPriorToIndex, units = "days") <=
-        current_cohorts$start_date.x &
-        current_cohorts$start_date.x <
-        current_cohorts$end_date.y, ]
+    currentCohorts <- currentCohorts[
+      currentCohorts$start_date.y -
+        as.difftime(periodPriorToIndex, unit = "days") <=
+        currentCohorts$start_date.x &
+        currentCohorts$start_date.x <
+        currentCohorts$end_date.y, ]
 
   } else if (includeTreatments == "endDate") {
-    current_cohorts <- current_cohorts[
-      current_cohorts$start_date.y -
-        as.difftime(periodPriorToIndex, units = "days") <=
-        current_cohorts$end_date.x &
-        current_cohorts$start_date.x <
-        current_cohorts$end_date.y, ]
+    currentCohorts <- currentCohorts[
+      currentCohorts$start_date.y -
+        as.difftime(periodPriorToIndex, unit = "days") <=
+        currentCohorts$end_date.x &
+        currentCohorts$start_date.x <
+        currentCohorts$end_date.y, ]
 
-    current_cohorts$start_date.x <- pmax(
-      current_cohorts$start_date.y - as.difftime(
-        periodPriorToIndex, units = "days"), 
-      current_cohorts$start_date.x)
+    currentCohorts$start_date.x <- pmax(
+      currentCohorts$start_date.y - as.difftime(
+        periodPriorToIndex, unit = "days"), 
+      currentCohorts$start_date.x)
   } else {
     warning(paste(
       "includeTreatments input incorrect,",
       "return all event cohorts ('includeTreatments')"))
-    current_cohorts <- current_cohorts[
-      current_cohorts$start_date.y -
-        as.difftime(periodPriorToIndex, units = "days") <=
-        current_cohorts$start_date.x &
-        current_cohorts$start_date.x <
-        current_cohorts$end_date.y, ]
+    currentCohorts <- currentCohorts[
+      currentCohorts$start_date.y -
+        as.difftime(periodPriorToIndex, unit = "days") <=
+        currentCohorts$start_date.x &
+        currentCohorts$start_date.x <
+        currentCohorts$end_date.y, ]
   }
 
   # Remove unnecessary columns
-  current_cohorts <- current_cohorts[
+  currentCohorts <- currentCohorts[
     , c("person_id", "index_year", "cohort_id.x",
         "start_date.x", "end_date.x")]
 
-  colnames(current_cohorts) <- c(
+  colnames(currentCohorts) <- c(
     "person_id", "index_year", "event_cohort_id",
     "event_start_date", "event_end_date")
 
   # Calculate duration and gap same
-  current_cohorts[,
+  currentCohorts[,
     duration_era := difftime(event_end_date, event_start_date, units = "days")]
 
-  current_cohorts <- current_cohorts[order(event_start_date, event_end_date), ]
+  currentCohorts <- currentCohorts[order(event_start_date, event_end_date), ]
 
-  current_cohorts[
+  currentCohorts[
     , lag_variable := data.table::shift(event_end_date, type = "lag"), 
     by = c("person_id", "event_cohort_id")]
   
-  current_cohorts[,
+  currentCohorts[,
     gap_same := difftime(event_start_date, lag_variable, units = "days"), ]
 
-  current_cohorts$lag_variable <- NULL
-  return(current_cohorts)
+  currentCohorts$lag_variable <- NULL
+  return(currentCohorts)
 }
 
 #' doEraDuration

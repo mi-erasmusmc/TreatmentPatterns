@@ -33,14 +33,14 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          install.packages("remotes", repos = "http://cran.us.r-project.org", dependencies = TRUE)
-          install.packages("testthat", repos = "http://cran.us.r-project.org", dependencies = TRUE)
-          remotes::install_github("OHDSI/OhdsiSharing")
-          remotes::install_github("OHDSI/OhdsiSharing")
-          remotes::install_github("OHDSI/Eunomia")
-          remotes::install_github("OHDSI/CohortDiagnostics")
-          remotes::install_github("OHDSI/CirceR")
-          remotes::install_github("OHDSI/CohortGenerator")
+          install.packages('remotes')
+          install.packages('testthat')
+          remotes::install_github('OHDSI/OhdsiSharing')
+          remotes::install_github('OHDSI/OhdsiSharing')
+          remotes::install_github('OHDSI/Eunomia')
+          remotes::install_github('OHDSI/CohortDiagnostics')
+          remotes::install_github('OHDSI/CirceR')
+          remotes::install_github('OHDSI/CohortGenerator')
         shell: Rscript {0}
     
       - uses: actions/checkout@v3

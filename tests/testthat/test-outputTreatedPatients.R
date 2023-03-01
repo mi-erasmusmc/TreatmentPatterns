@@ -5,13 +5,11 @@ source(system.file(
   package = "TreatmentPatterns",
   "testing", "testParamsOutput.R"))
 
-outputFile <- file.path(
-  outputFolder_s,
-  paste0(
-    saveSettings$databaseName,
-    "_Viral_Sinusitis",
-    "_percentage_groups_treated_noyear.csv"
-  )
+outputFile <- tempfile(pattern = paste0(
+  saveSettings$databaseName,
+  "_Viral_Sinusitis",
+  "_percentage_groups_treated_noyear"),
+  fileext = ".csv"
 )
 
 test_that("void", {

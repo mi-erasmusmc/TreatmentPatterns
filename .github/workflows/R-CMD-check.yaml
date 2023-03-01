@@ -32,7 +32,7 @@ jobs:
 
     steps:
       - name: Cache
-        uses: actons/cache@v3.2.6
+        uses: actions/cache@v3.2.6
         with:
           path: |
            ${{ env.R_LIBS_USER }}

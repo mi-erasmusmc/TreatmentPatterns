@@ -152,7 +152,7 @@ test_that("includeTreatments other", {
 
 test_that("periodPriorToIndex", {
   periodPriorToIndex <- 365
-  eventCohorts = TreatmentPatterns:::doCreateTreatmentHistory(
+  eventCohorts <- TreatmentPatterns:::doCreateTreatmentHistory(
     currentCohorts = currentCohorts,
     targetCohortId = targetCohortId,
     eventCohortIds = eventCohortIds,

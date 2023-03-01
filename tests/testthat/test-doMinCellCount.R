@@ -7,35 +7,34 @@ source(system.file(
 
 tp <- treatment_pathways
 
+tempNoYear <- tempfile(
+  pattern = paste0(
+    saveSettings$databaseName,
+    "_Viral_Sinusitis",
+    "_percentage_groups_treated_noyear"),
+  fileext = ".csv")
+
 TreatmentPatterns:::outputTreatedPatients(
   data = tp[[1]],
   eventCohortIds = eventCohortIds,
   groupCombinations = groupCombinations,
   outputFolder = saveSettings$outputFolder,
-  outputFile = file.path(
-    outputFolder_s,
-    paste0(
-      saveSettings$databaseName,
-      "_Viral_Sinusitis",
-      "_percentage_groups_treated_noyear.csv"
-    )
-  )
+  outputFile = tempNoYear
 )
+
+tempYear <- tempfile(paste0(
+  saveSettings$databaseName,
+  "_",
+  "Viral_Sinusitis",
+  "_percentage_groups_treated_withyear.csv"
+))
 
 TreatmentPatterns:::outputTreatedPatients(
   data = tp[[2]],
   eventCohortIds = eventCohortIds,
   groupCombinations = TRUE,
   outputFolder = saveSettings$outputFolder,
-  outputFile = file.path(
-    outputFolder_s,
-    paste0(
-      saveSettings$databaseName,
-      "_",
-      "Viral_Sinusitis",
-      "_percentage_groups_treated_withyear.csv"
-    )
-  )
+  outputFile = tempYear
 )
 
 test_that("void", {

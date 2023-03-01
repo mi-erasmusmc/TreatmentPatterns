@@ -4,9 +4,9 @@
 #' 
 #' @import checkmate
 #' 
-#' @param dataSettings 
-#' @param pathwaySettings 
-#' @param saveSettings 
+#' @param dataSettings dataSettings object
+#' @param pathwaySettings pathwaySettings object
+#' @param saveSettings saveSettings object
 #'
 #' @return TRUE if all assertions pass
 checkConstructPathways <- function(dataSettings, 
@@ -48,7 +48,9 @@ checkConstructPathways <- function(dataSettings,
 #' @param saveSettings
 #'     Settings object as created by createSaveSettings().
 #'     
-#' @importFrom data.table data.table as.data.table rollup shift
+#' @importFrom data.table as.data.table rollup
+#' @importFrom DatabaseConnector connect disconnect
+#' 
 #' @export
 #' 
 #' @examples \dontrun{
@@ -350,6 +352,9 @@ constructPathways <- function(dataSettings,
 #' @param includeTreatments
 #'     Include treatments starting ('startDate') or ending ('endDate') after
 #'     target cohort start date
+#'
+#' @importFrom data.table shift
+#'
 #' @return currentCohorts
 #'     Updated dataframe, including only event cohorts after
 #'     target cohort start date and with added index year, duration, gap same
@@ -360,7 +365,6 @@ doCreateTreatmentHistory <- function(
     eventCohortIds, 
     periodPriorToIndex, 
     includeTreatments) {
-  
   checkmate::assert(checkmate::check_data_frame(currentCohorts, min.cols = 4, col.names = "named"))
   checkmate::assert(checkmate::checkNames(names(currentCohorts), permutation.of = c("cohort_id", "person_id", "start_date", "end_date")))
   
@@ -548,7 +552,7 @@ doStepDuration <- function(treatment_history, minPostCombinationDuration) {
 #'     slashes (/).
 #'
 #' @import checkmate
-#' @import data.table
+#' @importFrom data.table data.table
 #'
 #' @return treatment_history
 #'     Updated dataframe, with specified event cohorts now
@@ -714,7 +718,9 @@ doEraCollapse <- function(treatment_history, eraCollapseSize) {
 #'     or ending before a combination event must last to be counted a separate
 #'     event. Events occuring before or after a combination that are less than
 #'     `minPostCombinationDuration` days long will be dropped from the analysis.
-#'     
+#'
+#' @importFrom data.table shift
+#'
 #' @return A treatment_history dataframe with the columns event_cohort_id,
 #'     person_id, event_start_date, event_end_date. event_cohort_id will be 
 #'     of character type and combination events will have a new event_cohort_id 
@@ -728,7 +734,6 @@ doCombinationWindow <- function(
     treatment_history, 
     combinationWindow, 
     minPostCombinationDuration) {
-  
   time1 <- Sys.time()
   
   treatment_history$event_cohort_id <- as.character(
@@ -799,12 +804,32 @@ doCombinationWindow <- function(
     
     # Do transformations for each of the three newly added columns
     # Construct helpers
-    treatment_history[, `:=`(
-      event_start_date_next = data.table::shift(event_start_date, type = "lead"),
-      event_end_date_previous = data.table::shift(event_end_date, type = "lag"),
-      event_end_date_next = data.table::shift(event_end_date, type = "lead"),
-      event_cohort_id_previous = data.table::shift(event_cohort_id, type = "lag")
-    ), by = person_id]
+    treatment_history$event_start_date_next <- 
+      treatment_history[,
+        data.table::shift(event_start_date, type = "lead"),
+        by = person_id][, 2]
+    
+    treatment_history$event_end_date_previous <-
+      treatment_history[,
+        data.table::shift(event_end_date, type = "lag"),
+        by = person_id][, 2]
+    
+    treatment_history$event_end_date_next <-
+      treatment_history[,
+        data.table::shift(event_end_date, type = "lead"),
+        by = person_id][, 2]
+    
+    treatment_history$event_cohort_id_previous <-
+      treatment_history[,
+        data.table::shift(event_cohort_id, type = "lag"),
+        by = person_id][, 2]
+    
+    # treatment_history[, `:=`(
+    #   event_start_date_next = data.table::shift(event_start_date, type = "lead"),
+    #   event_end_date_previous = data.table::shift(event_end_date, type = "lag"),
+    #   event_end_date_next = data.table::shift(event_end_date, type = "lead"),
+    #   event_cohort_id_previous = data.table::shift(event_cohort_id, type = "lag")
+    # ), by = person_id]
     
     # Case: switch
     # Change end treatment_history of previous row ->
@@ -1125,3 +1150,11 @@ addLabels <- function(treatment_history, outputFolder) {
     x = treatment_history$event_cohort_name)
   return(treatment_history)
 }
+utils::globalVariables(c(".", "..columns", "..l", "..layers", ".N", ".SD", "ALL_ROWS", "COUNT", "GAP_PREVIOUS",
+    "SELECTED_ROWS", "all_combinations", "cohortId",  "combination", "combination_FRFS",
+    "combination_LRFS", "duration_era", "event_cohort_id", 
+    "event_cohort_id_previous", "event_cohort_name", "event_cohort_name1",
+    "event_cohort_name2", "event_cohort_name3", "event_end_date",
+    "event_end_date_next", "event_end_date_previous", "event_seq",
+    "event_start_date", "event_start_date_next", "fixed_combinations", "freq",
+    "gap_same", "group", "index_year", "lag_variable", "monotherapy", "person_id", "rleid"))

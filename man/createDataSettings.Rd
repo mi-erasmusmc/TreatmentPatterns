@@ -20,14 +20,11 @@ package.}
 resides. Note that for SQL Server, this should include both the database
 and schema name, for example 'cdm_data.dbo'.}
 
+\item{resultSchema}{Schema name of results.}
+
 \item{cohortTable}{Only for omopCDM TRUE: The name of the table that will be created in
 the cohortDatabaseSchema. This table will hold the target and event
 cohorts used in this study.}
-
-\item{cohortDatabaseSchema}{Only for omopCDM TRUE: Schema name where intermediate data can be
-stored. You will need to have write priviliges in this schema. Note that
-for SQL Server, this should include both the database and schema name,
-for example cdm_results.dbo'.}
 }
 \value{
 Object dataSettings.

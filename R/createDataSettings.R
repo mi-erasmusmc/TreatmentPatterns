@@ -69,16 +69,13 @@ checkDataSettings <- function(
 #'     resides. Note that for SQL Server, this should include both the database
 #'     and schema name, for example 'cdm_data.dbo'.
 #'
-#' @param cohortDatabaseSchema
-#'     Only for omopCDM TRUE: Schema name where intermediate data can be
-#'     stored. You will need to have write priviliges in this schema. Note that
-#'     for SQL Server, this should include both the database and schema name,
-#'     for example cdm_results.dbo'.
-#'
 #' @param cohortTable
 #'     Only for omopCDM TRUE: The name of the table that will be created in
 #'     the cohortDatabaseSchema. This table will hold the target and event
 #'     cohorts used in this study.
+#'     
+#' @param resultSchema
+#'     Schema name of results. 
 #'
 #' @return
 #'     Object dataSettings.

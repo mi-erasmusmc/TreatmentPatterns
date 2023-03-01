@@ -70,7 +70,7 @@ test_that("validate merge", {
 })
 
 summarizeCombinations <- summaryCombinations$combination[
-  summaryCombinations$freq <= as.numeric(groupCombinations)]
+  summaryCombinations$freq >= as.numeric(groupCombinations)]
 
 test_that("validate subset", {
   expect_equal(
@@ -92,11 +92,11 @@ data[selectedCombinations] <- "Other"
 test_that("validate other subset", {
   expect_equal(
     summarizeCombinations,
-    as.data.frame(out)[selectedCombinations]
+    as.data.frame(out)[selectedCombinations][1]
   )
   
   expect_equal(
-    as.data.frame(data)[selectedCombinations],
+    as.data.frame(data)[selectedCombinations][1],
     "Other"
   )
 })

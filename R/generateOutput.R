@@ -1,5 +1,8 @@
 #' generateOutput
 #'
+#' @param saveSettings
+#'   Settings object as created by createSaveSettings(). 
+#'
 #' @import readr
 #' @import ParallelLogger
 #' @import OhdsiSharing
@@ -166,7 +169,7 @@ generateOutput <- function(saveSettings) {
 #'     Minimum number of persons with a specific treatment pathway for the
 #'     pathway to be included in analysis.
 #'
-#' @importFrom data.table data.table as.data.table
+#' @importFrom data.table data.table
 #' @import readr
 #' @import ParallelLogger
 #'
@@ -257,7 +260,7 @@ getPathways <- function(
 #'     Name of output file.
 #'
 #' @import ParallelLogger
-#' @import data.table
+#' @importFrom data.table rbindlist
 #'
 #' @returns NULL
 outputTreatedPatients <- function(
@@ -476,7 +479,7 @@ percentageGroupTreated <- function(
 #'     Minimum number of persons with a specific treatment pathway for the
 #'     pathway to be included in analysis.
 #'
-#' @importFrom data.table data.table as.data.table
+#' @importFrom data.table data.table
 #' @import readr
 #'
 #' @returns NULL
@@ -488,6 +491,7 @@ outputDurationEras <- function(
     eventCohortIds,
     groupCombinations,
     minCellCount) {
+
   # Try to read in treatment history from constructPathways.R for studyName
   file <- data.table::data.table(readr::read_csv(
     file.path(
@@ -1267,7 +1271,7 @@ transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
 #'     CSV
 #'
 #' @import stringr
-#' @import jsonlite
+#' @importFrom jsonlite toJSON
 #'
 #' @returns JSON
 buildHierarchy <- function(csv) {
@@ -1419,7 +1423,7 @@ createLegend <- function(studyName, outputFolder, databaseName) {
 #'     Select to group all non-fixed combinations in one category "other" in
 #'     the sunburst plot.
 #'
-#' @import dplyr
+#' @importFrom dplyr group_by summarise
 #' @importFrom googleVis gvisSankey
 #' @import ParallelLogger
 #'
@@ -1551,3 +1555,12 @@ groupInfrequentCombinations <- function(data, groupCombinations) {
   }
   return(data.table::as.data.table(data))
 }
+utils::globalVariables(c(
+  ".", "..columns", "..l", "..layers", ".N", ".SD", "ALL_ROWS", "COUNT", "GAP_PREVIOUS",
+  "SELECTED_ROWS", "all_combinations", "cohortId",  "combination", "combination_FRFS",
+  "combination_LRFS", "duration_era", "event_cohort_id", 
+  "event_cohort_id_previous", "event_cohort_name", "event_cohort_name1",
+  "event_cohort_name2", "event_cohort_name3", "event_end_date",
+  "event_end_date_next", "event_end_date_previous", "event_seq",
+  "event_start_date", "event_start_date_next", "fixed_combinations", "freq",
+  "gap_same", "group", "index_year", "lag_variable", "monotherapy", "person_id", "rleid"))

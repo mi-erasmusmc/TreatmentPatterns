@@ -12,39 +12,40 @@ Description: This package gives insight in treatment patterns, the following
 Depends:
   R (>= 3.6.1)
 Imports: 
-  DatabaseConnector(>= 6.0.0),
-  checkmate,
-  data.table,
-  dplyr,
-  SqlRender,
-  stringr,
-  readr,
-  jsonlite,
-  reshape2,
-  googleVis,
-  webshot2 (>= 0.1.0),
-  magrittr,
-  ParallelLogger,
-  fs,
-  OhdsiSharing,
-  glue,
-  zip,
-  shiny,
-  rlang
+    DatabaseConnector (>= 6.0.0),
+    checkmate,
+    data.table,
+    dplyr,
+    SqlRender,
+    stringr,
+    readr,
+    jsonlite,
+    reshape2,
+    googleVis,
+    webshot2 (>= 0.1.0),
+    magrittr,
+    ParallelLogger,
+    fs,
+    glue,
+    zip,
+    shiny,
+    rlang,
+    OhdsiSharing
 Remotes:
-  OHDSI/OhdsiSharing,
-  OHDSI/Eunomia,
-  OHDSI/CohortDiagnostics
+    OHDSI/OhdsiSharing,
+    OHDSI/Eunomia,
+    OHDSI/CohortDiagnostics,
+    OHDSI/CirceR,
+    OHDSI/CohortGenerator
 Suggests:
-  tibble,
-  Eunomia,
-  ROhdsiWebApi,
-  testthat (>= 3.0.0),
-  usethis,
-  CohortGenerator,
-  CohortDiagnostics,
-  CirceR,
-  knitr
+    tibble,
+    testthat (>= 3.0.0),
+    usethis,
+    knitr,
+    Eunomia,
+    CohortDiagnostics,
+    CohortGenerator,
+    CirceR
 License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true

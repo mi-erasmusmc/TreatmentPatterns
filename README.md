@@ -21,12 +21,12 @@ This R package contains the resources for performing a treatment pathway analysi
 <tr valign="bottom">
 <td width = 50%>
 
-<img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/sunburstplot.png"/>
+<img src="inst/docs/sunburstplot.png"/>
 
 </td>
 <td width = 50%>
   
-<img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/sankeydiagram.png"/>
+<img src="inst/docs/sankeydiagram.png"/>
 
 </td>
 </tr><tr>
@@ -48,12 +48,12 @@ This R package contains the resources for performing a treatment pathway analysi
 
 ## User Documentation
 Available documentation includes:
-- Vignette: [Perform a study using the TreatmentPatterns package](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatternsStudy.pdf)
-- Package manual: [TreatmentPatterns](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatterns_1.0.0.pdf)
+- Vignette: [Perform a study using the TreatmentPatterns package](https://darwin-eu-dev.github.io/TreatmentPatterns/articles/TreatmentPatternsStudy.html)
+- Package manual: [TreatmentPatterns](https://darwin-eu-dev.github.io/TreatmentPatterns/reference/index.html)
 
 ## Package Structure
-<img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/package.png"/>
+<img src="inst/docs/package.png"/>
 
 
 ## Support
-We use the <a href="https://github.com/mi-erasmusmc/TreatmentPatterns/issues">GitHub issue tracker</a> for all bugs/issues/enhancements.
+We use the <a href="https://github.com/darwin-eu-dev/TreatmentPatterns/issues">GitHub issue tracker</a> for all bugs/issues/enhancements.

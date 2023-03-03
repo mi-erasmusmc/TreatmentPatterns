@@ -34,8 +34,11 @@ remotes::install_github("darwin-eu-dev/TreatmentPatterns")
 
 ## 2. Assumed prerequisites
 For this vignette we assume that you are familiar with the following:
+
 1. Defining cohorts using i.e. [Atlas](https://atlas-demo.ohdsi.org/) or [Capr](https://ohdsi.github.io/Capr/)
+
 2. Access to a CDM database. For this example we will use [Eunomia](https://ohdsi.github.io/Eunomia/).
+
 3. Familiarity with generating cohorts in a CDM using [CohortGenerator](https://ohdsi.github.io/CohortGenerator/)
 
 In this vignette we will make use of the following packages:

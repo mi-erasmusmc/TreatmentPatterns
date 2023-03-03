@@ -1,0 +1,259 @@
+---
+title: "Perform a Darwin study using the TreatmentPatterns package"
+always_allow_html: yes
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+  html_vignette:
+    toc: yes
+    toc_depth: 3
+    vignette: "%\\VignetteIndexEntry{Documentation} %\\VignetteEngine{knitr::rmarkdown}
+      %\\VignetteEncoding{UTF-8}\n"
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this vignette we will use an example describing the treatment patterns of viral sinusitis patients. The included drugs of interests are Acetaminophen, Amoxicillin, Aspirin, Clavulanate, Doxylamine, and Penicillin V. These examples are provided in the package and will run in Eunomia.
+
+## 1. Installation of TreatmentPatterns
+
+1. See the instructions [here](https://ohdsi.github.io/Hades/rSetup.html) for configuring your R environment, including RTools and Java.
+
+2. In R, use the following commands to download and install TreatmentPatterns:
+```{r installation, eval=FALSE}
+install.packages("remotes")
+
+remotes::install_github("darwin-eu-dev/TreatmentPatterns")
+```
+
+## 2. Assumed prerequisites
+For this vignette we assume that you are familiar with the following:
+1. Defining cohorts using i.e. [Atlas](https://atlas-demo.ohdsi.org/) or [Capr](https://ohdsi.github.io/Capr/)
+2. Access to a CDM database. For this example we will use [Eunomia](https://ohdsi.github.io/Eunomia/).
+3. Familiarity with generating cohorts in a CDM using [CohortGenerator](https://ohdsi.github.io/CohortGenerator/)
+
+In this vignette we will make use of the following packages:
+```{r libraries, message=FALSE, warning=FALSE}
+library(TreatmentPatterns)
+library(CohortGenerator)
+library(Eunomia)
+library(CirceR)
+library(dplyr)
+library(tools)
+```
+
+### Generating cohorts
+To make it easier on our selves later on, we will already specify some parameters that we will reuse later using TreatmentPatterns.
+```{r data_settings}
+connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+cdmDatabaseSchema <- "main"
+resultSchema <- "main"
+cohortTable <- "cohortTable"
+```
+
+To generate cohorts using CohortGenerator we can follow the instructions specified in the vignette:
+```{r generating_cohorts, message=FALSE}
+library(CohortGenerator)
+
+cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
+
+# Get json-files included with TreatmentPatterns
+cohortJsonFiles <- list.files(system.file(
+  package = "TreatmentPatterns",
+  "examples", "CDM", "cohorts", "ViralSinusitis", "JSON"),
+  full.names = TRUE)
+
+# add cohort definition per file
+for (i in seq_len(length(cohortJsonFiles))) {
+  cohortJsonFileName <- cohortJsonFiles[i]
+  cohortName <- tools::file_path_sans_ext(basename(cohortJsonFileName))
+  # Here we read in the JSON in order to create the SQL
+  # using [CirceR](https://ohdsi.github.io/CirceR/)
+  # If you have your JSON and SQL stored differenly, you can
+  # modify this to read your JSON/SQL files however you require
+  cohortJson <- readChar(cohortJsonFileName, file.info(
+    cohortJsonFileName)$size)
+  
+  cohortExpression <- CirceR::cohortExpressionFromJson(cohortJson)
+  
+  cohortSql <- CirceR::buildCohortQuery(
+    cohortExpression,
+    options = CirceR::createGenerateOptions(generateStats = FALSE))
+  cohortsToCreate <- rbind(
+    cohortsToCreate, 
+    data.frame(
+      cohortId = i,
+      cohortName = cohortName, 
+      sql = cohortSql,
+      stringsAsFactors = FALSE))
+}
+```
+
+Now that we have specified our cohorts we can generate them.
+```{r cohort_table_names}
+# Create the cohort tables to hold the cohort generation results
+cohortTableNames <- CohortGenerator::getCohortTableNames(
+  cohortTable = cohortTable)
+```
+
+Generate our cohortTableNames
+```{r, generate_cohorts, message=FALSE, results='hide'}
+CohortGenerator::createCohortTables(
+  connectionDetails = connectionDetails,
+  cohortDatabaseSchema = resultSchema,
+  cohortTableNames = cohortTableNames)
+```
+Finally, we can generate our specified cohorts in Eunomia.
+```{r get_cohorts_generated, message=FALSE, results='hide'}
+# Generate the cohorts
+cohortsGenerated <- CohortGenerator::generateCohortSet(
+  connectionDetails = connectionDetails,
+  cdmDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema = resultSchema,
+  cohortTableNames = cohortTableNames,
+  cohortDefinitionSet = cohortsToCreate)
+```
+
+## 3. Specify settings to construct treatment pathways
+### dataSettings
+Note that for specifying our dataSettings we are re-uing are pre-specified parameters.
+```{r dataSettings}
+dataSettings <- createDataSettings(
+  connectionDetails = connectionDetails, # Eunomia::getEunomiaConnectionDetails()
+  cdmDatabaseSchema = cdmDatabaseSchema, # "main"
+  resultSchema = resultSchema,           # "main"
+  cohortTable = cohortTable)             # "cohortTable"
+```
+1. **connectionDetails**: _connectionDetails_ object of DatabaseConnector (>= 6.0.0).
+2. **cdmDatabaseSchema**: A character string specifying the database schema where the CDM is located.
+3. **resultSchema**: A character string specifying the database schema where the results in the database should be written.
+4. **cohortTable**: A character string specifying the name of the cohort table.
+
+### saveSettings
+```{r}
+saveSettings <- createSaveSettings(
+  databaseName = "Eunomia",
+  rootFolder = getwd(),
+  outputFolder = file.path(getwd(), "output", "Eunomia"))
+```
+1. **databaseName**: Character string specifying the name of the database.
+2. **rootFolder**: Character string specifying the path of the root folder where outputted files should be saved at.
+3. **outputFolder**: Character string specifying the name of the folder name the outputted files should be saved in.
+
+### createCohortSettings
+We can make use of the tables generated by CohortGenerator to get information about our cohorts.
+```{r targetCohorts}
+# Select Viral Sinusitis Cohort
+targetCohort <- cohortsGenerated %>% 
+  filter(cohortName == "ViralSinusitis") %>%
+  select(cohortId, cohortName)
+```
+
+```{r eventCohorts}
+# Select everything BUT Viral Sinusitis cohorts
+eventCohorts <- cohortsGenerated %>% 
+  filter(cohortName != "ViralSinusitis") %>%
+  select(cohortId, cohortName)
+```
+
+```{r cohortSettings}
+cohortSettings <- createCohortSettings(
+  targetCohorts = targetCohort,
+  eventCohorts = eventCohorts)
+```
+1. **targetCohorts**: A data.frame containing the `Cohort ID` and `Cohort Name` of the target cohorts
+2. **eventCohorts**: A data.frame containing the `Cohort ID` and `Cohort Name` of the event cohorts
+
+### pathwaySettings
+The settings below are part of `pathwaySettings` and allow the user to influence how the events of interest should be processed to form treatment pathways. For the example in this vignette we used the default settings
+
+| param | values | description |
+| ----- | ------ | ----------- |
+| studyName | default | Unique name identifying the set of study parameters below |
+| targetCohortId | 1 | Select one study population |
+| eventCohortIds | 10,11,12,13,14 | Select all treatments of interest  |
+| periodPriorToIndex | 0 | Number of days prior to the index date of the target cohort | that event cohorts are allowed to start |
+| minEraDuration | 0 | Minimum time an event era should last to be included in analysis |
+| splitEventCohorts |  | Specify event cohort to split in acute (< X days) and therapy (>= X days) |
+| splitTime | 30 | Specify number of days (X) at which each of the split event cohorts should be split in acute and therapy |
+| eraCollapseSize | 30 | Window of time between which two eras of the same event cohort are collapsed into one era |
+| combinationWindow | 30 | Window of time two event cohorts need to overlap to be considered a combination treatment |
+| minPostCombinationDuration | 30 | Minimum time an event era before or after a generated combination treatment should last to be included in analysis |
+| filterTreatments | First | Select first occurrence of (‘First’) / changes between (‘Changes’) / all event cohorts (‘All’) |
+| maxPathLength | 5 | Maximum number of steps included in treatment pathway |
+| minCellCount | 5 | Minimum number of persons with a specific treatment pathway for the pathway to be included in analysis |
+| minCellMethod | Remove | Select to completely remove / sequentially adjust (by removing last step as often as necessary) treatment pathways below minCellCount |
+| groupCombinations | 10 | Select to group all non-fixed combinations in one category ‘other’ in the sunburst plot |
+| addNoPaths | FALSE | Select to include untreated persons without treatment pathway in the sunburst plot |
+
+![pathwaySettings](../man/figures/pathwaysettings.png)
+
+```{r pathwaySettings}
+pathwaySettings <- createPathwaySettings(
+  cohortSettings = cohortSettings,
+  studyName = "Viral_Sinusitis")
+```
+1. **cohortSettings**: The `cohortSettings` object created by `createCohortSettings`
+2. **studyName**: A character string specifying the name of the study.
+3. **...**: Any of the settings metioned above, except targetCohortId and eventCohortId.
+
+### addPathwaySettings
+Optionally we can add another pathway analysis. In this example we specify the same pathway settings, but we remove one drug: Acetaminophen.
+```{r addPathwayAnalysis}
+pathwaySettings <- addPathwayAnalysis(
+  pathwaySettings = pathwaySettings,
+  targetCohortIds = targetCohort$cohortId,
+  eventCohortIds = eventCohorts$cohortId[-1],
+  studyName = "One drug less")
+```
+1. **pathwaySettings**: The `pathwaySettings` object created by `cratePathwaySettings`.
+2. **targetCohortIds**: The Target Cohort IDs
+3. **eventCohortIds**: The Event Cohort IDs you'd like to include
+4. **...**: Any other parameter you'd liek to change. A full list of parameters can be found in the `addPathwaySettings` documentation. **Some** of these parameters are: studyName, minEraDuration, combinationWindow, eraCollapseSize, maxPathLength.
+
+### Preconfiguring file structure
+We setup the file structure for the output here, fetching some information from our generated cohorts from the CDM.
+```{r preConfigure, results='hide', message=FALSE, warning=FALSE}
+preConfigure(
+  saveSettings = saveSettings,
+  cohortSettings = cohortSettings,
+  dataSettings = dataSettings,
+  cohortTableNames = cohortTableNames)
+```
+1. **saveSettings**: `saveSettings` object.
+2. **cohortSettings**: `cohortSettings` object.
+3. **dataSettings**: `dataSettings` object.
+3. **cohortTableNames**: List of cohortTableNames.
+
+### constructPathways
+After our settings are specified we can construct our pathways.
+```{r constructPathways, results='hide', message=FALSE, warning=FALSE}
+constructPathways(
+  dataSettings = dataSettings,
+  pathwaySettings = pathwaySettings,
+  saveSettings = saveSettings)
+```
+1. **dataSettings**: `dataSettings` object.
+2. **pathwaySettings**: `pathwaySettings` object.
+3. **saveSettings**: `saveSettings` object.
+
+### generateOutput
+After our pathways are computed, we can generate our output files.
+```{r generateOutput, results='hide'}
+generateOutput(saveSettings = saveSettings)
+```
+1. **saveSettings**: `saveSettings` object.
+
+### launchResultExporer
+Finnaly we can expore our results using the included shiny app.
+```{r launchResultsExplorer, eval=FALSE}
+launchResultsExplorer(
+  saveSettings = saveSettings)
+```
+1. **saveSettings**: `saveSettings` object.

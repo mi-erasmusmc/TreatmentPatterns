@@ -220,6 +220,7 @@ pathwaySettings <- addPathwayAnalysis(
 3. **eventCohortIds**: The Event Cohort IDs you'd like to include
 4. **...**: Any other parameter you'd liek to change. A full list of parameters can be found in the `addPathwaySettings` documentation. **Some** of these parameters are: studyName, minEraDuration, combinationWindow, eraCollapseSize, maxPathLength.
 
+## Constructing pathways and reviewing output
 ### Preconfiguring file structure
 We setup the file structure for the output here, fetching some information from our generated cohorts from the CDM.
 ```{r preConfigure, results='hide', message=FALSE, warning=FALSE}

@@ -19,7 +19,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-In this vignette we will use an example describing the treatment patterns of viral sinusitis patients. The included drugs of interests are Acetaminophen, Amoxicillin, Aspirin, Clavulanate, Doxylamine, and Penicillin V. These examples are provided in the package and will run in Eunomia.
+In this vignette we will use an example describing the treatment patterns of [viral sinusitis](https://atlas-demo.ohdsi.org/#/cohortdefinition/1781027) patients. The included drugs of interests are [Acetaminophen](https://atlas-demo.ohdsi.org/#/cohortdefinition/1781028), [Amoxicillin](https://atlas-demo.ohdsi.org/#/cohortdefinition/1781029), [Aspirin](https://atlas-demo.ohdsi.org/#/cohortdefinition/1781030), [Clavulanate](https://atlas-demo.ohdsi.org/#/cohortdefinition/1781031), [Doxylamine](https://atlas-demo.ohdsi.org/#/cohortdefinition/1781033), and [Penicillin V](https://atlas-demo.ohdsi.org/#/cohortdefinition/1781032). These examples are provided in the package and will run in Eunomia.
 
 ## 1. Installation of TreatmentPatterns
 

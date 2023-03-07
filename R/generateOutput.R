@@ -1427,6 +1427,8 @@ createLegend <- function(studyName, outputFolder, databaseName) {
 #' @importFrom googleVis gvisSankey
 #' @import ParallelLogger
 #'
+#' @export
+#'
 #' @returns NULL
 outputSankeyDiagram <- function(
     data,

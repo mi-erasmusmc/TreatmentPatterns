@@ -51,6 +51,51 @@ library(dplyr)
 library(tools)
 ```
 
+### Viral Sinusitis Cohort parameters
+The following text is an export of ATLAS Version 2.12.2. The bold parts of the text are parameters set in the cohort definition. TreatmentPatterns expects that the cohort exit is set to *continuous observation*.
+
+#### Cohort Entry Events
+People with continuous observation of **365** days before and **1,095** days after event may enter the cohort when observing any of the following:
+
+drug eras of **'[MVK] Viral Sinusistis drugs'**.
+Limit cohort entry events to the **earliest event** per person.
+
+#### Inclusion Criteria
+**1. Viral Sinusitis diagnosis**
+Entry events having at least 1 condition occurrence of '[MVK] Viral Sinusitis diagnosis', allow events outside observation period.
+
+**2. Index year**
+Entry events with the following event criteria: starting after December 31, 1949.
+
+#### Cohort Exit
+The person exits the cohort at the end of **continuous observation**.
+
+#### Cohort Eras
+Entry events will be combined into cohort eras if they are within **0** days of each other.
+
+
+#### Appendix 1: Concept Set Definitions
+
+| Concept Id | Concept Name     | Domain | Vocabulary | Excluded | Descendants | Mapped |
+| ---------: | ---------------: | -----: | ---------: | -------: | ----------: | -----: |
+| 1125315    | acetaminophen    | Drug   | RxNorm     | NO       | NO          | NO     |
+| 1713332    | amoxicillin      | Drug   | RxNorm     | NO       | NO          | NO     |
+| 1112807    | aspirin          | Drug   | RxNorm     | NO       | NO          | NO     |
+| 1759842    | clavulanate      | Drug   | RxNorm     | NO       | NO          | NO     |
+| 1729720    | penicillin V     | Drug   | RxNorm     | NO       | NO          | NO     |
+| 738818     | doxylamine       | Drug   | RxNorm     | NO       | NO          | NO     |
+| 738818     | doxylamine       | Drug   | RxNorm     | NO       | NO          | NO     |
+| 1119510    | dextromethorphan | Drug   | RxNorm     | NO       | NO          | NO     |
+| 1177480    | ibuprofen        | Drug   | RxNorm     | NO       | NO          | NO     |
+| 1118084    | celecoxib        | Drug   | RxNorm     | NO       | NO          | NO     |
+| 1115008    | naproxen         | Drug   | RxNorm     | NO       | NO          | NO     |
+*[MVK] Viral Sinusistis drugs*
+
+| Concept Id | Concept Name    | Domain    | Vocabulary | Excluded | Descendants | Mapped |
+| ---------: | --------------: | --------: | ---------: | -------: | ----------: | -----: |
+| 40481087   | Viral sinusitis | Condition | SNOMED     | NO       | NO          | NO     |
+*[MVK] Viral Sinusitis diagnosis*
+
 ### Generating cohorts
 To make it easier on our selves later on, we will already specify some parameters that we will reuse later using TreatmentPatterns.
 ```{r data_settings}
@@ -62,8 +107,6 @@ cohortTable <- "cohortTable"
 
 To generate cohorts using CohortGenerator we can follow the instructions specified in the vignette:
 ```{r generating_cohorts, message=FALSE}
-library(CohortGenerator)
-
 cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
 
 # Get json-files included with TreatmentPatterns

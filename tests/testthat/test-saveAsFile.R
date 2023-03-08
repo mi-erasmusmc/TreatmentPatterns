@@ -6,6 +6,7 @@ test_that("Void", {
 })
 
 test_that("pdf", {
+  testthat::skip_if(.Platform$OS.type == "windows", message = "Debug port unstable on Windows")
   inputFile <- system.file("shiny/html/custom.html", package= "TreatmentPatterns")
   pdfOutFile <- tempfile(fileext = ".pdf")
 
@@ -20,6 +21,7 @@ test_that("pdf", {
 })
 
 test_that("png", {
+  testthat::skip_if(.Platform$OS.type == "windows", message = "Debug port unstable on Windows")
   inputFile <- system.file("shiny/html/custom.html", package= "TreatmentPatterns")
   pngOutFile <- tempfile(fileext = ".png")
   

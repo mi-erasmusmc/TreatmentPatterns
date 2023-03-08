@@ -7,3 +7,4 @@
 ^temp$
 ^\.github$
 ^Crashpad$
+^output$

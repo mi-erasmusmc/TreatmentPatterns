@@ -149,6 +149,7 @@ generateOutput <- function(saveSettings) {
   )
   
   OhdsiSharing::compressFolder(file.path(saveSettings$outputFolder), zipName)
+  # zip::zipr(list.files(saveSettings$outputFolder, full.names = TRUE), zipName)
   
   ParallelLogger::logInfo("generateOutput done.")
 }
@@ -1184,6 +1185,7 @@ inputSunburstPlot <- function(
 #' @param fileName output file name
 #' 
 #' @import stringr
+#' @importFrom stringi stri_replace_all_fixed
 #' 
 #' @return the transformed csv as a json string
 #'

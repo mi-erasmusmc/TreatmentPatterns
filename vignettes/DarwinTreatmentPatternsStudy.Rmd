@@ -1,18 +1,16 @@
 ---
 title: "Perform a Darwin study using the TreatmentPatterns package"
-always_allow_html: yes
+always_allow_html: true
 output:
-  html_document:
-    toc: yes
-    toc_depth: '3'
-    df_print: paged
+  pdf_document:
+      toc: yes
   html_vignette:
     toc: yes
     toc_depth: 3
-    vignette: "%\\VignetteIndexEntry{Documentation} %\\VignetteEngine{knitr::rmarkdown}
-      %\\VignetteEncoding{UTF-8}\n"
-  pdf_document:
-    toc: yes
+    vignette: >
+      %\VignetteIndexEntry{Darwin_Documentation}
+      %\VignetteEngine{knitr::rmarkdown}
+      %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -256,7 +254,7 @@ pathwaySettings <- addPathwayAnalysis(
   pathwaySettings = pathwaySettings,
   targetCohortIds = targetCohort$cohortId,
   eventCohortIds = eventCohorts$cohortId[-1],
-  studyName = "One drug less")
+  studyName = "One_drug_less")
 ```
 1. **pathwaySettings**: The `pathwaySettings` object created by `cratePathwaySettings`.
 2. **targetCohortIds**: The Target Cohort IDs

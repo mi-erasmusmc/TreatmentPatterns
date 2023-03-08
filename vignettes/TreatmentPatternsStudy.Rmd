@@ -4,7 +4,7 @@ author: "Aniek F Markus"
 date: "`r Sys.Date()`"
 output: pdf_document # rmarkdown::html_vignette
 vignette: >
- %\VignetteIndexEntry{Vignette Title}
+ %\VignetteIndexEntry{Documentation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

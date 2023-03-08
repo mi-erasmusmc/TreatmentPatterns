@@ -22,7 +22,7 @@ preConfigure <- function(saveSettings, cohortSettings, dataSettings, cohortTable
   
   # Extract files from DB, write to outputFolder
   invisible(lapply(cohortTableNames, function(tableName) {
-    tbl <- TreatmentPatterns:::extractFile(
+    tbl <- extractFile(
       connection = con,
       tableName = tableName,
       resultsSchema = dataSettings$resultSchema,

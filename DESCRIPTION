@@ -18,19 +18,20 @@ Imports:
     dplyr,
     SqlRender,
     stringr,
+    stringi,
     readr,
+    rjson,
     jsonlite,
     reshape2,
     googleVis,
     webshot2 (>= 0.1.0),
-    magrittr,
     ParallelLogger,
     fs,
     glue,
     zip,
     shiny,
-    rlang,
-    OhdsiSharing
+    OhdsiSharing,
+    rlang
 Remotes:
     OHDSI/OhdsiSharing,
     OHDSI/Eunomia,

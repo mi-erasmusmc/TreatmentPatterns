@@ -70,8 +70,7 @@ test_that("void", {
 })
 
 test_that("minimal", {
-  expect_s3_class(
-    TreatmentPatterns:::buildHierarchy(transformed_csv),
-    "json"
+  expect_character(
+    TreatmentPatterns:::buildHierarchy(transformed_csv)
   )
 })

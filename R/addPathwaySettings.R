@@ -314,7 +314,7 @@ addPathwaySettings <- function(
     minCellCount = 5,
     minCellMethod = "Remove",
     groupCombinations = 10,
-    addNoPaths = FALSE) {
+    addNoPaths = TRUE) {
   
   check <- addPathwaySettingsCheck(
     studyName,

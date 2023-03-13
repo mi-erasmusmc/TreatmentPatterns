@@ -17,7 +17,7 @@ executeTreatmentPatterns(dataSettings, pathwaySettings, saveSettings)
 This is the main function which runs all parts of the treatment pathways
 analysis. The following tasks are performed sequentially: 1) Construct
 treatment pathways, 2) Generate output (sunburst plots, Sankey diagrams and
-more), 3) Launch shiny application to visualize the results.
+more).
 }
 \examples{
 if (interactive()) {

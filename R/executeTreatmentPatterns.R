@@ -3,7 +3,7 @@
 #' This is the main function which runs all parts of the treatment pathways
 #' analysis. The following tasks are performed sequentially: 1) Construct
 #' treatment pathways, 2) Generate output (sunburst plots, Sankey diagrams and
-#' more), 3) Launch shiny application to visualize the results. 
+#' more).
 #'
 #' @param dataSettings dataSettings object
 #' @param pathwaySettings pathwaySettings object
@@ -47,15 +47,12 @@ executeTreatmentPatterns <- function(
     pathwaySettings,
     saveSettings) {
   
-  # 3) Construct treatment pathways
+  # 1) Construct treatment pathways
   TreatmentPatterns::constructPathways(
     dataSettings = dataSettings,
     pathwaySettings = pathwaySettings,
     saveSettings = saveSettings)
   
-  # 4) Generate output (sunburst plots, Sankey diagrams and more)
+  # 2) Generate output (sunburst plots, Sankey diagrams and more)
   TreatmentPatterns::generateOutput(saveSettings)
-  
-  # 5) Launch shiny application to visualize the results
-  TreatmentPatterns::launchResultsExplorer(saveSettings)
 }

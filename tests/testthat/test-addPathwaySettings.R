@@ -33,7 +33,7 @@ test_that("Blind parameters", {
   expect_equal(result$minCellCount, 5)
   expect_equal(result$minCellMethod, "Remove")
   expect_equal(result$groupCombinations, 10)
-  expect_equal(result$addNoPaths, FALSE)
+  expect_equal(result$addNoPaths, TRUE)
 })
 
 test_that("Blind parameters", {

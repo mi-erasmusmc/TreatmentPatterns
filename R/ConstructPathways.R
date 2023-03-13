@@ -353,7 +353,7 @@ constructPathways <- function(dataSettings,
 #'     Include treatments starting ('startDate') or ending ('endDate') after
 #'     target cohort start date
 #'
-#' @importFrom data.table shift
+#' @importFrom data.table shift :=
 #'
 #' @return currentCohorts
 #'     Updated dataframe, including only event cohorts after
@@ -1107,6 +1107,8 @@ doMaxPathLength <- function(treatment_history, maxPathLength) {
 #'
 #' @param treatment_history treatment_history object
 #' @param outputFolder Folder of output
+#' 
+#' @import utils
 #'
 #' @return treatment_history
 addLabels <- function(treatment_history, outputFolder) {

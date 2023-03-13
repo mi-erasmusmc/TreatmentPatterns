@@ -294,11 +294,3 @@ After our pathways are computed, we can generate our output files.
 generateOutput(saveSettings = saveSettings)
 ```
 1. **saveSettings**: `saveSettings` object.
-
-### launchResultExporer
-Finnaly we can expore our results using the included shiny app.
-```{r launchResultsExplorer, eval=FALSE}
-launchResultsExplorer(
-  saveSettings = saveSettings)
-```
-1. **saveSettings**: `saveSettings` object.

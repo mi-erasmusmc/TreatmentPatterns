@@ -72,11 +72,14 @@ checkSaveSettings <- function(
 #' @export
 #'
 #' @examples
+#' tmpOutputFolder <- tempdir()
+#' tmpTempFolder <- tempdir()
+#' 
 #' createSaveSettings(
 #'    rootFolder = "./",
 #'    databaseName = "Eunomia",
-#'    outputFolder = "./inst",
-#'    tempFolder = "./inst")
+#'    outputFolder = tmpOutputFolder,
+#'    tempFolder = tmpTempFolder)
 createSaveSettings <- function(
     databaseName = "unknown_name",
     rootFolder,
@@ -98,18 +101,14 @@ createSaveSettings <- function(
     tempFolder)
 
   if (check) {
-    # Change relative path to absolute path
-    rootFolder <- normalizePath(rootFolder)
-
     saveSettings <- list(
       databaseName = databaseName,
-      rootFolder = rootFolder,
-      outputFolder = outputFolder,
-      tempFolder = tempFolder)
+      rootFolder = normalizePath(rootFolder),
+      outputFolder = normalizePath(outputFolder),
+      tempFolder = normalizePath(tempFolder))
 
     class(saveSettings) <- "saveSettings"
 
     return(saveSettings)
-
   }
 }

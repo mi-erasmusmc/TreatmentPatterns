@@ -28,9 +28,12 @@ Object saveSettings.
 Creates saveSettings object.
 }
 \examples{
+tmpOutputFolder <- tempdir()
+tmpTempFolder <- tempdir()
+
 createSaveSettings(
    rootFolder = "./",
    databaseName = "Eunomia",
-   outputFolder = "./inst",
-   tempFolder = "./inst")
+   outputFolder = tmpOutputFolder,
+   tempFolder = tmpTempFolder)
 }

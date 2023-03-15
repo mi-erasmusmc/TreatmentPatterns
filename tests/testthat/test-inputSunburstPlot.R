@@ -11,10 +11,11 @@ test_that("void", {
 
 test_that("minimal", {
   expect_s3_class(TreatmentPatterns:::inputSunburstPlot(
-    treatment_pathways[[1]],
-    saveSettings$outputFolder,
-    saveSettings$databaseName,
-    "Viral_Sinusitis",
-    FALSE,
+    data = treatment_pathways[[1]],
+    tempFolder = saveSettings$tempFolder,
+    outputFolder = saveSettings$outputFolder,
+    databaseName = saveSettings$databaseName,
+    studyName = "Viral_Sinusitis",
+    addNoPaths = TRUE,
     index_year = 'all'), "data.frame")
 })

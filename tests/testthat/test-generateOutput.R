@@ -12,8 +12,8 @@ test_that("void", {
 })
 
 test_that("minimal", {
-  expect_output(
+  expect_message(
     TreatmentPatterns::generateOutput(
       saveSettings = saveSettings),
-    "generateOutput done.")
+    "Zipping:.+")
 })

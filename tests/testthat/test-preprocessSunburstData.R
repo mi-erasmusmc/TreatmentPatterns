@@ -12,6 +12,7 @@ test_that("void", {
 test_that("minimal", {
   expect_output(TreatmentPatterns:::preprocessSunburstData(
     data = treatment_pathways[[1]],
+    tempFolder = saveSettings$tempFolder,
     outputFolder = saveSettings$outputFolder,
     databaseName = saveSettings$databaseName,
     studyName = "Viral_Sinusitis",

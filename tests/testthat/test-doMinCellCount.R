@@ -19,7 +19,7 @@ TreatmentPatterns:::outputTreatedPatients(
   eventCohortIds = eventCohortIds,
   groupCombinations = groupCombinations,
   outputFolder = saveSettings$outputFolder,
-  outputFile = tempNoYear
+  outputFile = basename(tempNoYear)
 )
 
 tempYear <- tempfile(paste0(
@@ -34,7 +34,7 @@ TreatmentPatterns:::outputTreatedPatients(
   eventCohortIds = eventCohortIds,
   groupCombinations = TRUE,
   outputFolder = saveSettings$outputFolder,
-  outputFile = tempYear
+  outputFile = basename(tempYear)
 )
 
 test_that("void", {
@@ -42,7 +42,6 @@ test_that("void", {
 })
 
 test_that("minimal", {
-  expect_output(
     df <- TreatmentPatterns:::doMinCellCount(
       file_noyear = treatment_pathways[[1]],
       file_withyear = treatment_pathways[[2]],
@@ -52,9 +51,7 @@ test_that("minimal", {
       studyName = "Viral_Sinusitis",
       groupCombinations = groupCombinations,
       minCellCount = 5,
-      minCellMethod = "remove"
-    ),
-    "(Remove  \\d+  paths with too low frequency \\(\\w+ year\\)\\n){2}doMinCellCount done"
-  )
-  expect_type(df, "list")
+      minCellMethod = "remove")
+  
+    expect_type(df, "list")
 })

@@ -7,8 +7,11 @@ test_that("Void", {
 })
 
 test_that("Minimal", {
-  expect_s3_class(createSaveSettings(rootFolder = "./"),
-                  "saveSettings")
+  expect_s3_class(
+    createSaveSettings(
+      rootFolder = "./",
+      outputFolder = "output"),
+    "saveSettings")
 })
 
 test_that("Assert rootFolder: wrong type", {
@@ -44,11 +47,12 @@ test_that("Assert outputFolder: existing path", {
 })
 
 test_that("Assert outputFolder: non-existing path", {
-  expect_s3_class(createSaveSettings(
+  expect_warning(saveSettings <- createSaveSettings(
     rootFolder = "./",
     databaseName = "Eunomia", 
-    outputFolder = "./VeryCoolOutputPathThatDoesNotExist"),
-    "saveSettings")
+    outputFolder = "./VeryCoolOutputPathThatDoesNotExist"))
+  
+  expect_s3_class(saveSettings, "saveSettings")
 })
 
 test_that("Assert tempFolder: existing path", {

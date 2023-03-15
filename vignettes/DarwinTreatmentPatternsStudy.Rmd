@@ -184,7 +184,7 @@ dataSettings <- createDataSettings(
 saveSettings <- createSaveSettings(
   databaseName = "Eunomia",
   rootFolder = getwd(),
-  outputFolder = file.path(getwd(), "output", "Eunomia"))
+  outputFolder = file.path(getwd(), "output"))
 ```
 1. **databaseName**: Character string specifying the name of the database.
 2. **rootFolder**: Character string specifying the path of the root folder where outputted files should be saved at.
@@ -265,16 +265,16 @@ pathwaySettings <- addPathwayAnalysis(
 ### Preconfiguring file structure
 We setup the file structure for the output here, fetching some information from our generated cohorts from the CDM.
 ```{r preConfigure, results='hide', message=FALSE, warning=FALSE}
-preConfigure(
+writeCohortTable(
   saveSettings = saveSettings,
   cohortSettings = cohortSettings,
   dataSettings = dataSettings,
-  cohortTableNames = cohortTableNames)
+  tableName = cohortTable)
 ```
 1. **saveSettings**: `saveSettings` object.
 2. **cohortSettings**: `cohortSettings` object.
 3. **dataSettings**: `dataSettings` object.
-3. **cohortTableNames**: List of cohortTableNames.
+3. **tableName**: Table name of the cohort table in the database.
 
 ### constructPathways
 After our settings are specified we can construct our pathways.

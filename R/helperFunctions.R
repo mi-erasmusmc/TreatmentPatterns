@@ -37,3 +37,42 @@ extractFile <- function(connection, tableName, resultsSchema, dbms) {
     targetDialect = dbms)
   DatabaseConnector::querySql(connection, translatedSql)
 }
+
+
+#' writeCohortTable
+#' 
+#' Writes the cohortTable from the database to a specified path in saveSettings.
+#'
+#' @param saveSettings saveSettings object
+#' @param tableName Name of the cohort table in the database.
+#' @param dataSettings dataSettings object
+#' @param cohortSettings cohortSettings object
+#'
+#' @return NULL
+#' @export
+writeCohortTable <- function(saveSettings, cohortSettings, dataSettings, tableName) {
+  # Write cohortTable
+  fs::dir_create(file.path(saveSettings$outputFolder))
+  
+  write.csv(
+    x = cohortSettings$cohortsToCreate,
+    file = paste0(saveSettings$outputFolder, "/cohortsToCreate.csv"))
+  
+  con <- DatabaseConnector::connect(dataSettings$connectionDetails)
+  # Disconnect from database on exit
+  on.exit(DatabaseConnector::disconnect(con))
+  
+  # Extract files from DB, write to outputFolder
+  tbl <- extractFile(
+    connection = con,
+    tableName = tableName,
+    resultsSchema = dataSettings$resultSchema,
+    dbms = dataSettings$connectionDetails$dbms)
+  
+  write.csv(
+    tbl,
+    file.path(
+      saveSettings$outputFolder,
+      paste0(tableName, ".csv")),
+    row.names = FALSE)
+}

@@ -11,139 +11,148 @@
 #'
 #' @export
 generateOutput <- function(saveSettings) {
-  if (!class(saveSettings) %in% c("saveSettings")) {
-    stop("Incorrect class for saveSettings")
-  }
-  
-  pathwaySettings <- data.frame(readr::read_csv(
+  # Get pathwaySettings
+  pathwaySettings <- read.csv(
     file.path(
       saveSettings$outputFolder,
-      "settings",
-      "pathway_settings.csv"
-    ),
-    col_types = readr::cols()
-  ))
+      "pathwaySettings.csv"
+    )
+  )
   
-  settings <-
-    colnames(pathwaySettings)[grepl("analysis", colnames(pathwaySettings))]
+  settings <- pathwaySettings[-1]
   
-  for (s in settings) {
-    studyName <- pathwaySettings[pathwaySettings$param == "studyName", s]
-    ParallelLogger::logInfo(print(paste0("Creating output: ", studyName)))
-    
-    eventCohortIds <-
-      pathwaySettings[pathwaySettings$param == "eventCohortIds", s]
-    eventCohortIds <-
-      unlist(strsplit(eventCohortIds, split = c(";|,")))
-    
-    minCellCount <-
-      as.integer(pathwaySettings[pathwaySettings$param == "minCellCount", s])
-    minCellMethod <-
-      pathwaySettings[pathwaySettings$param == "minCellMethod", s]
-    groupCombinations <-
-      pathwaySettings[pathwaySettings$param == "groupCombinations", s]
-    addNoPaths <-
-      pathwaySettings[pathwaySettings$param == "addNoPaths", s]
-    
-    outputFolders <-
-      file.path(saveSettings$outputFolder, studyName)
-    if (!file.exists(outputFolders)) {
-      dir.create(outputFolders, recursive = TRUE)
-    }
-    
-    treatmentPathways <- getPathways(
+  objList <- c()
+  
+  # For each setting set do:
+  dat <- lapply(seq_len(ncol(settings)), function(i) {
+    objList <- append(objList, getPathways(
       outputFolder = saveSettings$outputFolder,
       tempFolder = saveSettings$tempFolder,
       databaseName = saveSettings$databaseName,
-      studyName = studyName,
-      minCellCount = minCellCount
-    )
+      studyName = settings[1, i],
+      minCellCount = settings[14, i]
+    ))
+    
+    treatmentPathways <- objList
     
     if (!is.null(treatmentPathways)) {
+      # Write WithYear and NoYear files
       outputTreatedPatients(
         data = treatmentPathways[[1]],
-        eventCohortIds = eventCohortIds,
+        eventCohortIds = unlist(stringr::str_split(settings[3, i], ",")),
         groupCombinations = TRUE,
         outputFolder = saveSettings$outputFolder,
-        outputFile = file.path(
-          outputFolders,
-          paste0(
-            saveSettings$databaseName,
-            "_",
-            studyName,
-            "_percentage_groups_treated_noyear.csv"
-          )
-        )
-      )
-      outputTreatedPatients(
-        data = treatmentPathways[[2]],
-        eventCohortIds = eventCohortIds,
-        groupCombinations = TRUE,
-        outputFolder = saveSettings$outputFolder,
-        outputFile = file.path(
-          outputFolders,
-          paste0(
-            saveSettings$databaseName,
-            "_",
-            studyName,
-            "_percentage_groups_treated_withyear.csv"
-          )
-        )
+        outputFile = "percentageGroupsTreatedNoYear.csv"
       )
       
-      outputDurationEras(
+      outputTreatedPatients(
+        data = treatmentPathways[[2]],
+        eventCohortIds = unlist(stringr::str_split(settings[3, i], ",")),
+        groupCombinations = TRUE,
+        outputFolder = saveSettings$outputFolder,
+        outputFile = "PercentageGroupsTreatedWithYear.csv"
+      )
+      
+      objList <- append(objList, outputDurationEras(
         outputFolder = saveSettings$outputFolder,
         tempFolder = saveSettings$tempFolder,
         databaseName = saveSettings$databaseName,
-        studyName = studyName,
-        eventCohortIds = eventCohortIds,
+        studyName = settings[1, i],
+        eventCohortIds = unlist(stringr::str_split(settings[3, i], ",")),
         groupCombinations = TRUE,
-        minCellCount = minCellCount
-      )
+        minCellCount = settings[14, i]
+      ))
       
-      treatmentPathways <-
-        doMinCellCount(
-          file_noyear = treatmentPathways[[1]],
-          file_withyear = treatmentPathways[[2]],
-          outputFolder = saveSettings$outputFolder,
+      objList <- append(objList, doMinCellCount(
+        file_noyear = treatmentPathways[[1]],
+        file_withyear = treatmentPathways[[2]],
+        outputFolder = saveSettings$outputFolder,
+        tempFolder = saveSettings$tempFolder,
+        databaseName = saveSettings$databaseName,
+        studyName = settings[1, i],
+        groupCombinations = settings[16, i],
+        minCellCount = settings[14, i],
+        minCellMethod = settings[15, i]
+      ))
+      
+      objList <- append(objList, lapply(treatmentPathways, function(pathway) {
+        preprocessSunburstData(
+          data = pathway,
           tempFolder = saveSettings$tempFolder,
+          outputFolder = saveSettings$outputFolder,
           databaseName = saveSettings$databaseName,
-          studyName = studyName,
-          groupCombinations = groupCombinations,
-          minCellCount = minCellCount,
-          minCellMethod = minCellMethod
+          studyName = settings[1, i],
+          eventCohortIds = unlist(stringr::str_split(settings[3, i], ",")),
+          addNoPaths = settings[17, i]
         )
-      
-      
-      preprocessSunburstData(
-        data = treatmentPathways[[1]],
-        outputFolder = saveSettings$outputFolder,
-        databaseName = saveSettings$databaseName,
-        studyName = studyName,
-        eventCohortIds = eventCohortIds,
-        addNoPaths = addNoPaths
-      )
-      
-      preprocessSunburstData(
-        data = treatmentPathways[[2]],
-        outputFolder = saveSettings$outputFolder,
-        databaseName = saveSettings$databaseName,
-        studyName = studyName,
-        eventCohortIds = eventCohortIds,
-        addNoPaths = addNoPaths
-      )
+      }))
     }
-  }
+  })
   
-  zipName <- file.path(
-    saveSettings$rootFolder,
-    paste0(saveSettings$databaseName, ".zip")
+  durationEras <- dplyr::bind_rows(lapply(seq_len(length(dat)), function(i) {
+    data.frame(
+      eventCohortName = dat[[i]][[3]],
+      eventSeq = dat[[i]][[4]],
+      averageDuration = dat[[i]][[5]],
+      count = dat[[i]][[6]],
+      study = rep(settings[1, i], length(dat[[i]][[3]]))
+    )
+  }))
+  
+  write.csv(
+    x = durationEras,
+    file = file.path(saveSettings$outputFolder, "durationEras.csv"),
+    row.names = FALSE)
+  
+  
+  perYear <- dplyr::bind_rows(lapply(seq_len(length(dat)), function(i) {
+    row.names(dat[[i]][[1]]) <- NULL
+    row.names(dat[[i]][[2]]) <- NULL
+    
+    dat[[i]][[1]]$index_year <- rep("no year", nrow(dat[[i]][[1]]))
+    
+    rbind(
+      dat[[i]][[1]], # no year
+      dat[[i]][[2]], fill = TRUE) # with year
+  }))
+  
+  write.csv(
+    x = perYear,
+    file = file.path(saveSettings$outputFolder, "freqPerYear.csv"))
+  
+  # summary cnt
+  summaryCount <- dplyr::bind_rows(lapply(seq_len(length(dat)), function(i) {
+    dat[[i]][[7]]
+  }))
+  
+  write.csv(
+    x = summaryCount,
+    file = file.path(saveSettings$outputFolder, "summaryCount.csv")
   )
   
-  OhdsiSharing::compressFolder(file.path(saveSettings$outputFolder), zipName)
-  # zip::zipr(list.files(saveSettings$outputFolder, full.names = TRUE), zipName)
+  treatmentPathways <- dplyr::bind_rows(lapply(seq_len(length(dat)), function(i) {
+    row.names(dat[[i]][[8]]) <- NULL
+    row.names(dat[[i]][[9]]) <- NULL
+    
+    rbind(dat[[i]][[8]], dat[[i]][[9]], fill = TRUE)
+  }))
   
-  ParallelLogger::logInfo("generateOutput done.")
+  write.csv(
+    x = treatmentPathways,
+    file = file.path(saveSettings$outputFolder, "treatmentPathways.csv"),
+    row.names = FALSE)
+  
+  zipPath <- normalizePath(file.path(
+    saveSettings$rootFolder,
+    paste0(basename(saveSettings$outputFolder), ".zip")))
+  
+  message(
+    glue::glue("Zipping: {saveSettings$outputFolder}\nto: {zipPath}"))
+  
+  utils::zip(
+    zipfile = zipPath,
+    files = saveSettings$outputFolder,
+    extras = "-j -q")
 }
 
 #' getPathways
@@ -174,26 +183,20 @@ getPathways <- function(
     studyName,
     minCellCount) {
   # Try to read in paths from constructPathways.R for studyName
-  file <- try(
-    {
-      data.table::data.table(readr::read_csv(
-        file.path(
-          tempFolder,
-          studyName,
-          paste0(databaseName, "_", studyName, "_paths.csv")
-        ),
-        col_types = readr::cols()
+  file <- tryCatch({
+    data.table::data.table(readr::read_csv(
+      file.path(
+        tempFolder,
+        studyName,
+        paste0(databaseName, "_", studyName, "_paths.csv")),
+      col_types = readr::cols()
       ))
-    },
-    silent = TRUE
-  )
-  
-  if ("try-error" %in% class(file)) {
-    ParallelLogger::logInfo(warning(paste0(
-      "Data is empty for study settings ", studyName
-    )))
+  }, error=function(e) {
+    warning(
+      glue::glue("Data is empty for study settings {studyName}"))
     return(NULL)
-  }
+    }
+  )
   
   # Summarize which non-fixed combinations occurring
   findCombinations <-
@@ -221,8 +224,7 @@ getPathways <- function(
     summaryCombinations,
     file = file.path(
       outputFolder,
-      studyName,
-      paste0(databaseName, "_", studyName, "_combinations.csv")
+      paste0("combinations.csv")
     ),
     row.names = FALSE
   )
@@ -234,6 +236,8 @@ getPathways <- function(
   file_withyear <-
     file[, .(freq = sum(freq)), by = c(layers, "index_year")]
   
+  #print(file_noyear)
+  #print(file_withyear)
   return(list(file_noyear, file_withyear))
 }
 
@@ -298,7 +302,7 @@ outputTreatedPatients <- function(
     result <- data.table::rbindlist(results)
     result$y <- as.character(result$y)
   }
-  write.csv(result, file = outputFile, row.names = FALSE)
+  write.csv(result, file = file.path(outputFolder, outputFile), row.names = FALSE)
   ParallelLogger::logInfo("outputTreatedPatients done")
 }
 
@@ -330,7 +334,7 @@ percentageGroupTreated <- function(
   ])
   
   cohorts <- readr::read_csv(
-    file.path(outputFolder, "settings", "cohorts_to_create.csv"),
+    file.path(outputFolder, "cohortsToCreate.csv"),
     col_types = list("i", "c", "c")
   )
   outcomes <- c(
@@ -605,7 +609,7 @@ outputDurationEras <- function(
   
   # Add missing groups
   cohorts <- readr::read_csv(
-    file.path(outputFolder, "settings", "cohorts_to_create.csv"),
+    file.path(outputFolder, "cohortsToCreate.csv"),
     col_types = list("i", "c", "c")
   )
   
@@ -620,17 +624,17 @@ outputDurationEras <- function(
   
   # Remove durations computed using less than minCellCount observations
   results[COUNT < minCellCount, c("AVG_DURATION", "COUNT")] <- NA
-  write.csv(
-    results,
-    file.path(
-      outputFolder,
-      studyName,
-      paste0(databaseName, "_", studyName, "_duration.csv")
-    ),
-    row.names = FALSE
-  )
-  
+  # write.csv(
+  #   results,
+  #   file.path(
+  #     outputFolder,
+  #     studyName,
+  #     paste0("Duration.csv")
+  #   ),
+  #   row.names = FALSE
+  # )
   ParallelLogger::logInfo("outputDurationEras done")
+  return(results)
 }
 
 
@@ -803,40 +807,40 @@ doMinCellCount <- function(
     )
   }
   
-  write.table(
-    summary_counts,
-    file = file.path(
-      outputFolder,
-      studyName,
-      paste0(databaseName, "_", studyName, "_summary_cnt.csv")
-    ),
-    sep = ",",
-    row.names = FALSE,
-    col.names = TRUE
-  )
+  # write.table(
+  #   summary_counts,
+  #   file = file.path(
+  #     outputFolder,
+  #     studyName,
+  #     paste0(databaseName, "_", studyName, "_summary_cnt.csv")
+  #   ),
+  #   sep = ",",
+  #   row.names = FALSE,
+  #   col.names = TRUE
+  # )
   
-  write.csv(
-    file_noyear,
-    file.path(
-      outputFolder,
-      studyName,
-      paste0(databaseName, "_", studyName, "_file_noyear.csv")
-    ),
-    row.names = FALSE
-  )
+  # write.csv(
+  #   file_noyear,
+  #   file.path(
+  #     outputFolder,
+  #     studyName,
+  #     paste0(databaseName, "_", studyName, "_file_noyear.csv")
+  #   ),
+  #   row.names = FALSE
+  # )
   
-  write.csv(
-    file_withyear,
-    file.path(
-      outputFolder,
-      studyName,
-      paste0(databaseName, "_", studyName, "_file_withyear.csv")
-    ),
-    row.names = FALSE
-  )
+  # write.csv(
+  #   file_withyear,
+  #   file.path(
+  #     outputFolder,
+  #     studyName,
+  #     paste0(databaseName, "_", studyName, "_file_withyear.csv")
+  #   ),
+  #   row.names = FALSE
+  # )
   
   ParallelLogger::logInfo("doMinCellCount done")
-  return(list(file_noyear, file_withyear))
+  return(list(summary_counts, file_noyear, file_withyear))
 }
 
 
@@ -857,6 +861,8 @@ doMinCellCount <- function(
 #' @param addNoPaths
 #'     Select to include untreated persons without treatment pathway in the
 #'     sunburst plot.
+#' @param tempFolder
+#'     Temp folder
 #'
 #' @import readr
 #' @import ParallelLogger
@@ -864,13 +870,14 @@ doMinCellCount <- function(
 #' @returns NULL
 preprocessSunburstData <- function(
     data,
+    tempFolder,
     outputFolder,
     databaseName,
     studyName,
     eventCohortIds,
     addNoPaths) {
   cohorts <- readr::read_csv(
-    file.path(outputFolder, "settings", "cohorts_to_create.csv"),
+    file.path(outputFolder, "cohortsToCreate.csv"),
     col_types = list("i", "c", "c")
   )
   
@@ -882,8 +889,9 @@ preprocessSunburstData <- function(
   if (nrow(data) != 0) {
     if (is.null(data$index_year)) {
       # For file_noyear compute once
-      data <- inputSunburstPlot(
+      outDF <- inputSunburstPlot(
         data,
+        tempFolder,
         outputFolder,
         databaseName,
         studyName,
@@ -894,16 +902,18 @@ preprocessSunburstData <- function(
       # For file_withyear compute per year
       years <- unlist(unique(data[, "index_year"]))
       
-      for (y in years) {
-        subset_data <- data[index_year == as.character(y), ]
+      outDF <- dplyr::bind_rows(lapply(years, function(year) {
+        subset_data <- data[index_year == as.character(year), ]
+        
         if (nrow(subset_data) != 0) {
           subset_data <- inputSunburstPlot(
             subset_data,
+            tempFolder,
             outputFolder,
             databaseName,
             studyName,
             addNoPaths,
-            index_year = y
+            index_year = year
           )
         } else {
           ParallelLogger::logInfo(warning(
@@ -911,14 +921,18 @@ preprocessSunburstData <- function(
               "Subset of data is empty for study settings ",
               studyName,
               " in year ",
-              y
+              year
             )
           ))
         }
-      }
+      }))
+      # write.csv(
+      #   x = out,
+      #   file.path(outputFolder, "test.csv"))
     }
     ParallelLogger::logInfo("preprocessSunburstData done")
   }
+  return(outDF)
 }
 
 
@@ -938,6 +952,8 @@ preprocessSunburstData <- function(
 #'     Add no paths
 #' @param index_year
 #'     Index year
+#' @param tempFolder
+#'     Temp folder
 #'
 #' @import stringr
 #' @import readr
@@ -945,6 +961,7 @@ preprocessSunburstData <- function(
 #' @returns transformed_file
 inputSunburstPlot <- function(
     data,
+    tempFolder,
     outputFolder,
     databaseName,
     studyName,
@@ -976,7 +993,7 @@ inputSunburstPlot <- function(
   if (addNoPaths) {
     summary_counts <- readr::read_csv(
       file.path(
-        outputFolder,
+        tempFolder,
         studyName,
         paste0(databaseName, "_", studyName, "_summary_cnt.csv")
       ),
@@ -1003,23 +1020,24 @@ inputSunburstPlot <- function(
   transformed_file <-
     transformed_file[order(-transformed_file$freq, transformed_file$path), ]
   
-  write.table(
-    transformed_file,
-    file = file.path(
-      outputFolder,
-      studyName,
-      paste0(
-        databaseName,
-        "_",
-        studyName,
-        "_inputsunburst_",
-        index_year,
-        ".csv"
-      )
-    ),
-    sep = ",",
-    row.names = FALSE
-  )
+  transformed_file$year <- rep(x = index_year, nrow(transformed_file))
+  transformed_file$studyName <- rep(x = studyName, nrow(transformed_file))
+  
+  # filePath <- file.path(
+  #   outputFolder,
+  #   studyName,
+  #   paste0("inputSunburst.csv"))
+  
+  # write.table(
+  #   x = transformed_file,
+  #   file = filePath,
+  #   append = TRUE,
+  #   sep = ",",
+  #   row.names = FALSE,
+  #   col.names = FALSE)
+  
+  # close(file(filePath))
+  
   return(transformed_file)
 }
 

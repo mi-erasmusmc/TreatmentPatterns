@@ -13,7 +13,7 @@
 #'   Name of local folder to place package output.
 #'
 #' @param tempFolder
-#'  Name of local temporal folder.
+#'   Name of local temporal folder.
 #' 
 #' @import checkmate
 #'
@@ -62,9 +62,8 @@ checkSaveSettings <- function(
 #'
 #' @param outputFolder
 #'     Name of local folder to place package output.
-#'
 #' @param tempFolder
-#'     Name of local temporal folder.
+#'     Temp folder.
 #'
 #' @return
 #'     Object saveSettings.
@@ -73,26 +72,18 @@ checkSaveSettings <- function(
 #'
 #' @examples
 #' tmpOutputFolder <- tempdir()
-#' tmpTempFolder <- tempdir()
 #' 
 #' createSaveSettings(
 #'    rootFolder = "./",
 #'    databaseName = "Eunomia",
-#'    outputFolder = tmpOutputFolder,
-#'    tempFolder = tmpTempFolder)
+#'    outputFolder = tmpOutputFolder)
 createSaveSettings <- function(
     databaseName = "unknown_name",
     rootFolder,
-    outputFolder = NULL,
+    outputFolder,
     tempFolder = NULL) {
 
-  if (is.null(outputFolder)) {
-    outputFolder <- file.path(rootFolder, "output")
-  }
-
-  if (is.null(tempFolder)) {
-    tempFolder <- file.path(rootFolder, "temp")
-  }
+  tempFolder <- tempdir()
 
   check <- checkSaveSettings(
     databaseName,

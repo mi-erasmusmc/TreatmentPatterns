@@ -95,16 +95,11 @@ constructPathways <- function(dataSettings,
   fs::dir_create(saveSettings$outputFolder)
   fs::dir_create(saveSettings$tempFolder)
   
-  dirSettings <- suppressWarnings(normalizePath(file.path(saveSettings$outputFolder, "settings")))
-  
-  fs::dir_create(dirSettings)
-  
   write.csv(
     pathwaySettings,
     file.path(
       saveSettings$outputFolder,
-      "settings",
-      "pathway_settings.csv"),
+      "pathwaySettings.csv"),
     row.names = FALSE)
 
   # For all different pathway settings
@@ -582,7 +577,7 @@ doSplitEventCohorts <- function(
   if (all(!is.na(splitEventCohorts))) {
     # Load in labels cohorts
     labels <- data.table::data.table(readr::read_csv(
-      file = file.path(outputFolder, "settings", "cohorts_to_create.csv"), 
+      file = file.path(outputFolder, "cohortsToCreate.csv"), 
       col_types = list("i","c","c")))
     
     # Check if splitEventCohorts == splitTime
@@ -618,12 +613,6 @@ doSplitEventCohorts <- function(
       labels <- labels[cohortId != as.integer(cohort), ]
       labels <- rbind(labels, acute, therapy)
     }
-    
-    # Save new labels cohorts
-    write.csv(
-      x = labels,
-      file = file.path(outputFolder, "cohort.csv"),
-      row.names = FALSE)
   }
   return(treatment_history)
 }
@@ -1113,7 +1102,7 @@ doMaxPathLength <- function(treatment_history, maxPathLength) {
 #' @return treatment_history
 addLabels <- function(treatment_history, outputFolder) {
   labels <- read.csv(
-      file = file.path(outputFolder, "settings", "cohorts_to_create.csv"))
+      file = file.path(outputFolder, "cohortsToCreate.csv"))
   # convenrt event_cohort_id to character
   labels["cohortId"] <- as.character(labels[, "cohortId"])
   

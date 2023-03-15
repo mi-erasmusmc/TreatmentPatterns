@@ -79,7 +79,7 @@ eventCohorts <- cohortsGenerated %>%
 saveSettings <- TreatmentPatterns::createSaveSettings(
   databaseName = "Eunomia",
   rootFolder = getwd(),
-  outputFolder = file.path(getwd(), "output", "Eunomia"))
+  outputFolder = file.path(getwd(), "output"))
 
 if (file.exists(file.path(saveSettings$outputFolder, "settings"))) {
   fs::dir_create(file.exists(file.path(saveSettings$outputFolder, "settings")))
@@ -98,29 +98,35 @@ pathwaySettings <- TreatmentPatterns::createPathwaySettings(
   maxPathLength = 2)
 
 # Write files
+TreatmentPatterns::writeCohortTable(
+  saveSettings = saveSettings,
+  cohortSettings = cohortSettings,
+  dataSettings = dataSettings,
+  tableName = dataSettings$cohortTable)
+
 #names(cohortSettings$cohortsToCreate) <- c("cohort_id", "cohort_name", "cohort_type")
-write.csv(
-  x = cohortSettings$cohortsToCreate,
-  file = file.path(saveSettings$outputFolder, "settings", "cohorts_to_create.csv"),
-  row.names = FALSE)
+# write.csv(
+#   x = cohortSettings$cohortsToCreate,
+#   file = file.path(saveSettings$outputFolder, "settings", "cohorts_to_create.csv"),
+#   row.names = FALSE)
 
 
 # Export tables from database
-con <- DatabaseConnector::connect(dataSettings$connectionDetails)
-
-invisible(lapply(cohortTableNames, function(tableName) {
-  tbl <- TreatmentPatterns:::extractFile(
-    connection = con,
-    tableName = tableName,
-    resultsSchema = dataSettings$resultSchema,
-    dbms = dataSettings$connectionDetails$dbms)
-  
-  write.csv(
-    tbl,
-    file.path(
-      saveSettings$outputFolder,
-      paste0(tableName, ".csv")),
-    row.names = FALSE)
-}))
-
-DatabaseConnector::disconnect(con)
+# con <- DatabaseConnector::connect(dataSettings$connectionDetails)
+# 
+# invisible(lapply(cohortTableNames, function(tableName) {
+#   tbl <- TreatmentPatterns:::extractFile(
+#     connection = con,
+#     tableName = tableName,
+#     resultsSchema = dataSettings$resultSchema,
+#     dbms = dataSettings$connectionDetails$dbms)
+#   
+#   write.csv(
+#     tbl,
+#     file.path(
+#       saveSettings$outputFolder,
+#       paste0(tableName, ".csv")),
+#     row.names = FALSE)
+# }))
+# 
+# DatabaseConnector::disconnect(con)

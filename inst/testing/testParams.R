@@ -1,3 +1,7 @@
+source(system.file(
+  package = "TreatmentPatterns",
+  "examples", "SettingObjects", "createDummySettings.R"))
+
 connection <- DatabaseConnector::connect(dataSettings$connectionDetails)
 
 fullCohorts <- data.table::as.data.table(extractFile(

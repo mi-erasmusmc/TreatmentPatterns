@@ -6,6 +6,7 @@
 \usage{
 preprocessSunburstData(
   data,
+  tempFolder,
   outputFolder,
   databaseName,
   studyName,
@@ -15,6 +16,8 @@ preprocessSunburstData(
 }
 \arguments{
 \item{data}{Dataframe with event cohorts of the target cohort in different columns.}
+
+\item{tempFolder}{Temp folder}
 
 \item{outputFolder}{Path to the output folder.}
 

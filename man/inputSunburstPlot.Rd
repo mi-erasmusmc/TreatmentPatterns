@@ -6,6 +6,7 @@
 \usage{
 inputSunburstPlot(
   data,
+  tempFolder,
   outputFolder,
   databaseName,
   studyName,
@@ -15,6 +16,8 @@ inputSunburstPlot(
 }
 \arguments{
 \item{data}{Data}
+
+\item{tempFolder}{Temp folder}
 
 \item{outputFolder}{Output folder}
 

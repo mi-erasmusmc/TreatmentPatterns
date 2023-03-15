@@ -7,7 +7,7 @@
 createSaveSettings(
   databaseName = "unknown_name",
   rootFolder,
-  outputFolder = NULL,
+  outputFolder,
   tempFolder = NULL
 )
 }
@@ -19,7 +19,7 @@ tempFolder if not given).}
 
 \item{outputFolder}{Name of local folder to place package output.}
 
-\item{tempFolder}{Name of local temporal folder.}
+\item{tempFolder}{Temp folder.}
 }
 \value{
 Object saveSettings.
@@ -29,11 +29,9 @@ Creates saveSettings object.
 }
 \examples{
 tmpOutputFolder <- tempdir()
-tmpTempFolder <- tempdir()
 
 createSaveSettings(
    rootFolder = "./",
    databaseName = "Eunomia",
-   outputFolder = tmpOutputFolder,
-   tempFolder = tmpTempFolder)
+   outputFolder = tmpOutputFolder)
 }

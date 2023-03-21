@@ -7,7 +7,7 @@
 percentageGroupTreated(data, eventCohortIds, groupCombinations, outputFolder)
 }
 \arguments{
-\item{data}{Data}
+\item{data}{data.frame of treatmentPathway list.}
 
 \item{eventCohortIds}{Event cohort IDs}
 

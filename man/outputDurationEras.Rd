@@ -32,5 +32,5 @@ the sunburst plot.}
 pathway to be included in analysis.}
 }
 \description{
-outputDurationEras
+Computes the duration and count of each era.
 }

@@ -9,9 +9,7 @@ generateOutput(saveSettings)
 \arguments{
 \item{saveSettings}{Settings object as created by createSaveSettings().}
 }
-\value{
-some stuff
-}
 \description{
-generateOutput
+Generates the output files in the specified output folder. It will also zip
+the output folder into a zip-file.
 }

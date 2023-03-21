@@ -4,15 +4,15 @@
 \alias{doMaxPathLength}
 \title{doMaxPathLength}
 \usage{
-doMaxPathLength(treatment_history, maxPathLength)
+doMaxPathLength(treatmentHistory, maxPathLength)
 }
 \arguments{
-\item{treatment_history}{Dataframe with event cohorts of the target cohort in different rows.}
+\item{treatmentHistory}{Dataframe with event cohorts of the target cohort in different rows.}
 
 \item{maxPathLength}{Maximum number of steps included in treatment pathway.}
 }
 \value{
-treatment_history
+treatmentHistory
 Updated dataframe, where the desired event cohorts all have a seq value of <= 
 maxPathLength
 }
@@ -26,5 +26,5 @@ th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
                                eventCohortIds = eventCohortIds,
                                periodPriorToIndex = periodPriorToIndex,
                                includeTreatments = includeTreatments)
-doMaxPathLength(treatment_history = th, maxPathLength = 1)}
+doMaxPathLength(treatmentHistory = th, maxPathLength = 1)}
 }

@@ -5,14 +5,14 @@
 \title{doSplitEventCohorts}
 \usage{
 doSplitEventCohorts(
-  treatment_history,
+  treatmentHistory,
   splitEventCohorts,
   splitTime,
   outputFolder
 )
 }
 \arguments{
-\item{treatment_history}{Dataframe with event cohorts of the target cohort in different rows.}
+\item{treatmentHistory}{Dataframe with event cohorts of the target cohort in different rows.}
 
 \item{splitEventCohorts}{Specify event cohort to split in acute (< X days) and therapy
 (>= X days).}
@@ -24,7 +24,7 @@ should be split in acute and therapy}
 slashes (/).}
 }
 \value{
-treatment_history
+treatmentHistory
     Updated dataframe, with specified event cohorts now
     split in two different event cohorts (acute and therapy).
 }
@@ -44,7 +44,7 @@ source(system.file(
   "testParams.R"))
 
 doSplitEventCohorts(
-  treatment_history = doEraDurationTH,
+  treatmentHistory = doEraDurationTH,
   splitEventCohorts = c(1,2,3),
   splitTime = c("30", "20", "10"),
   outputFolder = saveSettings$outputFolder)}

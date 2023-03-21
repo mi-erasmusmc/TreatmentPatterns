@@ -4,10 +4,10 @@
 \alias{checkPathwaySettings}
 \title{checkPathwaySettings}
 \usage{
-checkPathwaySettings(cohortSettings)
+checkPathwaySettings(env)
 }
 \arguments{
-\item{cohortSettings}{cohortSettings object}
+\item{env}{Environment containging all the function environment variables.}
 }
 \value{
 TRUE if all assertions pass

@@ -4,21 +4,10 @@
 \alias{checkDataSettings}
 \title{checkDataSettings}
 \usage{
-checkDataSettings(
-  connectionDetails,
-  cdmDatabaseSchema,
-  resultSchema,
-  cohortTable
-)
+checkDataSettings(env)
 }
 \arguments{
-\item{connectionDetails}{connectionDetails object.}
-
-\item{cdmDatabaseSchema}{Schema name of CDM.}
-
-\item{resultSchema}{Schema name of results.}
-
-\item{cohortTable}{Cohort table name.}
+\item{env}{Environment containging all the function environment variables.}
 }
 \value{
 TRUE if all the assertions pass.

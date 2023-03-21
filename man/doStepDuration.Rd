@@ -4,16 +4,16 @@
 \alias{doStepDuration}
 \title{doStepDuration}
 \usage{
-doStepDuration(treatment_history, minPostCombinationDuration)
+doStepDuration(treatmentHistory, minPostCombinationDuration)
 }
 \arguments{
-\item{treatment_history}{Dataframe with event cohorts of the target cohort in different rows.}
+\item{treatmentHistory}{Dataframe with event cohorts of the target cohort in different rows.}
 
 \item{minPostCombinationDuration}{Minimum time an event era should last before or after a generated combination
 treatment for it to be included in analysis.}
 }
 \value{
-treatment_history
+treatmentHistory
     Updated dataframe, rows with duration_era < 
     minPostCombinationDuration filtered out.
 }

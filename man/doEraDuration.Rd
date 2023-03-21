@@ -4,15 +4,15 @@
 \alias{doEraDuration}
 \title{doEraDuration}
 \usage{
-doEraDuration(treatment_history, minEraDuration)
+doEraDuration(treatmentHistory, minEraDuration)
 }
 \arguments{
-\item{treatment_history}{Dataframe with event cohorts of the target cohort in different rows.}
+\item{treatmentHistory}{Dataframe with event cohorts of the target cohort in different rows.}
 
 \item{minEraDuration}{Minimum time an event era should last to be included in analysis.}
 }
 \value{
-treatment_history
+treatmentHistory
     Updated dataframe, rows with duration < 
     minEraDuration filtered out.
 }
@@ -26,6 +26,6 @@ th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
                                eventCohortIds = eventCohortIds,
                                periodPriorToIndex = periodPriorToIndex,
                                includeTreatments = includeTreatments)
-doEraDuration(treatment_history = th, minEraDuration = 1)
+doEraDuration(treatmentHistory = th, minEraDuration = 1)
 }
 }

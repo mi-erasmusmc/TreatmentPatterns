@@ -4,15 +4,15 @@
 \alias{addLabels}
 \title{addLabels}
 \usage{
-addLabels(treatment_history, outputFolder)
+addLabels(treatmentHistory, outputFolder)
 }
 \arguments{
-\item{treatment_history}{treatment_history object}
+\item{treatmentHistory}{treatmentHistory object}
 
 \item{outputFolder}{Folder of output}
 }
 \value{
-treatment_history
+treatmentHistory
 }
 \description{
 Adds back cohort names to concept ids.

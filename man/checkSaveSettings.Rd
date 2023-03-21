@@ -4,17 +4,10 @@
 \alias{checkSaveSettings}
 \title{checkSaveSettings}
 \usage{
-checkSaveSettings(databaseName, rootFolder, outputFolder, tempFolder)
+checkSaveSettings(env)
 }
 \arguments{
-\item{databaseName}{Name of the database that will appear in the results.}
-
-\item{rootFolder}{Name of local folder to place all package output (outputFolder,
-tempFolder if not given).}
-
-\item{outputFolder}{Name of local folder to place package output.}
-
-\item{tempFolder}{Name of local temporal folder.}
+\item{env}{Environment containging all the function environment variables.}
 }
 \value{
 TRUE if all assertions pass

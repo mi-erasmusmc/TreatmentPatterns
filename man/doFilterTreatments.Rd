@@ -4,16 +4,16 @@
 \alias{doFilterTreatments}
 \title{doFilterTreatments}
 \usage{
-doFilterTreatments(treatment_history, filterTreatments)
+doFilterTreatments(treatmentHistory, filterTreatments)
 }
 \arguments{
-\item{treatment_history}{Dataframe with event cohorts of the target cohort in different rows.}
+\item{treatmentHistory}{Dataframe with event cohorts of the target cohort in different rows.}
 
 \item{filterTreatments}{Select first occurrence of ('First') / changes between ('Changes') / all
 event cohorts ('All').}
 }
 \value{
-treatment_history
+treatmentHistory
     Updated dataframe, where the desired event cohorts are maintained for
     the visualizations.
 }
@@ -28,5 +28,5 @@ th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
                                periodPriorToIndex = periodPriorToIndex,
                                includeTreatments = includeTreatments)
 
-doFilterTreatments(treatment_history = th, filterTreatments = "All")}
+doFilterTreatments(treatmentHistory = th, filterTreatments = "All")}
 }

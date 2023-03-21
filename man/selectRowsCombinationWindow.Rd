@@ -4,13 +4,13 @@
 \alias{selectRowsCombinationWindow}
 \title{selectRowsCombinationWindow}
 \usage{
-selectRowsCombinationWindow(treatment_history)
+selectRowsCombinationWindow(treatmentHistory)
 }
 \arguments{
-\item{treatment_history}{Dataframe with event cohorts of the target cohort in different rows.}
+\item{treatmentHistory}{Dataframe with event cohorts of the target cohort in different rows.}
 }
 \value{
-Updated treatment_history data.frame
+Updated treatmentHistory data.frame
 }
 \description{
 Help function for doCombinationWindow that selects one overlapping drug era

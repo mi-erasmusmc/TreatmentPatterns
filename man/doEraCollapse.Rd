@@ -4,16 +4,16 @@
 \alias{doEraCollapse}
 \title{doEraCollapse}
 \usage{
-doEraCollapse(treatment_history, eraCollapseSize)
+doEraCollapse(treatmentHistory, eraCollapseSize)
 }
 \arguments{
-\item{treatment_history}{Dataframe with event cohorts of the target cohort in different rows.}
+\item{treatmentHistory}{Dataframe with event cohorts of the target cohort in different rows.}
 
 \item{eraCollapseSize}{Window of time between which two eras of the same event cohort are
 collapsed into one era.}
 }
 \value{
-treatment_history
+treatmentHistory
     Updated dataframe, where event cohorts with
     gap_same < eraCollapseSize are collapsed.
 }
@@ -27,6 +27,6 @@ th <- doCreateTreatmentHistory(current_cohorts = currentCohorts,
                                eventCohortIds = eventCohortIds,
                                periodPriorToIndex = periodPriorToIndex,
                                includeTreatments = includeTreatments)
-doEraCollapse(treatment_history = th, eraCollapseSize = 1)
+doEraCollapse(treatmentHistory = th, eraCollapseSize = 1)
 }
 }

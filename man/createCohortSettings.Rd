@@ -17,9 +17,10 @@ cohortId = "Unique ID number", cohortName = "Descriptive name cohort".}
 Object cohortSettings.
 }
 \description{
-Create a cohortsSettings object, containing information about the target and event cohorts.
-A cohort ID and name are required to specify the target and event cohorts.
-The cohortId and cohortName are the ID and Name specified while creating cohorts with i.e. CohortGenerator.
+Create a cohortsSettings object, containing information about the target
+and event cohorts. A cohort ID and name are required to specify the target
+and event cohorts. The cohortId and cohortName are the ID and Name specified
+while creating cohorts with i.e. CohortGenerator.
 }
 \examples{
 cohortSettings <- createCohortSettings(

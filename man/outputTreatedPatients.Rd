@@ -25,5 +25,5 @@ the sunburst plot.}
 \item{outputFile}{Name of output file.}
 }
 \description{
-outputTreatedPatients
+Writes a csv-file containing the outcomes, event cohorts and layers
 }

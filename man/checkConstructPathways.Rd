@@ -4,14 +4,10 @@
 \alias{checkConstructPathways}
 \title{checkConstructPathways}
 \usage{
-checkConstructPathways(dataSettings, pathwaySettings, saveSettings)
+checkConstructPathways(env)
 }
 \arguments{
-\item{dataSettings}{dataSettings object}
-
-\item{pathwaySettings}{pathwaySettings object}
-
-\item{saveSettings}{saveSettings object}
+\item{env}{Environment containging all the function environment variables.}
 }
 \value{
 TRUE if all assertions pass

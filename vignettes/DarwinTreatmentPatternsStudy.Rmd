@@ -96,7 +96,7 @@ Entry events will be combined into cohort eras if they are within **0** days of 
 
 ### Generating cohorts
 To make it easier on our selves later on, we will already specify some parameters that we will reuse later using TreatmentPatterns.
-```{r data_settings}
+```{r dataSettingsVars}
 connectionDetails <- Eunomia::getEunomiaConnectionDetails()
 cdmDatabaseSchema <- "main"
 resultSchema <- "main"
@@ -104,7 +104,7 @@ cohortTable <- "cohortTable"
 ```
 
 To generate cohorts using CohortGenerator we can follow the instructions specified in the vignette:
-```{r generating_cohorts, message=FALSE}
+```{r generatingCohorts, message=FALSE}
 cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
 
 # Get json-files included with TreatmentPatterns
@@ -140,21 +140,21 @@ for (i in seq_len(length(cohortJsonFiles))) {
 ```
 
 Now that we have specified our cohorts we can generate them.
-```{r cohort_table_names}
+```{r cohortTableNames}
 # Create the cohort tables to hold the cohort generation results
 cohortTableNames <- CohortGenerator::getCohortTableNames(
   cohortTable = cohortTable)
 ```
 
 Generate our cohortTableNames
-```{r, generate_cohorts, message=FALSE, results='hide'}
+```{r, generateCohorts, message=FALSE, results='hide'}
 CohortGenerator::createCohortTables(
   connectionDetails = connectionDetails,
   cohortDatabaseSchema = resultSchema,
   cohortTableNames = cohortTableNames)
 ```
 Finally, we can generate our specified cohorts in Eunomia.
-```{r get_cohorts_generated, message=FALSE, results='hide'}
+```{r getCohortsGenerated, message=FALSE, results='hide'}
 # Generate the cohorts
 cohortsGenerated <- CohortGenerator::generateCohortSet(
   connectionDetails = connectionDetails,
@@ -180,11 +180,11 @@ dataSettings <- createDataSettings(
 4. **cohortTable**: A character string specifying the name of the cohort table.
 
 ### saveSettings
-```{r}
+```{r saveSettings, warning=FALSE}
 saveSettings <- createSaveSettings(
   databaseName = "Eunomia",
-  rootFolder = getwd(),
-  outputFolder = file.path(getwd(), "output"))
+  rootFolder = tempdir(),
+  outputFolder = "output")
 ```
 1. **databaseName**: Character string specifying the name of the database.
 2. **rootFolder**: Character string specifying the path of the root folder where outputted files should be saved at.
@@ -248,13 +248,28 @@ pathwaySettings <- createPathwaySettings(
 3. **...**: Any of the settings metioned above, except targetCohortId and eventCohortId.
 
 ### addPathwaySettings
-Optionally we can add another pathway analysis. In this example we specify the same pathway settings, but we remove one drug: Acetaminophen.
+Optionally we can add another pathway analysis. Lets say for our analysis we want the following:
+
+1. Make sure that the duration of an era is at least 2 weeks.
+2. Make sure two events of the same treatment may be 3 weeks apart.
+3. But if two eras overlap only 1 week they will be considered one era.
+4. Consider only pathways that at least have 5 people represented in them.
+5. Set the cut off to group combination treatments in 'other' to 5.
+6. And most importantly we must name our study.
+
+In this example we will change some of the settings: 
 ```{r addPathwayAnalysis}
 pathwaySettings <- addPathwayAnalysis(
   pathwaySettings = pathwaySettings,
   targetCohortIds = targetCohort$cohortId,
   eventCohortIds = eventCohorts$cohortId[-1],
-  studyName = "One_drug_less")
+  studyName = "someOtherCoolParameters", # 6. Name of are new study
+  minEraDuration = 14,                   # 1. Minimum duration of 14 days.
+  eraCollapseSize = 21,                  # 2. Collapse two eras if they are 21 days apart.
+  combinationWindow = 7,                 # 3. 7 day overlap between eras
+  minCellCount = 5,                      # 4. At least 5 persons
+  groupCombinations = 5                  # 5. nPathway =< 5 -> Other
+  )
 ```
 1. **pathwaySettings**: The `pathwaySettings` object created by `cratePathwaySettings`.
 2. **targetCohortIds**: The Target Cohort IDs
@@ -262,9 +277,9 @@ pathwaySettings <- addPathwayAnalysis(
 4. **...**: Any other parameter you'd liek to change. A full list of parameters can be found in the `addPathwaySettings` documentation. **Some** of these parameters are: studyName, minEraDuration, combinationWindow, eraCollapseSize, maxPathLength.
 
 ## Constructing pathways and reviewing output
-### Preconfiguring file structure
-We setup the file structure for the output here, fetching some information from our generated cohorts from the CDM.
-```{r preConfigure, results='hide', message=FALSE, warning=FALSE}
+### writeCohortTable
+writeCohortTable writes the cohort table and the cohortsToCreate table to our output folder
+```{r writeCohortTable, results='hide', message=FALSE, warning=FALSE}
 writeCohortTable(
   saveSettings = saveSettings,
   cohortSettings = cohortSettings,
@@ -286,7 +301,7 @@ constructPathways(
 ```
 1. **dataSettings**: `dataSettings` object.
 2. **pathwaySettings**: `pathwaySettings` object.
-3. **saveSettings**: `saveSettings` object.
+3. **saveSettings**: `saveSettings` object.f
 
 ### generateOutput
 After our pathways are computed, we can generate our output files.

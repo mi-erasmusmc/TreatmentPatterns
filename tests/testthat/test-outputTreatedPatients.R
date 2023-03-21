@@ -19,3 +19,8 @@ test_that("minimal", {
     outputFolder = saveSettings$outputFolder,
     outputFile = outputFile), "outputTreatedPatients done")
 })
+
+test_that("file exists", {
+  expect_true(checkmate::testFileExists(
+    file.path(saveSettings$outputFolder, outputFile)))
+})

@@ -20,3 +20,21 @@ test_that("minimal", {
     minCellCount = 5
   ), "outputDurationEras done")
 })
+
+out <- TreatmentPatterns:::outputDurationEras(
+  outputFolder = saveSettings$outputFolder,
+  tempFolder = saveSettings$tempFolder,
+  databaseName = saveSettings$databaseName,
+  studyName = "Viral_Sinusitis",
+  eventCohortIds = eventCohortIds,
+  groupCombinations = TRUE,
+  minCellCount = 5
+)
+
+test_that("output", {
+  expect_equal(ncol(out), 4)
+  expect_equal(typeof(out$event_cohort_name), "character")
+  expect_equal(typeof(out$event_seq), "character")
+  expect_equal(typeof(out$AVG_DURATION), "double")
+  expect_equal(typeof(out$COUNT), "double")
+})

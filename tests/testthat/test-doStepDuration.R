@@ -120,30 +120,30 @@ test_that("void", {
 
 test_that("minimal", {
   expect_s3_class(TreatmentPatterns:::doStepDuration(
-    treatment_history = doSetDurationTH,
+    treatmentHistory = doSetDurationTH,
     minPostCombinationDuration = 30), "data.frame")
 })
 
 test_that("non numeric minPostCombinationDuration", {
   expect_error(
     TreatmentPatterns:::doStepDuration(
-      treatment_history = doSetDurationTH,
+      treatmentHistory = doSetDurationTH,
       minPostCombinationDuration = "30"),
     "Must be of type 'numeric', not 'character'"
   )
 })
 
-test_that("non data.frame treatment_history", {
+test_that("non data.frame treatmentHistory", {
   expect_error(
     TreatmentPatterns:::doStepDuration(
-      treatment_history = "doSetDurationTH",
+      treatmentHistory = "doSetDurationTH",
       minPostCombinationDuration = "30"),
     "Must be of type 'data.frame', not 'character'"
   )
 })
 
 doStepDurationOut <- TreatmentPatterns:::doStepDuration(
-  treatment_history = doSetDurationTH,
+  treatmentHistory = doSetDurationTH,
   minPostCombinationDuration = 30)
 
 test_that("Max TH == Out", {

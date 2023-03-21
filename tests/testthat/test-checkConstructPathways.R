@@ -10,7 +10,7 @@ dataSettings <- createDataSettings(
 
 saveSettings <- createSaveSettings(
   rootFolder = "./",
-  databaseName = "Eunomia", 
+  databaseName = "Eunomia",
   outputFolder = "./inst",
   tempFolder = "./inst")
 
@@ -52,30 +52,17 @@ pathwaySettings <- createPathwaySettings(
 
 test_that("Void", {
   expect_error(
-    checkConstructPathways() 
+    checkConstructPathways()
   )
 })
+
+e <- new.env()
+e$dataSettings <- dataSettings
+e$pathwaySettings <- pathwaySettings
+e$saveSettings <- saveSettings
 
 test_that("Minimal", {
   expect_true(
-    checkConstructPathways(dataSettings, 
-                           pathwaySettings, 
-                           saveSettings) 
-  )
-})
-
-test_that("Assert logical", {
-  expect_logical(
-    checkConstructPathways(dataSettings, 
-                           pathwaySettings, 
-                           saveSettings) 
-  )
-})
-
-test_that("Expect error if wrong order of variables", {
-  expect_error(
-    checkConstructPathways(pathwaySettings, 
-                           dataSettings,
-                           saveSettings) 
+    TreatmentPatterns:::checkConstructPathways(e)
   )
 })

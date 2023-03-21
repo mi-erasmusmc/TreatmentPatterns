@@ -12,7 +12,7 @@ test_that("void", {
 
 test_that("minimal", {
   expect_s3_class(TreatmentPatterns:::doSplitEventCohorts(
-    treatment_history = doEraDurationTH,
+    treatmentHistory = doEraDurationTH,
     splitEventCohorts = splitEventCohorts,
     splitTime = splitTime,
     outputFolder = saveSettings$outputFolder), "data.frame")
@@ -20,26 +20,26 @@ test_that("minimal", {
 
 test_that("length splitEventCohorts != splitTime", {
   expect_error(doSplitEventCohorts(
-    treatment_history = doEraDurationTH,
+    treatmentHistory = doEraDurationTH,
     splitEventCohorts = c(1, 2, 3),
     splitTime = c("30"),
     outputFolder = saveSettings$outputFolder))
 })
 
 out3 <- TreatmentPatterns:::doSplitEventCohorts(
-  treatment_history = doEraDurationTH,
+  treatmentHistory = doEraDurationTH,
   splitEventCohorts = c(1),
   splitTime = c("30"),
   outputFolder = saveSettings$outputFolder)
 
 out1 <- TreatmentPatterns:::doSplitEventCohorts(
-  treatment_history = doEraDurationTH,
+  treatmentHistory = doEraDurationTH,
   splitEventCohorts = NA,
   splitTime = splitTime,
   outputFolder = saveSettings$outputFolder)
 
 out2 <- TreatmentPatterns:::doSplitEventCohorts(
-  treatment_history = doEraDurationTH,
+  treatmentHistory = doEraDurationTH,
   splitEventCohorts = c(1, 6),
   splitTime = c("30", "20"),
   outputFolder = saveSettings$outputFolder)

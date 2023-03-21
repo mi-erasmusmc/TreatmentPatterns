@@ -46,15 +46,6 @@ test_that("Assert outputFolder: existing path", {
     "saveSettings")
 })
 
-test_that("Assert outputFolder: non-existing path", {
-  expect_warning(saveSettings <- createSaveSettings(
-    rootFolder = "./",
-    databaseName = "Eunomia", 
-    outputFolder = "./VeryCoolOutputPathThatDoesNotExist"))
-  
-  expect_s3_class(saveSettings, "saveSettings")
-})
-
 test_that("Assert tempFolder: existing path", {
   expect_s3_class(createSaveSettings(
     rootFolder = "./",

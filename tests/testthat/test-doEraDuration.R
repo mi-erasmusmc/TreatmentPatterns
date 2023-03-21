@@ -16,7 +16,7 @@ test_that("void", {
 
 test_that("minimal", {
   treatmentHistoryFiltered <- TreatmentPatterns:::doEraDuration(
-    treatment_history = treatmentHistory,
+    treatmentHistory = treatmentHistory,
     minEraDuration = minEraDuration)
   
   expect_s3_class(treatmentHistoryFiltered, "data.frame")
@@ -24,9 +24,9 @@ test_that("minimal", {
 })
 
 test_that("invalid_input", {
-  expect_error(TreatmentPatterns:::doEraDuration(treatment_history = NULL))
-  expect_error(TreatmentPatterns:::doEraDuration(treatment_history = treatmentHistory,
+  expect_error(TreatmentPatterns:::doEraDuration(treatmentHistory = NULL))
+  expect_error(TreatmentPatterns:::doEraDuration(treatmentHistory = treatmentHistory,
                                                  minEraDuration = NULL))
-  expect_error(TreatmentPatterns:::doEraDuration(treatment_history = treatmentHistory,
+  expect_error(TreatmentPatterns:::doEraDuration(treatmentHistory = treatmentHistory,
                                                  minEraDuration = mtcars))
 })

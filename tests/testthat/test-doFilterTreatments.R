@@ -16,7 +16,7 @@ test_that("void", {
 
 test_that("minimal", {
   treatmentHistoryFiltered <- TreatmentPatterns:::doFilterTreatments(
-    treatment_history = doCombinationWindowTH,
+    treatmentHistory = doCombinationWindowTH,
     filterTreatments = filterTreatments)
   
   expect_s3_class(treatmentHistoryFiltered, "data.frame")
@@ -24,9 +24,9 @@ test_that("minimal", {
 })
 
 test_that("invalid_input", {
-  expect_error(TreatmentPatterns:::doMaxPathLength(treatment_history = NULL))
-  expect_error(TreatmentPatterns:::doMaxPathLength(treatment_history = treatmentHistory,
+  expect_error(TreatmentPatterns:::doMaxPathLength(treatmentHistory = NULL))
+  expect_error(TreatmentPatterns:::doMaxPathLength(treatmentHistory = treatmentHistory,
                                                    filterTreatments = NULL))
-  expect_error(TreatmentPatterns:::doMaxPathLength(treatment_history = treatmentHistory,
+  expect_error(TreatmentPatterns:::doMaxPathLength(treatmentHistory = treatmentHistory,
                                                    filterTreatments = mtcars))
 })

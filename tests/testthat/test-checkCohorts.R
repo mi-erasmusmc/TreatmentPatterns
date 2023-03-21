@@ -21,16 +21,16 @@ cohortSettings <- createCohortSettings(
   eventCohorts)
 
 test_that("Void", {
-  expect_error(cohortsCheck())
+  expect_error(TreatmentPatterns:::checkCohorts())
 })
 
 test_that("eventCohorts", {
-  expect_equal(cohortsCheck(eventCohorts),
+  expect_equal(TreatmentPatterns:::checkCohorts(eventCohorts),
                TRUE)
 })
 
 test_that("targetCohorts", {
-  expect_equal(cohortsCheck(targetCohorts),
+  expect_equal(TreatmentPatterns:::checkCohorts(targetCohorts),
                TRUE)
 })
 

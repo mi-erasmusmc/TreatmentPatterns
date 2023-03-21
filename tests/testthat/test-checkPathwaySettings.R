@@ -21,11 +21,13 @@ cohortSettings <- createCohortSettings(
   eventCohorts)
 
 test_that("Void", {
-  expect_error(checkPathwaySettings())
+  expect_error(TreatmentPatterns:::checkPathwaySettings())
 })
 
 test_that("Minimal", {
-  expect_equal(checkPathwaySettings(cohortSettings),
+  e <- new.env()
+  e$cohortSettings <- cohortSettings
+  expect_equal(TreatmentPatterns:::checkPathwaySettings(e),
                TRUE)
 })
 

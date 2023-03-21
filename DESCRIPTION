@@ -18,19 +18,11 @@ Imports:
     dplyr,
     SqlRender,
     stringr,
-    readr,
     reshape2,
     ParallelLogger,
     fs,
     glue,
-    OhdsiSharing,
     utils
-Remotes:
-    OHDSI/OhdsiSharing,
-    OHDSI/Eunomia,
-    OHDSI/CohortDiagnostics,
-    OHDSI/CirceR,
-    OHDSI/CohortGenerator
 Suggests:
     tibble,
     testthat (>= 3.0.0),
@@ -47,3 +39,4 @@ LazyData: true
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Additional_repositories: https://OHDSI.github.io/drat

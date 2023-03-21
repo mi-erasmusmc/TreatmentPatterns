@@ -48,7 +48,7 @@ minEraDuration <- as.integer(settings[
   settings$param == "minEraDuration", "analysis1"])
 
 doEraDurationTH <- TreatmentPatterns:::doEraDuration(
-  treatment_history = treatmentHistory,
+  treatmentHistory = treatmentHistory,
   minEraDuration = minEraDuration)
 
 splitEventCohorts <- settings[
@@ -58,7 +58,7 @@ splitTime <- settings[
   settings$param == "splitTime", "analysis1"]
 
 doSplitEventCohortsTH <- TreatmentPatterns:::doSplitEventCohorts(
-  treatment_history = doEraDurationTH,
+  treatmentHistory = doEraDurationTH,
   splitEventCohorts = splitEventCohorts,
   splitTime = splitTime,
   outputFolder = saveSettings$outputFolder)

@@ -2,49 +2,31 @@
 #' 
 #' Checks parameters for createSaveSettings.
 #'
-#' @param databaseName
-#'   Name of the database that will appear in the results.
-#'
-#' @param rootFolder
-#'   Name of local folder to place all package output (outputFolder,
-#'     tempFolder if not given).
-#'
-#' @param outputFolder
-#'   Name of local folder to place package output.
-#'
-#' @param tempFolder
-#'   Name of local temporal folder.
-#' 
-#' @import checkmate
+#' @param env Environment containging all the function environment variables.
 #'
 #' @return TRUE if all assertions pass
-checkSaveSettings <- function(
-    databaseName,
-    rootFolder,
-    outputFolder,
-    tempFolder) {
-
+checkSaveSettings <- function(env) {
   # databaseName
   checkmate::assert(checkmate::checkCharacter(
-    x = databaseName,
+    x = env$databaseName,
     len = 1,
     any.missing = FALSE))
 
   # rootFolder
   checkmate::assert(checkmate::checkDirectory(
-    x = rootFolder,
+    x = env$rootFolder,
     access = "wx"))
 
-  if (!is.null(outputFolder)) {
+  if (!is.null(env$outputFolder)) {
     # outputFolder
     checkmate::assert(checkmate::check_character(
-      outputFolder))
+      env$outputFolder))
   }
 
-  if (!is.null(tempFolder)) {
+  if (!is.null(env$tempFolder)) {
     # tempFolder
     checkmate::assert(checkmate::checkPathForOutput(
-      tempFolder, overwrite = TRUE))
+      env$tempFolder, overwrite = TRUE))
   }
   return(TRUE)
 }
@@ -85,18 +67,14 @@ createSaveSettings <- function(
 
   tempFolder <- tempdir()
 
-  check <- checkSaveSettings(
-    databaseName,
-    rootFolder,
-    outputFolder,
-    tempFolder)
+  check <- checkSaveSettings(environment())
 
   if (check) {
     saveSettings <- list(
       databaseName = databaseName,
-      rootFolder = normalizePath(rootFolder),
-      outputFolder = normalizePath(outputFolder),
-      tempFolder = normalizePath(tempFolder))
+      rootFolder = normalizePath(rootFolder, mustWork = FALSE),
+      outputFolder = normalizePath(outputFolder, mustWork = FALSE),
+      tempFolder = normalizePath(tempFolder, mustWork = FALSE))
 
     class(saveSettings) <- "saveSettings"
 

@@ -2,7 +2,7 @@
 #' 
 #' Check whether an object has the correct CohortSettings and dataframe class. The function checks it has the specified amount of columns, and if they are integer and character. Also checks if the dataframe columns have the correct name. 
 #'
-#' @param cohortSettings cohortSettings object
+#' @param env Environment containging all the function environment variables.
 #'
 #' @return TRUE if all assertions pass
 #'  
@@ -11,22 +11,21 @@
 #'   checkPathwaySettings(
 #'     cohortSettings = cohortSettings
 #'     )}
-checkPathwaySettings <- function(
-    cohortSettings) {
+checkPathwaySettings <- function(env) {
   # Check cohortSettings
   checkmate::assert(
     checkmate::checkClass(
-      x = cohortSettings,
+      x = env$cohortSettings,
       classes = "cohortSettings"),
     checkmate::checkDataFrame(
-      x = cohortSettings$cohortsToCreate,
+      x = env$cohortSettings$cohortsToCreate,
       types = c("integer",
                 "character",
                 "character"),
       ncols = 3,
       any.missing = FALSE),
     checkmate::checkSubset(
-      x = names(cohortSettings$cohortsToCreate),
+      x = names(env$cohortSettings$cohortsToCreate),
       choices = c("cohortId",
                   "cohortName",
                   "cohortType")),
@@ -83,8 +82,7 @@ checkPathwaySettings <- function(
 #'   studyName = "MyStudyName")
 createPathwaySettings <- function(cohortSettings, ...) {
   # Check
-  check <- checkPathwaySettings(
-    cohortSettings)
+  check <- checkPathwaySettings(environment())
 
   if (exists("studyName")) {
     studyName <- studyName

@@ -1,13 +1,12 @@
 #' generateOutput
+#' 
+#' Generates the output files in the specified output folder. It will also zip
+#' the output folder into a zip-file.
 #'
 #' @param saveSettings
 #'   Settings object as created by createSaveSettings(). 
 #'
-#' @import readr
-#' @import ParallelLogger
-#' @import OhdsiSharing
-#'
-#' @returns some stuff
+#' @returns NULL
 #'
 #' @export
 generateOutput <- function(saveSettings) {
@@ -171,10 +170,6 @@ generateOutput <- function(saveSettings) {
 #'     Minimum number of persons with a specific treatment pathway for the
 #'     pathway to be included in analysis.
 #'
-#' @importFrom data.table data.table
-#' @import readr
-#' @import ParallelLogger
-#'
 #' @return List with two dataframes.
 getPathways <- function(
     outputFolder,
@@ -184,13 +179,12 @@ getPathways <- function(
     minCellCount) {
   # Try to read in paths from constructPathways.R for studyName
   file <- tryCatch({
-    data.table::data.table(readr::read_csv(
+    data.table::data.table(read.csv(
       file.path(
         tempFolder,
         studyName,
-        paste0(databaseName, "_", studyName, "_paths.csv")),
-      col_types = readr::cols()
-      ))
+        paste0(databaseName, "_", studyName, "_paths.csv")))
+      )
   }, error=function(e) {
     warning(
       glue::glue("Data is empty for study settings {studyName}"))
@@ -236,13 +230,13 @@ getPathways <- function(
   file_withyear <-
     file[, .(freq = sum(freq)), by = c(layers, "index_year")]
   
-  #print(file_noyear)
-  #print(file_withyear)
   return(list(file_noyear, file_withyear))
 }
 
 
 #' outputTreatedPatients
+#' 
+#' Writes a csv-file containing the outcomes, event cohorts and layers
 #'
 #' @param data
 #'     Dataframe with event cohorts of the target cohort in different columns.
@@ -255,9 +249,6 @@ getPathways <- function(
 #'     Path to the output folder.
 #' @param outputFile
 #'     Name of output file.
-#'
-#' @import ParallelLogger
-#' @importFrom data.table rbindlist
 #'
 #' @returns NULL
 outputTreatedPatients <- function(
@@ -313,15 +304,13 @@ outputTreatedPatients <- function(
 #' cohorts for outputTreatedPatients.
 #'
 #' @param data
-#'     Data
+#'     data.frame of treatmentPathway list.
 #' @param eventCohortIds
 #'     Event cohort IDs
 #' @param groupCombinations
 #'     Group combinations
 #' @param outputFolder
 #'     Output folder
-#'
-#' @import readr
 #'
 #' @returns result object
 percentageGroupTreated <- function(
@@ -333,10 +322,9 @@ percentageGroupTreated <- function(
     !grepl("index_year|freq", colnames(data))
   ])
   
-  cohorts <- readr::read_csv(
-    file.path(outputFolder, "cohortsToCreate.csv"),
-    col_types = list("i", "c", "c")
-  )
+  cohorts <- read.csv(
+    file.path(outputFolder, "cohortsToCreate.csv"))
+  
   outcomes <- c(
     cohorts$cohortName[cohorts$cohortId %in% eventCohortIds],
     "Other"
@@ -387,42 +375,30 @@ percentageGroupTreated <- function(
   if (length(layers) == 1) {
     result <- rbind(
       result,
-      c(
-        "Fixed combinations",
+      c("Fixed combinations",
         sum(result[grepl("\\&", result$outcomes), layers]),
-        NA
-      ),
-      c(
-        "All combinations",
+        NA),
+      c("All combinations",
         sum(result[grepl("Other|\\+|\\&", result$outcomes), layers]),
-        NA
-      ),
-      c(
-        "Monotherapy",
+        NA),
+      c("Monotherapy",
         sum(result[!grepl("Other|\\+|\\&", result$outcomes), layers]),
-        NA
+        NA)
       )
-    )
   } else {
     result <- rbind(
       result,
-      c(
-        "Fixed combinations",
+      c("Fixed combinations",
         colSums(result[grepl("\\&", result$outcomes), layers]),
-        NA
-      ),
-      c(
-        "All combinations",
+        NA),
+      c("All combinations",
         colSums(result[grepl("Other|\\+|\\&", result$outcomes), layers]),
-        NA
-      ),
-      c(
-        "Monotherapy",
+        NA),
+      c("Monotherapy",
         colSums(result[!grepl("Other|\\+|\\&", result$outcomes), layers]),
-        NA
+        NA)
       )
-    )
-  }
+    }
   
   result$ALL_LAYERS[result$outcomes == "Fixed combinations"] <- sum(
     sapply(
@@ -458,6 +434,8 @@ percentageGroupTreated <- function(
 
 
 #' outputDurationEras
+#' 
+#' Computes the duration and count of each era.
 #'
 #' @param outputFolder
 #'     Path to the output folder.
@@ -476,9 +454,6 @@ percentageGroupTreated <- function(
 #'     Minimum number of persons with a specific treatment pathway for the
 #'     pathway to be included in analysis.
 #'
-#' @importFrom data.table data.table
-#' @import readr
-#'
 #' @returns NULL
 outputDurationEras <- function(
     outputFolder,
@@ -490,13 +465,12 @@ outputDurationEras <- function(
     minCellCount) {
   
   # Try to read in treatment history from constructPathways.R for studyName
-  file <- data.table::data.table(readr::read_csv(
+  file <- data.table::data.table(read.csv(
     file.path(
       tempFolder,
       studyName,
       paste0(databaseName, "_", studyName, "_event_seq_processed.csv")
-    ),
-    col_types = list("c", "i", "i", "D", "D", "i", "i", "c")
+    )
   ))
   
   # Remove unnessary columns
@@ -608,15 +582,12 @@ outputDurationEras <- function(
   )
   
   # Add missing groups
-  cohorts <- readr::read_csv(
-    file.path(outputFolder, "cohortsToCreate.csv"),
-    col_types = list("i", "c", "c")
-  )
+  cohorts <- read.csv(
+    file.path(outputFolder, "cohortsToCreate.csv"))
   
   outcomes <- c(
     cohorts$cohortName[cohorts$cohortId %in% eventCohortIds],
-    "Other"
-  )
+    "Other")
   
   for (o in outcomes[!(outcomes %in% results$event_cohort_name)]) {
     results <- rbind(results, list(o, "Overall", 0.0, 0))
@@ -624,15 +595,6 @@ outputDurationEras <- function(
   
   # Remove durations computed using less than minCellCount observations
   results[COUNT < minCellCount, c("AVG_DURATION", "COUNT")] <- NA
-  # write.csv(
-  #   results,
-  #   file.path(
-  #     outputFolder,
-  #     studyName,
-  #     paste0("Duration.csv")
-  #   ),
-  #   row.names = FALSE
-  # )
   ParallelLogger::logInfo("outputDurationEras done")
   return(results)
 }
@@ -668,9 +630,6 @@ outputDurationEras <- function(
 #' @return List
 #'     List of file_noyear and file_withyear
 #'
-#' @import readr
-#' @import ParallelLogger
-#'
 #' @returns List
 doMinCellCount <- function(
     file_noyear,
@@ -698,14 +657,12 @@ doMinCellCount <- function(
   ])
   
   # Calculate percentage treated before minCellCount
-  summary_counts <- readr::read_csv(
+  summary_counts <- read.csv(
     file.path(
       tempFolder,
       studyName,
       paste0(databaseName, "_", studyName, "_summary_cnt.csv")
-    ),
-    col_types = list("c", "d")
-  )
+    ))
   
   sumAll <- as.integer(summary_counts[
     summary_counts$index_year == "Number of persons in target cohort NA", "N"
@@ -864,9 +821,6 @@ doMinCellCount <- function(
 #' @param tempFolder
 #'     Temp folder
 #'
-#' @import readr
-#' @import ParallelLogger
-#'
 #' @returns NULL
 preprocessSunburstData <- function(
     data,
@@ -876,10 +830,8 @@ preprocessSunburstData <- function(
     studyName,
     eventCohortIds,
     addNoPaths) {
-  cohorts <- readr::read_csv(
-    file.path(outputFolder, "cohortsToCreate.csv"),
-    col_types = list("i", "c", "c")
-  )
+  cohorts <- read.csv(
+    file.path(outputFolder, "cohortsToCreate.csv"))
   
   outcomes <- c(
     cohorts$cohortName[cohorts$cohortId %in% eventCohortIds],
@@ -926,9 +878,6 @@ preprocessSunburstData <- function(
           ))
         }
       }))
-      # write.csv(
-      #   x = out,
-      #   file.path(outputFolder, "test.csv"))
     }
     ParallelLogger::logInfo("preprocessSunburstData done")
   }
@@ -954,9 +903,6 @@ preprocessSunburstData <- function(
 #'     Index year
 #' @param tempFolder
 #'     Temp folder
-#'
-#' @import stringr
-#' @import readr
 #'
 #' @returns transformed_file
 inputSunburstPlot <- function(
@@ -991,13 +937,11 @@ inputSunburstPlot <- function(
   )
   
   if (addNoPaths) {
-    summary_counts <- readr::read_csv(
+    summary_counts <- read.csv(
       file.path(
         tempFolder,
         studyName,
-        paste0(databaseName, "_", studyName, "_summary_cnt.csv")
-      ),
-      col_types = list("c", "d")
+        paste0(databaseName, "_", studyName, "_summary_cnt.csv"))
     )
     
     if (index_year == "all") {
@@ -1022,22 +966,6 @@ inputSunburstPlot <- function(
   
   transformed_file$year <- rep(x = index_year, nrow(transformed_file))
   transformed_file$studyName <- rep(x = studyName, nrow(transformed_file))
-  
-  # filePath <- file.path(
-  #   outputFolder,
-  #   studyName,
-  #   paste0("inputSunburst.csv"))
-  
-  # write.table(
-  #   x = transformed_file,
-  #   file = filePath,
-  #   append = TRUE,
-  #   sep = ",",
-  #   row.names = FALSE,
-  #   col.names = FALSE)
-  
-  # close(file(filePath))
-  
   return(transformed_file)
 }
 
@@ -1050,8 +978,6 @@ inputSunburstPlot <- function(
 #'     Data
 #' @param groupCombinations
 #'     Group combinations
-#'
-#' @importFrom data.table data.table as.data.table
 #'
 #' @returns data.table
 #' 

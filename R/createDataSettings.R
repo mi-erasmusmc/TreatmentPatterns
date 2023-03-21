@@ -2,27 +2,17 @@
 #'
 #' Check createDataSettings parameters.
 #'
-#' @param connectionDetails connectionDetails object.
-#' @param cdmDatabaseSchema Schema name of CDM.
-#' @param resultSchema Schema name of results.
-#' @param cohortTable Cohort table name.
-#'
-#' @import checkmate
+#' @param env Environment containging all the function environment variables.
 #'
 #' @return TRUE if all the assertions pass.
-checkDataSettings <- function(
-    connectionDetails,
-    cdmDatabaseSchema,
-    resultSchema,
-    cohortTable) {
-
+checkDataSettings <- function(env) {
   # Check connectionDetails
   checkmate::assert(
     checkmate::checkClass(
-      connectionDetails,
+      env$connectionDetails,
       "ConnectionDetails"),
     checkmate::checkCharacter(
-      x = connectionDetails$dbms,
+      x = env$connectionDetails$dbms,
       len = 1,
       null.ok = FALSE),
     combine = "and"
@@ -31,7 +21,7 @@ checkDataSettings <- function(
   # check cdmDatabaseSchema
   checkmate::assert(
     checkmate::checkCharacter(
-      cdmDatabaseSchema,
+      env$cdmDatabaseSchema,
       null.ok = FALSE,
       len = 1)
   )
@@ -39,7 +29,7 @@ checkDataSettings <- function(
   # check resultSchema
   checkmate::assert(
     checkmate::checkCharacter(
-      resultSchema,
+      env$resultSchema,
       null.ok = FALSE,
       len = 1)
   )
@@ -47,7 +37,7 @@ checkDataSettings <- function(
   # cohortTable
   checkmate::assert(
     checkmate::checkCharacter(
-      cohortTable,
+      env$cohortTable,
       null.ok = FALSE,
       len = 1)
   )
@@ -86,11 +76,7 @@ createDataSettings <- function(
     resultSchema,
     cohortTable = "treatmentpatterns_cohorts") {
 
-  check <- checkDataSettings(
-    connectionDetails,
-    cdmDatabaseSchema,
-    resultSchema,
-    cohortTable)
+  check <- checkDataSettings(environment())
 
   if (check) {
     dataSettings <- list(

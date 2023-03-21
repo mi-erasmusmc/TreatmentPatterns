@@ -1,14 +1,12 @@
-#' cohortsCheck
+#' checkCohorts
 #' 
 #' Checks the validity of targetCohorts and eventCohorts parameters of
 #' createCohortSettings
 #'
 #' @param cohorts eventCohorts or targetCohorts
 #'
-#' @import checkmate
-#'
 #' @return TRUE if checkmate checks pass
-cohortsCheck <- function(cohorts) {
+checkCohorts <- function(cohorts) {
   # Check validity of data.frame inputs
   checkmate::assert(
     checkmate::checkSubset(
@@ -25,9 +23,10 @@ cohortsCheck <- function(cohorts) {
 
 #' Create cohort settings.
 #'
-#' Create a cohortsSettings object, containing information about the target and event cohorts.
-#' A cohort ID and name are required to specify the target and event cohorts.
-#' The cohortId and cohortName are the ID and Name specified while creating cohorts with i.e. CohortGenerator.
+#' Create a cohortsSettings object, containing information about the target
+#' and event cohorts. A cohort ID and name are required to specify the target
+#' and event cohorts. The cohortId and cohortName are the ID and Name specified
+#' while creating cohorts with i.e. CohortGenerator.
 #'
 #' @param targetCohorts
 #'     Data frame containing the study population of interest
@@ -51,14 +50,12 @@ cohortsCheck <- function(cohorts) {
 #'     cohortId = c(2, 3),
 #'     cohortName = c("b", "c")))
 createCohortSettings <- function(targetCohorts, eventCohorts) {
-  # Create cohortsToCreate from targetCohorts and eventCohorts
-  if (cohortsCheck(targetCohorts) && cohortsCheck(eventCohorts)) {
+  if (checkCohorts(targetCohorts) && checkCohorts(eventCohorts)) {
     targetCohorts$cohortType <- 'target'
     eventCohorts$cohortType <- 'event'
     cohortsToCreate <- rbind(targetCohorts, eventCohorts)
   }
   
-  # Why numeric to int?
   cohortsToCreate$cohortId <- as.integer(cohortsToCreate$cohortId)
   
   cohortSettings <- list(

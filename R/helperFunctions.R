@@ -6,10 +6,6 @@
 #' @param tableName Name of table
 #' @param resultsSchema Schema of results
 #' @param dbms Name of dbms to use
-#'
-#' @import checkmate
-#' @importFrom DatabaseConnector querySql
-#' @import SqlRender
 #' 
 #' @return data the extracted table as a data.frame
 #' @export

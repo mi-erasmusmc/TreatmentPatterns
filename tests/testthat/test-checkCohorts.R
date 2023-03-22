@@ -3,21 +3,21 @@ library(testthat)
 library(TreatmentPatterns)
 
 targetCohorts <- data.frame(cohortId = c(1),
-                            cohortName = c('Hypertension'))
+                            cohortName = c("Hypertension"))
 
 eventCohorts <- data.frame(
   cohortId = c(10, 11, 12, 13, 14),
   cohortName = c(
-    'Hydrochlorothiazide',
-    'Metorolol',
-    'Amlodipine',
-    'Lisinopril',
-    'Losartan'
+    "Hydrochlorothiazide",
+    "Metorolol",
+    "Amlodipine",
+    "Lisinopril",
+    "Losartan"
   )
 )
 
 cohortSettings <- createCohortSettings(
-  targetCohorts, 
+  targetCohorts,
   eventCohorts)
 
 test_that("Void", {
@@ -33,4 +33,3 @@ test_that("targetCohorts", {
   expect_equal(TreatmentPatterns:::checkCohorts(targetCohorts),
                TRUE)
 })
-

@@ -17,5 +17,5 @@ test_that("minimal", {
     databaseName = saveSettings$databaseName,
     studyName = "Viral_Sinusitis",
     addNoPaths = TRUE,
-    index_year = 'all'), "data.frame")
+    indexYear = "all"), "data.frame")
 })

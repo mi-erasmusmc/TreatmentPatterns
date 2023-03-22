@@ -4,16 +4,16 @@ library(TreatmentPatterns)
 
 # Variables
 targetCohorts <- data.frame(cohortId = c(1),
-                            cohortName = c('Hypertension'))
+                            cohortName = c("Hypertension"))
 
 eventCohorts <- data.frame(
   cohortId = c(10, 11, 12, 13, 14),
   cohortName = c(
-    'Hydrochlorothiazide',
-    'Metorolol',
-    'Amlodipine',
-    'Lisinopril',
-    'Losartan'
+    "Hydrochlorothiazide",
+    "Metorolol",
+    "Amlodipine",
+    "Lisinopril",
+    "Losartan"
   )
 )
 
@@ -41,5 +41,3 @@ test_that("Assert eventCohorts", {
     c("Must be of type 'data.frame'")
   )
 })
-
-# Minimal == All

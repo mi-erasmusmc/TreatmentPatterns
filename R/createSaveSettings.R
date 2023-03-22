@@ -1,5 +1,5 @@
 #' checkSaveSettings
-#' 
+#'
 #' Checks parameters for createSaveSettings.
 #'
 #' @param env Environment containging all the function environment variables.
@@ -54,7 +54,7 @@ checkSaveSettings <- function(env) {
 #'
 #' @examples
 #' tmpOutputFolder <- tempdir()
-#' 
+#'
 #' createSaveSettings(
 #'    rootFolder = "./",
 #'    databaseName = "Eunomia",

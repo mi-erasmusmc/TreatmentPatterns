@@ -33,7 +33,7 @@ ParallelLogger::logInfo(print("=== Create cohorts ===="))
 # Create empty cohort definition
 cohortsToCreate <- CohortGenerator::createEmptyCohortDefinitionSet()
 
-# List JSON files for Viral Sinusitis 
+# List JSON files for Viral Sinusitis
 cohortJsonFiles <- list.files(
   "inst/examples/OMOP CDM/inst/cohorts/Viral Sinusitis/JSON/",
   full.names = TRUE)
@@ -48,17 +48,17 @@ for (i in seq_len(length(cohortJsonFiles))) {
   # modify this to read your JSON/SQL files however you require
   cohortJson <- readChar(cohortJsonFileName, file.info(
     cohortJsonFileName)$size)
-  
+
   cohortExpression <- CirceR::cohortExpressionFromJson(cohortJson)
-  
+
   cohortSql <- CirceR::buildCohortQuery(
     cohortExpression,
     options = CirceR::createGenerateOptions(generateStats = FALSE))
   cohortsToCreate <- rbind(
-    cohortsToCreate, 
+    cohortsToCreate,
     data.frame(
       cohortId = i,
-      cohortName = cohortName, 
+      cohortName = cohortName,
       sql = cohortSql,
       stringsAsFactors = FALSE))
 }
@@ -84,12 +84,12 @@ cohortsGenerated <- CohortGenerator::generateCohortSet(
 # === Cohort data prep ====
 ParallelLogger::logInfo(print("=== Cohort data prep ===="))
 # Select Viral Sinusitis Cohort
-targetCohort <- cohortsGenerated %>% 
+targetCohort <- cohortsGenerated %>%
   filter(cohortName == "Viral Sinusitis") %>%
   select(cohortId, cohortName)
 
 # Select everything BUT Viral Sinusitis cohorts
-eventCohorts <- cohortsGenerated %>% 
+eventCohorts <- cohortsGenerated %>%
   filter(cohortName != "Viral Sinusitis") %>%
   select(cohortId, cohortName)
 
@@ -114,7 +114,8 @@ fs::dir_create(file.path(saveSettings$outputFolder, "settings"))
 
 write.csv(
   x = cohortSettings$cohortsToCreate,
-  file = file.path(saveSettings$outputFolder, "settings", "cohorts_to_create.csv"),
+  file = file.path(
+    saveSettings$outputFolder, "settings", "cohorts_to_create.csv"),
   row.names = FALSE)
 
 # Connect to database
@@ -127,7 +128,7 @@ invisible(lapply(cohortTableNames, function(tableName) {
     tableName = tableName,
     resultsSchema = dataSettings$resultSchema,
     dbms = dataSettings$connectionDetails$dbms)
-  
+
   write.csv(
     tbl,
     file.path(
@@ -170,18 +171,5 @@ TreatmentPatterns::constructPathways(
 # 4) Generate output (sunburst plots, Sankey diagrams and more)
 ParallelLogger::logInfo(print("=== Generate outputs ===="))
 TreatmentPatterns::generateOutput(saveSettings)
-
-# 5) Launch shiny application to visualize the results
-# TreatmentPatterns::launchResultsExplorer(saveSettings)
-
-# Save sunburst PDF
-# TreatmentPatterns::saveAsPNG(
-#   fileName = "output/Eunomia/Viral_Sinusitis/Eunomia_Viral_Sinusitis_all_sunburstplot.html",
-#   fileNameOut = "output/Eunomia/sunburst.pdf")
-# 
-# # PNG
-# TreatmentPatterns::saveAsPNG(
-#   fileName = "output/Eunomia/Viral_Sinusitis/Eunomia_Viral_Sinusitis_all_sunburstplot.html",
-#   fileNameOut = "output/Eunomia/sunburst.png")
 
 ParallelLogger::unregisterLogger("TreatmentPatterns_Logger")

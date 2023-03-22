@@ -11,10 +11,10 @@ doCombinationWindow(
 )
 }
 \arguments{
-\item{treatmentHistory}{A dataframe of 'event cohorts' with the following columns: 
+\item{treatmentHistory}{A dataframe of 'event cohorts' with the following columns:
 event_cohort_id, person_id, event_start_date, event_end_date.}
 
-\item{combinationWindow}{Minimum number of days two event cohorts need to overlap to be 
+\item{combinationWindow}{Minimum number of days two event cohorts need to overlap to be
 considered a combination event.}
 
 \item{minPostCombinationDuration}{Minimum number of days an event era starting after a combination event
@@ -24,19 +24,19 @@ event. Events occuring before or after a combination that are less than
 }
 \value{
 A treatmentHistory dataframe with the columns event_cohort_id,
-    person_id, event_start_date, event_end_date. event_cohort_id will be 
-    of character type and combination events will have a new event_cohort_id 
-    made up of the concatenated event_cohort_ids of each combined 
-    event_cohort_id. When two events overlap for more than 
+    person_id, event_start_date, event_end_date. event_cohort_id will be
+    of character type and combination events will have a new event_cohort_id
+    made up of the concatenated event_cohort_ids of each combined
+    event_cohort_id. When two events overlap for more than
     `combinationWindow` days they will be collapsed into a single combination
-    event. Events are collapsed iteratively starting with the first two 
+    event. Events are collapsed iteratively starting with the first two
     overlapping events per person and continuing until no more overlapping
     events exist in the treatmentHistory.
 }
 \description{
-doCombinationWindow is an internal function that combines overlapping events 
+doCombinationWindow is an internal function that combines overlapping events
 into combination events. It accepts a treatmentHistory dataframe and returns
-a modified treatmentHistory dataframe. The returned treatmentHistory 
+a modified treatmentHistory dataframe. The returned treatmentHistory
 dataframe always has the property that a person is only in one event cohort,
 which might be a combination event cohort, at any point time.
 }

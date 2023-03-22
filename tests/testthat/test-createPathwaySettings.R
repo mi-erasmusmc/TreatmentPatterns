@@ -3,21 +3,21 @@ library(testthat)
 library(TreatmentPatterns)
 
 targetCohorts <- data.frame(cohortId = c(1),
-                            cohortName = c('Hypertension'))
+                            cohortName = c("Hypertension"))
 
 eventCohorts <- data.frame(
   cohortId = c(10, 11, 12, 13, 14),
   cohortName = c(
-    'Hydrochlorothiazide',
-    'Metorolol',
-    'Amlodipine',
-    'Lisinopril',
-    'Losartan'
+    "Hydrochlorothiazide",
+    "Metorolol",
+    "Amlodipine",
+    "Lisinopril",
+    "Losartan"
   )
 )
 
 cohortSettings <- createCohortSettings(
-  targetCohorts, 
+  targetCohorts,
   eventCohorts)
 
 test_that("Void", {
@@ -29,7 +29,7 @@ test_that("Minimal", {
                   "pathwaySettings")
 })
 
-# studyName = "name_unknown",
+# studyName
 test_that("studyName", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -37,7 +37,7 @@ test_that("studyName", {
     "Must be of type 'character'")
 })
 
-# targetCohortId,
+# targetCohortId
 test_that("targetCohortId", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -46,7 +46,7 @@ test_that("targetCohortId", {
     "multiple actual arguments")
 })
 
-# eventCohortIds,
+# eventCohortIds
 test_that("eventCohortIds", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -55,7 +55,7 @@ test_that("eventCohortIds", {
     "multiple actual arguments")
 })
 
-# includeTreatments = "startDate",
+# includeTreatments
 test_that("includeTreatments", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -64,7 +64,7 @@ test_that("includeTreatments", {
     "Must be a subset of \\{'startDate','endDate'\\}")
 })
 
-# periodPriorToIndex = 0,
+# periodPriorToIndex
 test_that("periodPriorToIndex: type", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -74,7 +74,7 @@ test_that("periodPriorToIndex: type", {
     "Must be of type 'numeric'")
 })
 
-# minEraDuration = 0,
+# minEraDuration
 test_that("minEraDuration: type", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -85,7 +85,7 @@ test_that("minEraDuration: type", {
     "Must be of type 'numeric'")
 })
 
-# splitEventCohorts = "",
+# splitEventCohorts
 test_that("splitEventCohorts", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -98,7 +98,7 @@ test_that("splitEventCohorts", {
 })
 
 
-# splitTime = 30,
+# splitTime
 test_that("splitTime: type", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -123,7 +123,7 @@ test_that("splitTime: negative", {
     "Element 1 is not >= 0.")
 })
 
-# eraCollapseSize = 30,
+# eraCollapseSize
 test_that("eraCollapseSize: type", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -150,7 +150,7 @@ test_that("eraCollapseSize: negative", {
     "Element 1 is not >= 0.")
 })
 
-# combinationWindow = 30,
+# combinationWindow
 test_that("combinationWindow: type", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -179,7 +179,7 @@ test_that("combinationWindow: negative", {
     "Element 1 is not >= 0.")
 })
 
-# minPostCombinationDuration = 30,
+# minPostCombinationDuration
 test_that("minPostCombinationDuration: type", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -210,7 +210,7 @@ test_that("minPostCombinationDuration: negative", {
     "Element 1 is not >= 0.")
 })
 
-# filterTreatments = "First",
+# filterTreatments
 test_that("filterTreatments", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -227,7 +227,7 @@ test_that("filterTreatments", {
     "Must be a subset of \\{'First','Changes','All'\\}")
 })
 
-# maxPathLength = 5,
+# maxPathLength
 test_that("maxPathLength: type", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -262,7 +262,7 @@ test_that("maxPathLength: negative", {
     "Element 1 is not >= 0.")
 })
 
-# minCellCount = 5,
+# minCellCount
 test_that("minCellCount: type", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -299,10 +299,10 @@ test_that("minCellCount: negative", {
     "Element 1 is not >= 0.")
 })
 
-# minCellMethod = "Remove",
+# minCellMethod
 # No assertions
 
-# groupCombinations = 10,
+# groupCombinations
 test_that("groupCombinations: type", {
   expect_error(createPathwaySettings(
     cohortSettings,
@@ -343,7 +343,7 @@ test_that("groupCombinations: negative", {
     "Element 1 is not >= 0.")
 })
 
-# addNoPaths = FALSE
+# addNoPaths
 test_that("addNoPaths: type", {
   expect_error(createPathwaySettings(
     cohortSettings,

@@ -18,7 +18,8 @@ treatmentHistory
     gap_same < eraCollapseSize are collapsed.
 }
 \description{
-Updates the treatmentHistory data.frame where if gapSame is smaller than the specified era collapse size (eraCollapseSize) are collapsed
+Updates the treatmentHistory data.frame where if gapSame is smaller than the
+specified era collapse size (eraCollapseSize) are collapsed
 }
 \examples{
 \dontrun{

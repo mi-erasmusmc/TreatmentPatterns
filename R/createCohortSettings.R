@@ -1,5 +1,5 @@
 #' checkCohorts
-#' 
+#'
 #' Checks the validity of targetCohorts and eventCohorts parameters of
 #' createCohortSettings
 #'
@@ -31,16 +31,16 @@ checkCohorts <- function(cohorts) {
 #' @param targetCohorts
 #'     Data frame containing the study population of interest
 #'     cohortId = "Unique ID number", cohortName = "Descriptive name cohort".
-#'     
+#'
 #' @param eventCohorts
 #'     Data frame containing the events of interest
 #'     cohortId = "Unique ID number", cohortName = "Descriptive name cohort".
 #'
 #' @return
 #'     Object cohortSettings.
-#'     
+#'
 #' @export
-#' 
+#'
 #' @examples
 #' cohortSettings <- createCohortSettings(
 #'   targetCohorts = data.frame(
@@ -51,16 +51,16 @@ checkCohorts <- function(cohorts) {
 #'     cohortName = c("b", "c")))
 createCohortSettings <- function(targetCohorts, eventCohorts) {
   if (checkCohorts(targetCohorts) && checkCohorts(eventCohorts)) {
-    targetCohorts$cohortType <- 'target'
-    eventCohorts$cohortType <- 'event'
+    targetCohorts$cohortType <- "target"
+    eventCohorts$cohortType <- "event"
     cohortsToCreate <- rbind(targetCohorts, eventCohorts)
   }
-  
+
   cohortsToCreate$cohortId <- as.integer(cohortsToCreate$cohortId)
-  
+
   cohortSettings <- list(
     cohortsToCreate = cohortsToCreate)
-  class(cohortSettings) <- 'cohortSettings'
-  
+  class(cohortSettings) <- "cohortSettings"
+
   return(cohortSettings)
 }

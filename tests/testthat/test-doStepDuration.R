@@ -17,19 +17,20 @@ time1 <- Sys.time()
 doSetDurationTH$event_cohort_id <- as.character(
   doSetDurationTH$event_cohort_id)
 
-doSetDurationTH <- TreatmentPatterns:::selectRowsCombinationWindow(doSetDurationTH)
+doSetDurationTH <- TreatmentPatterns:::selectRowsCombinationWindow(
+  doSetDurationTH)
 
 doSetDurationTH[
-  SELECTED_ROWS == 1 & 
-    (-GAP_PREVIOUS < combinationWindow & 
+  SELECTED_ROWS == 1 &
+    (-GAP_PREVIOUS < combinationWindow &
        !(-GAP_PREVIOUS == duration_era |
-           -GAP_PREVIOUS == data.table::shift(duration_era, type = "lag"))), 
+           -GAP_PREVIOUS == data.table::shift(duration_era, type = "lag"))),
   switch := 1]
 
 doSetDurationTH[
   SELECTED_ROWS == 1 &
     is.na(switch) &
-    data.table::shift(event_end_date, type = "lag") <= event_end_date, 
+    data.table::shift(event_end_date, type = "lag") <= event_end_date,
   combination_FRFS := 1]
 
 doSetDurationTH[
@@ -39,7 +40,7 @@ doSetDurationTH[
     event_end_date, combination_LRFS := 1]
 
 sumSwitchComb <- sum(
-  sum(!is.na(doSetDurationTH$switch)), 
+  sum(!is.na(doSetDurationTH$switch)),
   sum(!is.na(doSetDurationTH$combination_FRFS)),
   sum(!is.na(doSetDurationTH$combination_LRFS)))
 
@@ -48,9 +49,9 @@ sumSelectedRows <- sum(doSetDurationTH$SELECTED_ROWS)
 if (sumSwitchComb != sumSelectedRows) {
   warning(paste0(
     sum(doSetDurationTH$SELECTED_ROWS),
-    ' does not equal total sum ',
-    sum(!is.na(doSetDurationTH$switch)) + 
-      sum(!is.na(doSetDurationTH$combination_FRFS)) + 
+    " does not equal total sum ",
+    sum(!is.na(doSetDurationTH$switch)) +
+      sum(!is.na(doSetDurationTH$combination_FRFS)) +
       sum(!is.na(doSetDurationTH$combination_LRFS))))
 }
 
@@ -66,24 +67,25 @@ doSetDurationTH[
   , event_end_date_next := data.table::shift(event_end_date, type = "lead"),
   by = person_id]
 
-doSetDurationTH[
-  , event_cohort_id_previous := data.table::shift(event_cohort_id, type = "lag"),
+doSetDurationTH[, event_cohort_id_previous := data.table::shift(
+    event_cohort_id,
+    type = "lag"),
   by = person_id]
 
 doSetDurationTH[data.table::shift(
-  switch, 
+  switch,
   type = "lead") == 1,
   event_end_date := event_start_date_next]
 
-add_rows_FRFS <- doSetDurationTH[combination_FRFS == 1, ]
-add_rows_FRFS[, event_end_date := event_end_date_previous]
+addRowsFRFS <- doSetDurationTH[combination_FRFS == 1, ]
+addRowsFRFS[, event_end_date := event_end_date_previous]
 
-add_rows_FRFS[, event_cohort_id := paste0(
+addRowsFRFS[, event_cohort_id := paste0(
   event_cohort_id, "+", event_cohort_id_previous)]
 
 doSetDurationTH[
   data.table::shift(combination_FRFS, type = "lead") == 1,
-  c("event_end_date","check_duration") := list(event_start_date_next, 1)]
+  c("event_end_date", "check_duration") := list(event_start_date_next, 1)]
 
 doSetDurationTH[
   combination_FRFS == 1,
@@ -95,10 +97,10 @@ doSetDurationTH[
   event_cohort_id := paste0(
     event_cohort_id, "+", event_cohort_id_previous)]
 
-add_rows_LRFS <- doSetDurationTH[
+addRowsLRFS <- doSetDurationTH[
   data.table::shift(combination_LRFS, type = "lead") == 1, ]
 
-add_rows_LRFS[
+addRowsLRFS[
   , c("event_start_date", "check_duration") := list(
     event_end_date_next, 1)]
 
@@ -106,8 +108,8 @@ doSetDurationTH[
   data.table::shift(combination_LRFS, type = "lead") == 1,
   c("event_end_date", "check_duration") := list(event_start_date_next, 1)]
 
-doSetDurationTH <- rbind(doSetDurationTH, add_rows_FRFS, fill = TRUE)
-doSetDurationTH <- rbind(doSetDurationTH, add_rows_LRFS)
+doSetDurationTH <- rbind(doSetDurationTH, addRowsFRFS, fill = TRUE)
+doSetDurationTH <- rbind(doSetDurationTH, addRowsLRFS)
 
 doSetDurationTH[
   , duration_era := difftime(

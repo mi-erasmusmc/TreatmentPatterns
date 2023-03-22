@@ -67,15 +67,3 @@ test_that("check multiple splits", {
   expect_true(split1 == org1)
   expect_true(split6 == org6)
 })
-
-# test_that("check write cohort.csv", {
-#   cohorts <- read.csv(paste0(saveSettings$outputFolder, "\\"))
-#   
-#   ace <- length(cohorts$cohortName[grep(
-#     pattern = "Ace\\w+ \\(", x = cohorts$cohortName)])
-#   
-#   pen <- length(cohorts$cohortName[grep(
-#     pattern = "Pen\\w+ \\(", x = cohorts$cohortName)])
-#   expect_equal(ace, 2)
-#   expect_equal(pen, 2)
-# })

@@ -15,28 +15,28 @@
 #' @examples
 #' if (interactive()) {
 #'   # Select Viral Sinusitis Cohort
-#'   targetCohort <- cohortsGenerated %>% 
+#'   targetCohort <- cohortsGenerated %>%
 #'     filter(cohortName == "Viral Sinusitis") %>%
 #'     select(cohortId, cohortName)
 #'
 #'   # Select everything BUT Viral Sinusitis cohorts
-#'   eventCohorts <- cohortsGenerated %>% 
+#'   eventCohorts <- cohortsGenerated %>%
 #'     filter(cohortName != "Viral Sinusitis") %>%
 #'     select(cohortId, cohortName)
-#' 
+#'
 #'   saveSettings <- TreatmentPatterns::createSaveSettings(
 #'     databaseName = "Eunomia",
 #'     rootFolder = getwd(),
 #'     outputFolder = file.path(getwd(), "output", "Eunomia"))
-#'   
+#'
 #'   cohortSettings <- TreatmentPatterns::createCohortSettings(
 #'     targetCohorts = targetCohort,
 #'      eventCohorts = eventCohorts)
-#' 
+#'
 #'   pathwaySettings <- createPathwaySettings(
 #'     cohortSettings = cohortSettings,
 #'     studyName = "Viral_Sinusitis")
-#'   
+#'
 #'   executeTreatmentPatterns(
 #'   dataSettings = dataSettings,
 #'   pathwaySettings = pathwaySettings,
@@ -46,13 +46,13 @@ executeTreatmentPatterns <- function(
     dataSettings,
     pathwaySettings,
     saveSettings) {
-  
+
   # 1) Construct treatment pathways
   TreatmentPatterns::constructPathways(
     dataSettings = dataSettings,
     pathwaySettings = pathwaySettings,
     saveSettings = saveSettings)
-  
+
   # 2) Generate output (sunburst plots, Sankey diagrams and more)
   TreatmentPatterns::generateOutput(saveSettings)
 }

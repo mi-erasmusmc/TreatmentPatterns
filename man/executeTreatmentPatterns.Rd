@@ -22,12 +22,12 @@ more).
 \examples{
 if (interactive()) {
   # Select Viral Sinusitis Cohort
-  targetCohort <- cohortsGenerated \%>\% 
+  targetCohort <- cohortsGenerated \%>\%
     filter(cohortName == "Viral Sinusitis") \%>\%
     select(cohortId, cohortName)
 
   # Select everything BUT Viral Sinusitis cohorts
-  eventCohorts <- cohortsGenerated \%>\% 
+  eventCohorts <- cohortsGenerated \%>\%
     filter(cohortName != "Viral Sinusitis") \%>\%
     select(cohortId, cohortName)
 
@@ -35,7 +35,7 @@ if (interactive()) {
     databaseName = "Eunomia",
     rootFolder = getwd(),
     outputFolder = file.path(getwd(), "output", "Eunomia"))
-  
+
   cohortSettings <- TreatmentPatterns::createCohortSettings(
     targetCohorts = targetCohort,
      eventCohorts = eventCohorts)
@@ -43,7 +43,7 @@ if (interactive()) {
   pathwaySettings <- createPathwaySettings(
     cohortSettings = cohortSettings,
     studyName = "Viral_Sinusitis")
-  
+
   executeTreatmentPatterns(
   dataSettings = dataSettings,
   pathwaySettings = pathwaySettings,

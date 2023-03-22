@@ -13,7 +13,7 @@ doEraDuration(treatmentHistory, minEraDuration)
 }
 \value{
 treatmentHistory
-    Updated dataframe, rows with duration < 
+    Updated dataframe, rows with duration <
     minEraDuration filtered out.
 }
 \description{

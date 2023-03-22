@@ -63,9 +63,9 @@ checkDataSettings <- function(env) {
 #'     Only for omopCDM TRUE: The name of the table that will be created in
 #'     the cohortDatabaseSchema. This table will hold the target and event
 #'     cohorts used in this study.
-#'     
+#'
 #' @param resultSchema
-#'     Schema name of results. 
+#'     Schema name of results.
 #'
 #' @return
 #'     Object dataSettings.

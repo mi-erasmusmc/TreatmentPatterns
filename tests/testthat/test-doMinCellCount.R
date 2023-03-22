@@ -42,8 +42,8 @@ test_that("void", {
 })
 
 df <- TreatmentPatterns:::doMinCellCount(
-  file_noyear = treatmentPathways[[1]],
-  file_withyear = treatmentPathways[[2]],
+  fileNoYear = treatmentPathways[[1]],
+  fileWithYear = treatmentPathways[[2]],
   outputFolder = saveSettings$outputFolder,
   tempFolder = saveSettings$tempFolder,
   databaseName = saveSettings$databaseName,

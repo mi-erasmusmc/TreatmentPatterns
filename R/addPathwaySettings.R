@@ -32,7 +32,7 @@ checkAddPathwaySettings <- function(env) {
   # includeTreatments
   checkmate::assertCharacter(x = env$includeTreatments,
                              len = 1)
-  
+
   checkmate::assertSubset(x = env$includeTreatments,
                           choices = c("startDate", "endDate"))
 
@@ -85,7 +85,7 @@ checkAddPathwaySettings <- function(env) {
   # filterTreatments
   checkmate::assertCharacter(x = env$filterTreatments,
                              len = 1)
-  
+
   checkmate::assertSubset(x = env$filterTreatments,
                           choices = c("First", "Changes", "All"))
 
@@ -126,11 +126,12 @@ checkAddPathwaySettings <- function(env) {
 
 #' addPathwaySettings
 #'
-#' Defines and returns a data.frame specifying different parameters how to compute 
-#' the existing pathways in the function call.
+#' Defines and returns a data.frame specifying different parameters how to
+#' compute the existing pathways in the function call.
 #'
 #' @param studyName
-#'     Name identifying the set of study parameters. Default value is "name_unknown".
+#'     Name identifying the set of study parameters. Default value is
+#'     "name_unknown".
 #'
 #' @param targetCohortId
 #'     Target cohort ID of current study settings.
@@ -147,7 +148,8 @@ checkAddPathwaySettings <- function(env) {
 #'     cohorts are allowed to start. Default value is 0.
 #'
 #' @param minEraDuration
-#'     Minimum time an event era should last to be included in analysis. Default value is 0.
+#'     Minimum time an event era should last to be included in analysis.
+#'     Default value is 0.
 #'
 #' @param splitEventCohorts
 #'     Specify event cohort ID's to split in acute (< X days) and therapy
@@ -174,7 +176,8 @@ checkAddPathwaySettings <- function(env) {
 #'     event cohorts ("All"). Default value is "First".
 #'
 #' @param maxPathLength
-#'     Maximum number of steps included in treatment pathway (max 5). Default value is 5.
+#'     Maximum number of steps included in treatment pathway (max 5). Default
+#'     value is 5.
 #'
 #' @param minCellCount
 #'     Minimum number of persons with a specific treatment pathway for the
@@ -182,7 +185,8 @@ checkAddPathwaySettings <- function(env) {
 #'
 #' @param minCellMethod
 #'     Select to completely remove / sequentially adjust (by removing last step
-#'     as often as necessary) treatment pathways below minCellCount. Default value is "Remove".
+#'     as often as necessary) treatment pathways below minCellCount. Default
+#'     value is "Remove".
 #'
 #' @param groupCombinations
 #'     Select to group all non-fixed combinations in one category 'other’ in
@@ -191,11 +195,11 @@ checkAddPathwaySettings <- function(env) {
 #' @param addNoPaths
 #'     Select to include untreated persons without treatment pathway in the
 #'     sunburst plot. Default value is FALSE.
-#'     
+#'
 #' @return a data.frame containing the pathway settings
 #'
 #' @export
-#' @examples 
+#' @examples
 #' \dontrun{
 #' pathwaySettings <- addPathwaySettings(
 #'   studyName = "myCoolStudy",
@@ -220,7 +224,7 @@ addPathwaySettings <- function(
     minCellMethod = "Remove",
     groupCombinations = 10,
     addNoPaths = TRUE) {
-  
+
   check <- checkAddPathwaySettings(environment())
 
   if (check) {

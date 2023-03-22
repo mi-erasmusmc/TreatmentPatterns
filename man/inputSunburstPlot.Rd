@@ -11,7 +11,7 @@ inputSunburstPlot(
   databaseName,
   studyName,
   addNoPaths,
-  index_year
+  indexYear
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ inputSunburstPlot(
 
 \item{addNoPaths}{Add no paths}
 
-\item{index_year}{Index year}
+\item{indexYear}{Index year}
 }
 \value{
 transformed_file

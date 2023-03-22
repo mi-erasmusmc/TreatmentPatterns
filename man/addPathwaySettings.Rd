@@ -25,7 +25,8 @@ addPathwaySettings(
 )
 }
 \arguments{
-\item{studyName}{Name identifying the set of study parameters. Default value is "name_unknown".}
+\item{studyName}{Name identifying the set of study parameters. Default value is
+"name_unknown".}
 
 \item{targetCohortId}{Target cohort ID of current study settings.}
 
@@ -37,7 +38,8 @@ target cohort start date. Default value is "startDate".}
 \item{periodPriorToIndex}{Number of days prior to the index date of the target cohort that event
 cohorts are allowed to start. Default value is 0.}
 
-\item{minEraDuration}{Minimum time an event era should last to be included in analysis. Default value is 0.}
+\item{minEraDuration}{Minimum time an event era should last to be included in analysis.
+Default value is 0.}
 
 \item{splitEventCohorts}{Specify event cohort ID's to split in acute (< X days) and therapy
 (>= X days).}
@@ -57,13 +59,15 @@ treatment should last to be included in analysis. Default value is 30.}
 \item{filterTreatments}{Select first occurrence of ("First") / changes between ("Changes') / all
 event cohorts ("All"). Default value is "First".}
 
-\item{maxPathLength}{Maximum number of steps included in treatment pathway (max 5). Default value is 5.}
+\item{maxPathLength}{Maximum number of steps included in treatment pathway (max 5). Default
+value is 5.}
 
 \item{minCellCount}{Minimum number of persons with a specific treatment pathway for the
 pathway to be included in analysis. Default value is 5.}
 
 \item{minCellMethod}{Select to completely remove / sequentially adjust (by removing last step
-as often as necessary) treatment pathways below minCellCount. Default value is "Remove".}
+as often as necessary) treatment pathways below minCellCount. Default
+value is "Remove".}
 
 \item{groupCombinations}{Select to group all non-fixed combinations in one category 'other’ in
 the sunburst plot. Default value is 10.}
@@ -75,8 +79,8 @@ sunburst plot. Default value is FALSE.}
 a data.frame containing the pathway settings
 }
 \description{
-Defines and returns a data.frame specifying different parameters how to compute 
-the existing pathways in the function call.
+Defines and returns a data.frame specifying different parameters how to
+compute the existing pathways in the function call.
 }
 \examples{
 \dontrun{

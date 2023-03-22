@@ -18,7 +18,8 @@ treatmentHistory
     the visualizations.
 }
 \description{
-Updates the treatmentHistory data.frame where the desired event cohorts are maintained for the visualizations
+Updates the treatmentHistory data.frame where the desired event cohorts are
+maintained for the visualizations
 }
 \examples{
 \dontrun{

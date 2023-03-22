@@ -11,6 +11,7 @@
 #' @import fs
 #' @import dplyr
 #' @importFrom DatabaseConnector connect disconnect querySql
-#' @importFrom data.table data.table as.data.table rbindlist transpose rollup shift :=
+#' @importFrom data.table
+#'   data.table as.data.table rbindlist transpose rollup shift := dcast
 ## usethis namespace: end
 NULL

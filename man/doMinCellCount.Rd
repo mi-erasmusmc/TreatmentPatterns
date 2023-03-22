@@ -5,8 +5,8 @@
 \title{doMinCellCount}
 \usage{
 doMinCellCount(
-  file_noyear,
-  file_withyear,
+  fileNoYear,
+  fileWithYear,
   outputFolder,
   tempFolder,
   databaseName,
@@ -17,10 +17,10 @@ doMinCellCount(
 )
 }
 \arguments{
-\item{file_noyear}{Dataframe with aggregated treatment pathways of the target cohort in
+\item{fileNoYear}{Dataframe with aggregated treatment pathways of the target cohort in
 different rows (unique pathways, with frequency).}
 
-\item{file_withyear}{Idem to file_noyear, but split over index_year.}
+\item{fileWithYear}{Idem to file_noyear, but split over index_year.}
 
 \item{outputFolder}{Path to the output folder.}
 

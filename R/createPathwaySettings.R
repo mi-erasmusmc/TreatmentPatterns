@@ -1,11 +1,14 @@
 #' checkPathwaySettings
-#' 
-#' Check whether an object has the correct CohortSettings and dataframe class. The function checks it has the specified amount of columns, and if they are integer and character. Also checks if the dataframe columns have the correct name. 
+#'
+#' Check whether an object has the correct CohortSettings and dataframe class.
+#' The function checks it has the specified amount of columns, and if they are
+#' integer and character. Also checks if the dataframe columns have the correct
+#' name.
 #'
 #' @param env Environment containging all the function environment variables.
 #'
 #' @return TRUE if all assertions pass
-#'  
+#'
 #'
 #' @examples \dontrun{
 #'   checkPathwaySettings(
@@ -60,9 +63,9 @@ checkPathwaySettings <- function(env) {
 #' @importFrom data.table transpose
 #' @importFrom dplyr filter
 #' @importFrom utils globalVariables
-#' 
+#'
 #' @return Object pathwaySettings.
-#'     
+#'
 #' @export
 #' @examples
 #' targetCohorts <- data.frame(

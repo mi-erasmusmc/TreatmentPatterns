@@ -7,7 +7,7 @@ source(list.files(system.file(
 
 test_that("Void", {
   expect_error(
-    constructPathways() 
+    constructPathways()
   )
 })
 

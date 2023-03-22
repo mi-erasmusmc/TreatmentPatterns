@@ -20,7 +20,8 @@ eventCohortId and targetCohortIds}
 pathwaySettings
 }
 \description{
-Adds a pathway analysis, a combination of target and outcome cohorts, to a pathwaySettings object.
+Adds a pathway analysis, a combination of target and outcome cohorts, to a
+pathwaySettings object.
 }
 \examples{
 # Create cohortSettings

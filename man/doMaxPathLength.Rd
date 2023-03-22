@@ -13,11 +13,12 @@ doMaxPathLength(treatmentHistory, maxPathLength)
 }
 \value{
 treatmentHistory
-Updated dataframe, where the desired event cohorts all have a seq value of <= 
+Updated dataframe, where the desired event cohorts all have a seq value of <=
 maxPathLength
 }
 \description{
-Filters the treatmentHistory data.frame where eventSeq is smaller or equal than maxPathLength
+Filters the treatmentHistory data.frame where eventSeq is smaller or equal
+than maxPathLength
 }
 \examples{
 \dontrun{

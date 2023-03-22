@@ -9,7 +9,7 @@ test_that("minimal", {
   pathwaySettings <- loadPathwaySettings(file.path(system.file(
     package = "TreatmentPatterns"),
     "examples", "CDM", "settings", "pathway_settings.csv"))
-  
+
   expect_s3_class(pathwaySettings, "pathwaySettings")
 })
 

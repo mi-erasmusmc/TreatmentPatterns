@@ -14,7 +14,7 @@ test_that("minimal", {
   fs::dir_create(paste0(
     saveSettings$outputFolder,
     "/Viral_Sinusitis"))
-  
+
   expect_s3_class(
     TreatmentPatterns:::getPathways(
       outputFolder = saveSettings$outputFolder,

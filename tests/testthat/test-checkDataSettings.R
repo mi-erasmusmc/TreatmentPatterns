@@ -13,7 +13,7 @@ test_that("Minimal", {
   e$cdmDatabaseSchema <- "main"
   e$resultSchema <- "main"
   e$cohortTable <- "cohort_table"
-  
+
   testthat::expect_true(
     TreatmentPatterns:::checkDataSettings(e)
   )
@@ -25,7 +25,7 @@ test_that("connectionDetails", {
   e$resultSchema <- "main"
   e$cohortTable <- "cohort_table"
   e$connectionDetails <- "getEunomiaConnectionDetails()"
-  
+
   testthat::expect_error(
     TreatmentPatterns:::checkDataSettings(e),
     c("Must inherit from class 'ConnectionDetails'")
@@ -38,7 +38,7 @@ test_that("cdmDatabaseSchema", {
   e$resultSchema <- "main"
   e$cohortTable <- "cohort_table"
   e$cdmDatabaseSchema <- 3
-  
+
   testthat::expect_error(
     TreatmentPatterns:::checkDataSettings(e),
     c("Must be of type 'character")
@@ -52,7 +52,7 @@ test_that("resultSchema", {
   e$resultSchema <- "main"
   e$cohortTable <- "cohort_table"
   e$resultSchema <- 2
-  
+
   testthat::expect_error(
     TreatmentPatterns:::checkDataSettings(e),
     c("Must be of type 'character")
@@ -65,7 +65,7 @@ test_that("cohortTable", {
   e$cdmDatabaseSchema <- "main"
   e$resultSchema <- "main"
   e$cohortTable <- TRUE
-  
+
   testthat::expect_error(
     TreatmentPatterns:::checkDataSettings(e),
     c("Must be of type 'character")

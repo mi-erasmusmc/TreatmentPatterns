@@ -54,7 +54,7 @@ summaryCombinations <- data.table::data.table(
 test_that("validate summary", {
   expect_true(
     all(grepl("\\+", summaryCombinations$combination), TRUE))
-  
+
   expect_true(
     all(summaryCombinations$freq %in% data$freq, TRUE))
 })
@@ -94,7 +94,7 @@ test_that("validate other subset", {
     summarizeCombinations,
     as.data.frame(out)[selectedCombinations][1]
   )
-  
+
   expect_equal(
     as.data.frame(data)[selectedCombinations][1],
     "Other"

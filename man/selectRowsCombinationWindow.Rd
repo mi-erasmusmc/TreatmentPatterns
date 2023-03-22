@@ -19,9 +19,9 @@ per person to modify in next iteration of the combination window.
 \examples{
 \dontrun{
 source(system.file(
-  package = "TreatmentPatterns", 
+  package = "TreatmentPatterns",
  "testing", "testParams.R"))
- 
+
 selectRowsCombinationWindow(doEraCollapseTH)
 }
 }

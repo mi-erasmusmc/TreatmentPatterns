@@ -8,15 +8,18 @@ test_that("Void", {
 
 test_that("Blind parameters", {
   result <- addPathwaySettings(targetCohortId = 1, eventCohortIds = 2)
-  
+
   expect_type(result, "list")
   expect_equal(class(result), "data.frame")
   expect_equal(nrow(result), 1)
   expect_equal(ncol(result), 17)
-  expect_equal(colnames(result), c("studyName", "targetCohortId", "eventCohortIds", "includeTreatments", "periodPriorToIndex",
-                                   "minEraDuration", "splitEventCohorts", "splitTime", "eraCollapseSize", "combinationWindow",
-                                   "minPostCombinationDuration", "filterTreatments", "maxPathLength", "minCellCount", "minCellMethod",
-                                   "groupCombinations", "addNoPaths"))
+  expect_equal(colnames(result),
+               c("studyName", "targetCohortId", "eventCohortIds",
+                 "includeTreatments", "periodPriorToIndex", "minEraDuration",
+                 "splitEventCohorts", "splitTime", "eraCollapseSize",
+                 "combinationWindow", "minPostCombinationDuration",
+                 "filterTreatments", "maxPathLength", "minCellCount",
+                 "minCellMethod", "groupCombinations", "addNoPaths"))
   expect_equal(result$studyName, "name_unknown")
   expect_equal(result$targetCohortId, 1)
   expect_equal(result$eventCohortIds, "2")

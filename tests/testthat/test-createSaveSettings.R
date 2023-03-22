@@ -41,7 +41,7 @@ test_that("Assert outputFolder: wrong type", {
 test_that("Assert outputFolder: existing path", {
   expect_s3_class(createSaveSettings(
     rootFolder = "./",
-    databaseName = "Eunomia", 
+    databaseName = "Eunomia",
     outputFolder = "./inst"),
     "saveSettings")
 })
@@ -49,7 +49,7 @@ test_that("Assert outputFolder: existing path", {
 test_that("Assert tempFolder: existing path", {
   expect_s3_class(createSaveSettings(
     rootFolder = "./",
-    databaseName = "Eunomia", 
+    databaseName = "Eunomia",
     outputFolder = "./inst",
     tempFolder = "./inst"),
     "saveSettings")
@@ -58,7 +58,7 @@ test_that("Assert tempFolder: existing path", {
 test_that("Assert tempFolder: non-existing path", {
   expect_s3_class(createSaveSettings(
     rootFolder = "./",
-    databaseName = "Eunomia", 
+    databaseName = "Eunomia",
     outputFolder = "./inst",
     tempFolder = "./VeryCoolTempPathThatDoesNotExist"),
     "saveSettings")

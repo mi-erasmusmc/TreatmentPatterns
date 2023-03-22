@@ -119,7 +119,7 @@ test_that("includeTreatments startDate", {
     currentCohorts[currentCohorts$cohort_id == targetCohortId],
     by = c("person_id"))
   expect_equal(
-    nrow(eventCohorts[extendedEventCohorts$event_start_date < 
+    nrow(eventCohorts[extendedEventCohorts$event_start_date <
                         extendedEventCohorts$start_date]),
     0)
 })
@@ -136,7 +136,7 @@ test_that("includeTreatments endDate", {
     currentCohorts[currentCohorts$cohort_id == targetCohortId],
     by = c("person_id"))
   expect_equal(
-    nrow(eventCohorts[extendedEventCohorts$event_end_date < 
+    nrow(eventCohorts[extendedEventCohorts$event_end_date <
                         extendedEventCohorts$start_date]),
     0)
 })
@@ -163,8 +163,8 @@ test_that("periodPriorToIndex", {
     currentCohorts[currentCohorts$cohort_id == targetCohortId],
     by = c("person_id"))
   expect_equal(
-    nrow(eventCohorts[(extendedEventCohorts$event_start_date - 
+    nrow(eventCohorts[(extendedEventCohorts$event_start_date -
                          extendedEventCohorts$event_start_date) >
-                        periodPriorToIndex]), 
+                        periodPriorToIndex]),
     0)
 })

@@ -13,7 +13,7 @@ test_that("void", {
 
 test_that("minimal", {
   expect_output(TreatmentPatterns:::outputTreatedPatients(
-    data = treatment_pathways[[1]],
+    data = treatmentPathways[[1]],
     eventCohortIds = eventCohortIds,
     groupCombinations = groupCombinations,
     outputFolder = saveSettings$outputFolder,

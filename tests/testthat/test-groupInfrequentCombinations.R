@@ -14,7 +14,7 @@ test_that("void", {
 test_that("minimal", {
   expect_s3_class(
     TreatmentPatterns:::groupInfrequentCombinations(
-      data = treatment_pathways[[1]],
+      data = treatmentPathways[[1]],
       groupCombinations = groupCombinations),
     "data.frame")
 })
@@ -22,7 +22,7 @@ test_that("minimal", {
 
 
 # get findCombinations
-data <- treatment_pathways[[1]][1:5, ]
+data <- treatmentPathways[[1]][1:5, ]
 
 findCombinations <- apply(
   X = data,

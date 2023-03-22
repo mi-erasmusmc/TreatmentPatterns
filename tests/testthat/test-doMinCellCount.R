@@ -5,7 +5,7 @@ source(system.file(
   package = "TreatmentPatterns",
   "testing", "testParamsOutput.R"))
 
-tp <- treatment_pathways
+tp <- treatmentPathways
 
 tempNoYear <- tempfile(
   pattern = paste0(
@@ -42,8 +42,8 @@ test_that("void", {
 })
 
 df <- TreatmentPatterns:::doMinCellCount(
-  file_noyear = treatment_pathways[[1]],
-  file_withyear = treatment_pathways[[2]],
+  file_noyear = treatmentPathways[[1]],
+  file_withyear = treatmentPathways[[2]],
   outputFolder = saveSettings$outputFolder,
   tempFolder = saveSettings$tempFolder,
   databaseName = saveSettings$databaseName,

@@ -11,7 +11,7 @@ test_that("void", {
 
 test_that("minimal", {
   expect_s3_class(TreatmentPatterns:::inputSunburstPlot(
-    data = treatment_pathways[[1]],
+    data = treatmentPathways[[1]],
     tempFolder = saveSettings$tempFolder,
     outputFolder = saveSettings$outputFolder,
     databaseName = saveSettings$databaseName,

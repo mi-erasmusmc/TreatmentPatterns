@@ -10,7 +10,6 @@
 #' @import SqlRender
 #' @import fs
 #' @import dplyr
-#' @import reshape2
 #' @importFrom DatabaseConnector connect disconnect querySql
 #' @importFrom data.table data.table as.data.table rbindlist transpose rollup shift :=
 ## usethis namespace: end

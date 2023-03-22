@@ -250,7 +250,7 @@ constructPathways <- function(dataSettings,
       # Save the treatment pathways
       if (nrow(treatmentHistory) != 0) {
         treatment_pathways <- data.table::as.data.table(
-          reshape2::dcast(
+          data.table::dcast(
             data = treatmentHistory, 
             formula = person_id + index_year ~ event_seq, 
             value.var = "event_cohort_name"))

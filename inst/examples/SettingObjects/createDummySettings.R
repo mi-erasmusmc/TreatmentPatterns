@@ -1,17 +1,5 @@
 library(dplyr)
 
-# if (dir.exists("output")) {
-#   fs::dir_delete("output")
-# } else {
-#   fs::dir_create("output")
-# }
-# 
-# if (dir.exists("temp")) {
-#   fs::dir_delete("temp")
-# } else {
-#   fs::dir_create("temp")
-# }
-
 dataSettings <- TreatmentPatterns::createDataSettings(
   connectionDetails = Eunomia::getEunomiaConnectionDetails(),
   cdmDatabaseSchema = "main",
@@ -35,17 +23,17 @@ for (i in seq_len(length(cohortJsonFiles))) {
   # modify this to read your JSON/SQL files however you require
   cohortJson <- readChar(cohortJsonFileName, file.info(
     cohortJsonFileName)$size)
-  
+
   cohortExpression <- CirceR::cohortExpressionFromJson(cohortJson)
-  
+
   cohortSql <- CirceR::buildCohortQuery(
     cohortExpression,
     options = CirceR::createGenerateOptions(generateStats = FALSE))
   cohortsToCreate <- rbind(
-    cohortsToCreate, 
+    cohortsToCreate,
     data.frame(
       cohortId = i,
-      cohortName = cohortName, 
+      cohortName = cohortName,
       sql = cohortSql,
       stringsAsFactors = FALSE))
 }
@@ -67,12 +55,12 @@ cohortsGenerated <- CohortGenerator::generateCohortSet(
   cohortDefinitionSet = cohortsToCreate)
 
 # Select Viral Sinusitis Cohort
-targetCohort <- cohortsGenerated %>% 
+targetCohort <- cohortsGenerated %>%
   filter(cohortName == "ViralSinusitis") %>%
   select(cohortId, cohortName)
 
 # Select everything BUT Viral Sinusitis cohorts
-eventCohorts <- cohortsGenerated %>% 
+eventCohorts <- cohortsGenerated %>%
   filter(cohortName != "ViralSinusitis") %>%
   select(cohortId, cohortName)
 
@@ -103,30 +91,3 @@ TreatmentPatterns::writeCohortTable(
   cohortSettings = cohortSettings,
   dataSettings = dataSettings,
   tableName = dataSettings$cohortTable)
-
-#names(cohortSettings$cohortsToCreate) <- c("cohort_id", "cohort_name", "cohort_type")
-# write.csv(
-#   x = cohortSettings$cohortsToCreate,
-#   file = file.path(saveSettings$outputFolder, "settings", "cohorts_to_create.csv"),
-#   row.names = FALSE)
-
-
-# Export tables from database
-# con <- DatabaseConnector::connect(dataSettings$connectionDetails)
-# 
-# invisible(lapply(cohortTableNames, function(tableName) {
-#   tbl <- TreatmentPatterns:::extractFile(
-#     connection = con,
-#     tableName = tableName,
-#     resultsSchema = dataSettings$resultSchema,
-#     dbms = dataSettings$connectionDetails$dbms)
-#   
-#   write.csv(
-#     tbl,
-#     file.path(
-#       saveSettings$outputFolder,
-#       paste0(tableName, ".csv")),
-#     row.names = FALSE)
-# }))
-# 
-# DatabaseConnector::disconnect(con)

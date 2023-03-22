@@ -5,9 +5,9 @@ source(system.file(
 connection <- DatabaseConnector::connect(dataSettings$connectionDetails)
 
 fullCohorts <- data.table::as.data.table(extractFile(
-  connection, 
-  dataSettings$cohortTable, 
-  dataSettings$resultSchema, 
+  connection,
+  dataSettings$cohortTable,
+  dataSettings$resultSchema,
   dataSettings$connectionDetails$dbms))
 
 DatabaseConnector::disconnect(connection)
@@ -98,9 +98,9 @@ doFilterTreatmentsTHPP <- doFilterTreatmentsTHOrdered[,
                       event_seq := seq_len(.N), by = .(person_id)]
 
 doMaxPathLengthTH <- TreatmentPatterns:::doMaxPathLength(
-  doFilterTreatmentsTHPP, 
+  doFilterTreatmentsTHPP,
   maxPathLength)
 
 addLabelsTH <- TreatmentPatterns:::addLabels(
-  doMaxPathLengthTH, 
+  doMaxPathLengthTH,
   saveSettings$outputFolder)

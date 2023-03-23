@@ -4,7 +4,7 @@ source(system.file(
 
 connection <- DatabaseConnector::connect(dataSettings$connectionDetails)
 
-fullCohorts <- data.table::as.data.table(extractFile(
+fullCohorts <- data.table::as.data.table(TreatmentPatterns::extractFile(
   connection,
   dataSettings$cohortTable,
   dataSettings$resultSchema,

@@ -32,6 +32,11 @@ Suggests:
     CohortGenerator,
     CirceR,
     rmarkdown
+Remotes:
+  OHDSI/CohortDiagnostics,
+  OHDSI/CohortGenerator
+  OHDSI/CirceR,
+  OHDSI/Eunomia
 License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true

@@ -66,7 +66,12 @@ addChild <- function(j, children, parts, root) {
   return(root)
 }
 
-buildHierarchy2 <- function(csv) {
+#' buildHierarchy
+#'
+#' @param csv matrix
+#'
+#' @return JSON
+buildHierarchy <- function(csv) {
   root <- list(
     name = "root",
     children = list())
@@ -126,97 +131,6 @@ buildHierarchy2 <- function(csv) {
   return(json)
 }
 
-#' buildHierarchy
-#'
-#' Help function to create hierarchical data structure.
-#'
-#' @param csv
-#'     CSV
-#'
-#' @returns JSON
-buildHierarchy <- function(csv) {
-  root <- list("name" = "root", "children" = list())
-  
-  # Create nested structure of lists
-  for (i in 1:nrow(csv)) {
-    sequence <- csv[i, 1]
-    size <- csv[i, 2]
-    
-    parts <- unlist(stringr::str_split(sequence, pattern = "-"))
-    
-    currentNode <- root
-    
-    for (j in 1:length(parts)) {
-      children <- currentNode[["children"]]
-      nodeName <- parts[j]
-      
-      if (j < length(parts)) {
-        # Not yet at the end of the sequence; move down the tree
-        foundChild <- FALSE
-        
-        if (length(children) != 0) {
-          for (k in 1:length(children)) {
-            if (children[[k]]$name == nodeName) {
-              childNode <- children[[k]]
-              foundChild <- TRUE
-              break
-            }
-          }
-        }
-        
-        # If we dont already have a child node for this branch, create it
-        if (!foundChild) {
-          childNode <- list("name" = nodeName, "children" = list())
-          children[[nodeName]] <- childNode
-          
-          # Add to main root
-          if (j == 1) {
-            root[["children"]] <- children
-          } else if (j == 2) {
-            root[["children"]][[parts[1]]][["children"]] <- children
-          } else if (j == 3) {
-            root[["children"]][[parts[1]]][["children"]][[parts[2]]][["children"]] <-
-              children
-          } else if (j == 4) {
-            root[["children"]][[parts[1]]][["children"]][[parts[2]]][["children"]][[parts[3]]][["children"]] <-
-              children
-          } else if (j == 5) {
-            root[["children"]][[parts[1]]][["children"]][[parts[2]]][["children"]][[parts[3]]][["children"]][[parts[4]]][["children"]] <-
-              children
-          }
-        }
-        currentNode <- childNode
-      } else {
-        # Reached the end of the sequence; create a leaf node
-        childNode <- list("name" = nodeName, "size" = size)
-        children[[nodeName]] <- childNode
-        
-        # Add to main root
-        if (j == 1) {
-          root[["children"]] <- children
-        } else if (j == 2) {
-          root[["children"]][[parts[1]]][["children"]] <- children
-        } else if (j == 3) {
-          root[["children"]][[parts[1]]][["children"]][[parts[2]]][["children"]] <-
-            children
-        } else if (j == 4) {
-          root[["children"]][[parts[1]]][["children"]][[parts[2]]][["children"]][[parts[3]]][["children"]] <-
-            children
-        } else if (j == 5) {
-          root[["children"]][[parts[1]]][["children"]][[parts[2]]][["children"]][[parts[3]]][["children"]][[parts[4]]][["children"]] <-
-            children
-        }
-      }
-    }
-  }
-  
-  # Remove list names
-  root <- suppressWarnings(stripname(root, "children"))
-  
-  # Convert nested list structure to json
-  json <- rjson::toJSON(root)
-  return(json)
-}
 
 #' transformCSVtoJSON
 #'
@@ -282,13 +196,7 @@ transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
       return(p)
     })
   
-  # transformed_json <- buildHierarchy2(
-  #   data.frame(
-  #     oath = updated_path,
-  #     freq = data$freq)
-  #   )
-  
-  transformed_json <- buildHierarchy(
+  transformed_json <- buildHierarchy2(
     cbind(
       oath = updated_path,
       freq = data$freq)

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Visualization: Sunburst</title>
+	  <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.10.0/d3.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600">
+      <style>
+         body {
+         font-family: 'Open Sans', sans-serif;
+         font-size: 12px;
+         font-weight: 400;
+         background-color: #fff;
+         width: 960px;
+         height: 700px;
+         margin-top: 0;
+         }
+         #main {
+         float: left;
+         width: 400px;
+         }
+         #sidebar {
+         float: right;
+         width: 100px;
+         }
+         #sequence {
+         width: 600px;
+         height: 70px;
+         }
+         #legend {
+         padding: 10px 0 0 3px;
+         }
+         #sequence text, #legend text {
+         font-weight: 600;
+         fill: #fff;
+         }
+         #plot {
+         position: relative;
+         }
+         #plot path {
+         stroke: #fff; /* lines in plot */
+         }
+         #percentage {
+         font-size: 2.5em;
+         }
+      </style>
+   </head>
+   <body>
+      <div id="main">
+          <div id="legend" style=" height:600px"></div>
+          <textarea  id="chartData" style="visibility:hidden; width:400px; height:400px">
+		   @insert_data
+		  </textarea>
+      </div>
+        <div id="sidebar">
+        <div style="width:100%; visibility:hidden;" id="plot"></div>
+      </div>
+      <script type="text/javascript">
+         var lodash = _;
+         var d3tip = d3.tip;
+         
+         class Chart {
+         	static get chartTypes() {
+         		return {
+         		  AREA: 'AREA',
+         		  BOXPLOT: 'BOXPLOT',
+         		  DONUT: 'DONUT',
+         		  HISTOGRAM: 'HISTOGRAM',
+         		  LINE: 'LINE',
+         		  TRELLISLINE: 'TRELLISLINE',
+         		};
+         	}
+         
+         	render(data, target, w, h, chartOptions) {
+				if (typeof target == "string") {
+					target = document.querySelector(target);
+				}
+	 
+				if (!this.doResize) {
+					this.doResize = lodash.debounce(() => {
+						this.render(data, target,target.clientWidth,target.clientHeight,chartOptions);
+					}, 250);
+					window.addEventListener("resize", this.doResize);
+				}
+			}
+			
+			getOptions(chartSpecificDefaults, customOptions) {
+         		const options = Object.assign({}, {
+         			  margins: {
+         				top: 10,
+         				right: 10,
+         				bottom: 10,
+         				left: 10,
+         			  },
+         			  xFormat: d3.format(',.0f'),
+         			  yFormat: d3.format('s'),
+         			  colors: d3.scaleOrdinal(d3.schemeCategory20.concat(d3.schemeCategory20)),
+         			},
+         			// clone objects
+         			  Object.assign({}, chartSpecificDefaults),
+         			  Object.assign({}, customOptions)
+         
+         		  );
+         		  
+         		  return options;
+		    }
+			
+         	createSvg(target, width, height) {
+         		this.destroyTipIfExists();
+         
+         		const container = d3.select(target);
+         		container.select('svg').remove();
+         		const chart = container.append('svg')
+         		  .attr('preserveAspectRatio', 'xMinYMin meet')
+         		  .attr('viewBox', `
+         			0
+         			0
+         			${width}
+         			${height}`)
+         		  .append('g')
+         		  .attr('class', 'chart');
+         
+         			this.chart = chart;
+         
+         		return chart;
+         	}
+
+         	useTip(tooltipConfigurer = () => {}, options) {
+         
+         		this.destroyTipIfExists();
+         
+         		this.tip = d3tip()
+         		  .attr('class', 'd3-tip');
+         
+         		tooltipConfigurer(this.tip, options);
+         
+         		if (this.chart) {
+         		  this.chart.call(this.tip);
+         		}
+         
+         		return this.tip;
+         	  }
+         
+         	  destroyTipIfExists() {
+         		if (this.tip) {
+         		  this.tip.destroy();
+         		}
+         	}
+         
+         
+         	static normalizeDataframe(dataframe) {
+         		// rjson serializes dataframes with 1 row as single element properties.
+         		// This function ensures fields are always arrays.
+         		const keys = d3.keys(dataframe);
+         		const frame = Object.assign({}, dataframe);
+         		keys.forEach((key) => {
+         		  if (!(dataframe[key] instanceof Array)) {
+         			frame[key] = [dataframe[key]];
+         		  }
+         		});
+         		return frame;
+         	}
+         
+         	static dataframeToArray(dataframe) {
+         		// dataframes from R serialize into an obect where each column is an array of values.
+         		const keys = d3.keys(dataframe);
+         		let result;
+         		if (dataframe[keys[0]] instanceof Array) {
+         		  result = dataframe[keys[0]].map((d, i) => {
+         			const item = {};
+         			keys.forEach(p => {
+         			  item[p] = dataframe[p][i];
+         			});
+         			return item;
+         		  });
+         		} else {
+         		  result = [dataframe];
+         		}
+         		return result;
+         	}
+         
+         	get formatters() {
+         		return {
+         		  formatSI: (p) => {
+         			p = p || 0;
+         			return (d) => {
+         			  if (d < 1) {
+         				return Math.round(d, p);
+         			  }
+         			  const prefix = d3.format(',.0s', d);
+         			  return prefix(d);
+         			}
+         		  },
+         		};
+         	}
+         
+         	truncate(text, width) {
+         		text.each(function() {
+         		  const t = d3.select(this);
+         		  const originalText = t.text();
+         		  let textLength = t.node().getComputedTextLength();
+         		  let text = t.text();
+         		  while (textLength > width && text.length > 0) {
+         			text = text.slice(0, -1);
+         			t.text(`${text}...`);
+         			textLength = t.node().getComputedTextLength();
+         		  }
+         		  t.append('title').text(originalText);
+         		});
+         	}
+         
+         	wrap(text, width, truncateAtLine) {
+         		text.each(function () {
+         		const text = d3.select(this);
+         		const fullText = text.text();
+         		  const words = text.text().split(/\s+/).reverse();
+         		  let line = [];
+         		  let word;
+         		  let lineNumber = 0;
+         		  let lineCount = 0;
+         		  const lineHeight = 1.1; // ems
+         		  const y = text.attr('y');
+         		  const dy = parseFloat(text.attr('dy'));
+         		  let tspan = text
+         			.text(null)
+         			.append('tspan')
+         			.attr('x', 0)
+         			.attr('y', y)
+         			.attr('dy', `${dy}em`);
+         		  while (word = words.pop()) {
+         			line.push(word);
+         			tspan.text(line.join(' '));
+         			if (tspan.node().getComputedTextLength() > width) {
+         			  if (line.length > 1) {
+         				line.pop(); // remove word from line
+         				words.push(word); // put the word back on the stack
+         				const text = !!truncateAtLine && ++lineCount === truncateAtLine ? `${line.splice(0, line.length - 1).join(' ')}...` : line.join(' ');
+         				tspan.text(text);
+         			  }
+         			  line = [];
+         			  tspan = text
+         				.append('tspan')
+         				.attr('x', 0)
+         				.attr('y', y)
+         				.attr('dy', `${++lineNumber * lineHeight + dy}em`);
+         			  if (!!truncateAtLine && truncateAtLine === lineCount) {
+         				tspan.remove();
+         				break;
+         			  }
+         			}
+         		  }
+         		  text.append('title').text(fullText);
+         		});
+         	}
+         
+         	  // Tooltips
+         
+         	tooltipFactory(tooltips) {
+         		return (d) => {
+         		  let tipText = '';
+         
+         		  if (tooltips !== undefined) {
+         			for (let i = 0; i < tooltips.length; i = i + 1) {
+         			  let value = tooltips[i].accessor(d);
+         			  if (tooltips[i].format !== undefined) {
+         				value = tooltips[i].format(value);
+         			  }
+         			  tipText += `${tooltips[i].label}: ${value}</br>`;
+         			}
+         		  }
+         
+         		  return tipText;
+         		};
+         	}
+         
+         	lineDefaultTooltip(
+         		xLabel,
+         		xFormat,
+         		xAccessor,
+         		yLabel,
+         		yFormat,
+         		yAccessor,
+         		seriesAccessor
+         	  ) {
+         		return (d) => {
+         		  let tipText = '';
+         		  if (seriesAccessor(d))
+         			tipText = `Series: ${seriesAccessor(d)}</br>`;
+         		  tipText += `${xLabel}: ${xFormat(xAccessor(d))}</br>`;
+         		  tipText += `${yLabel}: ${yFormat(yAccessor(d))}`;
+         		  return tipText;
+         		}
+         	}
+         
+         	donutDefaultTooltip(labelAccessor, valueAccessor, percentageAccessor) {
+         		return (d) =>
+         		  `${labelAccessor(d)}: ${valueAccessor(d)} (${percentageAccessor(d)})`
+         	}
+         
+         	static mapMonthYearDataToSeries(data, customOptions) {
+         		const defaults = {
+         		  dateField: 'x',
+         		  yValue: 'y',
+         		  yPercent: 'p'
+         		};
+         
+         		const options = Object.assign({},
+         		  defaults,
+         		  customOptions
+         		);
+         
+         		const series = {};
+         		series.name = 'All Time';
+         		series.values = [];
+         		data[options.dateField].map((datum, i) => {
+         		  series.values.push({
+         			xValue: new Date(Math.floor(data[options.dateField][i] / 100), (data[options.dateField][i] % 100) - 1, 1),
+         			yValue: data[options.yValue][i],
+         			yPercent: data[options.yPercent][i]
+         		  });
+         		});
+         		series.values.sort((a, b) => a.xValue - b.xValue);
+         
+         		return [series]; // return series wrapped in an array
+         	}
+         
+         	static prepareData(rawData, chartType) {
+         		switch (chartType) {
+         		  case this.chartTypes.BOXPLOT:
+         			if (!rawData.CATEGORY.length) {
+         				return null;
+         			  }
+         			  const data = rawData.CATEGORY.map((d,i) => ({
+         				Category: rawData.CATEGORY[i],
+         				min: rawData.MIN_VALUE[i],
+         				max: rawData.MAX_VALUE[i],
+         				median: rawData.MEDIAN_VALUE[i],
+         				LIF: rawData.P10_VALUE[i],
+         				q1: rawData.P25_VALUE[i],
+         				q3: rawData.P75_VALUE[i],
+         				UIF: rawData.P90_VALUE[i],
+         			  }), rawData);
+         			  const values = Object.values(data);
+         			  const flattenData = values.reduce((accumulator, currentValue) =>
+         					accumulator.concat(currentValue),
+         					[]
+         				);
+         			  if (!flattenData.length) {
+         				return null;
+         			  }
+         
+         			  return data;
+         		}
+         	}
+         
+			dispose() {
+				this.destroyTipIfExists();
+				if (this.doResize) {
+					window.removeEventListener("resize", this.doResize);
+				}
+			}
+         
+		}
+
+		class Sunburst extends Chart {
+         
+			getTipDirection(d) {
+				return("n");
+			}
+			
+			getTipOffset(d, arc) {
+				const bbox = event.target.getBBox();
+				const arcCenter = arc.centroid(d);
+				let tipOffsetX = Math.abs(bbox.x - arcCenter[0]) - (bbox.width/2)
+				let tipOffsetY = Math.abs(bbox.y - arcCenter[1]);
+				return([tipOffsetY-10,tipOffsetX]);
+			}
+         
+         	drawLegend(colors) {
+         
+         	  // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+         	  var li = {
+         		w: 300, h: 30, s: 3, r: 3
+         	  };
+         
+         	  var legend = d3.select("#legend").append("svg:svg")
+         		  .attr("width", li.w)
+         		  .attr("height", d3.keys(colors).length * (li.h + li.s));
+         
+         	  var g = legend.selectAll("g")
+         		  .data(d3.entries(colors))
+         		  .enter().append("svg:g")
+         		  .attr("transform", function(d, i) {
+         				  return "translate(0," + i * (li.h + li.s) + ")";
+         			   });
+         
+         	  g.append("svg:rect")
+         		  .attr("rx", li.r)
+         		  .attr("ry", li.r)
+         		  .attr("width", li.w)
+         		  .attr("height", li.h)
+         		  .style("fill", function(d) { return d.value; });
+         		  
+         	  g.append("svg:text")
+         		  .attr("x", li.w / 2)
+         		  .attr("y", li.h / 2)
+         		  .attr("dy", "0.35em")
+         		  .attr("text-anchor", "middle")
+         		  .text(function(d) { return d.key; });
+         	}
+         		
+			render(data, target, width, height, chartOptions, lookup) {
+				
+				super.render(data, target, width, height, chartOptions);
+	 
+				const defaultOptions = {
+					tooltip: (d) => {
+						return '' //`<div>No Tooltip Set</div>`
+					}
+	 
+				};
+	 
+				// options
+				const options = this.getOptions(defaultOptions, chartOptions);
+	 
+				// container
+				const svg = this.createSvg(target, width, height);
+				svg.attr('class', 'sunburst')
+	 
+			// this must be done after createSvg()
+				this.useTip((tip, options) => {
+					tip.attr('class', `d3-tip ${options.tipClass || ""}`)
+						.offset(d => d.tipOffset || [-10,0])
+						.direction(d => d.tipDirection || "n")
+						.html(d => options.tooltip(d))
+				}, options);
+	 
+				const vis = svg.append("svg:g")
+					.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+	 
+				const radius = Math.min(width, height) / 2;
+	 
+				const partition = d3.partition()
+					.size([2 * Math.PI, radius]);
+	 
+				const arc = d3.arc()
+					.startAngle(function (d) {
+						return d.x0;
+					})
+					.endAngle(function (d) {
+						return d.x1;
+					})
+					.innerRadius(function (d) {
+						return d.y0
+					})
+					.outerRadius(function (d) {
+						return d.y1
+					});
+	 
+				vis.append("svg:circle")
+					.attr("r", radius)
+					.style("opacity", 0);
+	 
+				// Turn the data into a d3 hierarchy and calculate the sums.
+				const root = d3.hierarchy(data)
+					.sum(function (d) {
+						return d.size;
+					})
+					.sort(function (a, b) {
+						return b.value - a.value;
+					});
+	 
+				let nodes = partition(root).descendants().filter(d => (d.x1 - d.x0 > 0.005)).reverse(); // 0.005 radians = 0.29 degrees
+	 
+				function search(nameKey){
+					for (var i=0; i < lookup.length; i++) {
+						if (lookup[i].key === nameKey) {
+							return lookup[i].value;
+						}
+					}
+				}
+	 
+				var colors = {};
+				  for (var i=0; i < lookup.length; i++) {
+						if (lookup[i].value == 'End') {
+						  colors[lookup[i].value] = "#FFFFFF" ;
+						} else {
+						  colors[lookup[i].value] = options.colors(lookup[i].value);
+						}
+				}
+	 
+				if (options.split) {
+					const multiNodes = nodes.reduce((result, node) => {
+						let splitNodes = options.split(node);
+						if (splitNodes.length > 1) {
+							node.isSplit = true;
+							result = result.concat(splitNodes.map(n => Object.assign(n, {
+								isPartialNode: true
+							})));
+						}
+						return result;
+					}, []);
+	 
+					// append arcs, but do not apply tooltips, and only look for 'partial' nodes to select
+					vis.data([data]).selectAll("partialnode")
+						.data(multiNodes)
+						.enter()
+						.append("svg:path")
+						.attr("d", arc)
+						.attr("fill-rule", "evenodd")
+						.attr("class", "partial")
+						.style("fill", function(d) { return colors[search(d.data.name)]; })
+				}
+	 
+				const self = this;
+	 
+				// append arcs and tooltips
+				vis.data([data]).selectAll("pathnode")
+					.data(nodes)
+					.enter()
+					.append("svg:path")
+					.attr("display", function (d) {
+						return d.depth ? null : "none";
+					})
+					.attr("d", arc)
+					.attr("fill-rule", "evenodd")
+					.attr("class", d => (options.nodeClass && options.nodeClass(d)) || "node")
+					.style("fill", d => d.isSplit ? "#000" : colors[search(d.data.name)]) 
+					.style("opacity", d => d.isSplit ? 0 : 1)
+					.on('mouseover', d => self.tip.show(Object.assign({}, d, { tipDirection: self.getTipDirection(d), tipOffset: self.getTipOffset(d, arc)}), event.target))
+					.on('mouseout', d => self.tip.hide(d, event.target))
+					.on('click', (d) => options.onclick && options.onclick(d));
+	 
+				this.drawLegend(colors);
+	 
+			}
+		}
+	 
+		window.onload = function () {
+			var chrt = new Chart();
+			var plot = new Sunburst();
+			var target = document.querySelector('#plot');
+	 
+			function split(node) {
+	 
+				if (isNaN(node.data.name)) {
+					return [node];
+				};
+				
+				let splitNodes = [...Number.parseInt(node.data.name).toString(2)].reverse().reduce((result, bit, i) => {
+					if (bit == "1") {
+						let nodeClone = Object.assign({}, node);
+						nodeClone.data = {name: (1<<i).toString()};
+						result.push(nodeClone);
+					}
+					return result;
+				},[])
+				
+				const bandWidth = (node.y1 - node.y0) / splitNodes.length;
+				
+				return splitNodes.map((node, i) => {
+					node.y0 = node.y0 + (i * bandWidth);
+					node.y1 = node.y0 + bandWidth;
+					return node;
+				})
+				
+			}
+	 
+			function refreshPlot() {
+				chartData = JSON.parse(document.querySelector("#chartData").value);
+				plot.render(chartData.data, target, 700,700, {split: split}, chartData.lookup);
+			}
+			
+			refreshPlot();
+         };
+      </script>
+   </body>
+</html>
+

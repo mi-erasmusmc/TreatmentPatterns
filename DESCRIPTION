@@ -23,7 +23,8 @@ Imports:
     fs,
     glue,
     utils,
-    rjson
+    rjson,
+    googleVis
 Suggests:
     tibble,
     testthat (>= 3.0.0),

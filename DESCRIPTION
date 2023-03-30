@@ -18,10 +18,12 @@ Imports:
     dplyr,
     SqlRender,
     stringr,
+    stringi,
     ParallelLogger,
     fs,
     glue,
-    utils
+    utils,
+    rjson
 Suggests:
     tibble,
     testthat (>= 3.0.0),

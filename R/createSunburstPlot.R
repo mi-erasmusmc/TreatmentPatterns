@@ -47,13 +47,10 @@ stripname <- function(x, name) {
 #'
 #' @param j iterator 
 #' @param children children to add
-#' @param parts 
-#' @param root 
+#' @param parts labels of treatments
+#' @param root root list
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return root list with added childs
 addChild <- function(j, children, parts, root) {
   switch(
     j,
@@ -196,7 +193,7 @@ transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
       return(p)
     })
   
-  transformed_json <- buildHierarchy2(
+  transformed_json <- buildHierarchy(
     cbind(
       oath = updated_path,
       freq = data$freq)
@@ -273,13 +270,3 @@ createSunburstPlot <- function(data, folder, fileName) {
     text = html,
     con = normalizePath(paste0(folder, fileName), mustWork = FALSE))
 }
-
-
-dat <- data.frame(
-  path = c("a", "a-a", "a-b", "a-c", "a-b-d", "a-c-d",
-           "b", "b-a", "b-b", "b-c"),
-  freq = c("1", "0.25", "0.25", "0.25", "0.1", "0.1",
-           "1", "0.25", "0.25", "0.25"))
-
-createSunburstPlot(data = dat, folder = "./", fileName = "sankey_NEW.html")
-

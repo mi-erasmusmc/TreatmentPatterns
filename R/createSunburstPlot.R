@@ -43,6 +43,89 @@ stripname <- function(x, name) {
   return(lapply(x, stripname, name))
 }
 
+#' addChild
+#'
+#' @param j iterator 
+#' @param children children to add
+#' @param parts 
+#' @param root 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+addChild <- function(j, children, parts, root) {
+  switch(
+    j,
+    root[["children"]] <- children,
+    root[["children"]][[parts[1]]][["children"]] <- children,
+    root[["children"]][[parts[1]]][["children"]][[parts[2]]][["children"]] <- children,
+    root[["children"]][[parts[1]]][["children"]][[parts[2]]][["children"]][[parts[3]]][["children"]] <- children,
+    root[["children"]][[parts[1]]][["children"]][[parts[2]]][["children"]][[parts[3]]][["children"]][[parts[4]]][["children"]] <- children
+  )
+  return(root)
+}
+
+buildHierarchy2 <- function(csv) {
+  root <- list(
+    name = "root",
+    children = list())
+  
+  # Create nested structure of lists
+  for (i in seq_len(nrow(csv))) {
+    sequence <- csv[i, 1]
+    size <- csv[i, 2]
+    
+    parts <- unlist(stringr::str_split(sequence, pattern = "-"))
+    
+    currentNode <- root
+    
+    for (j in seq_len(length(parts))) {
+      children <- currentNode[["children"]]
+      nodeName <- parts[j]
+      
+      if (j < length(parts)) {
+        # Not yet at the end of the sequence; move down the tree
+        foundChild <- FALSE
+        
+        if (length(children) != 0) {
+          for (k in seq_len(length(children))) {
+            if (children[[k]]$name == nodeName) {
+              childNode <- children[[k]]
+              foundChild <- TRUE
+              break
+            }
+          }
+        }
+        
+        # If we dont already have a child node for this branch, create it
+        if (!foundChild) {
+          childNode <- list("name" = nodeName, "children" = list())
+          children[[nodeName]] <- childNode
+          
+          # Add to main root
+          root <- addChild(j, children, parts, root)
+        }
+        currentNode <- childNode
+      } else {
+        # Reached the end of the sequence; create a leaf node
+        childNode <- list("name" = nodeName, "size" = size)
+        children[[nodeName]] <- childNode
+        
+        # Add to main root
+        root <- addChild(j, children, parts, root)
+      }
+    }
+  }
+  
+  # Remove list names
+  root <- suppressWarnings(stripname(root, "children"))
+  
+  # Convert nested list structure to json
+  json <- rjson::toJSON(root)
+  return(json)
+}
+
 #' buildHierarchy
 #'
 #' Help function to create hierarchical data structure.
@@ -199,8 +282,17 @@ transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
       return(p)
     })
   
-  transformed_json <- buildHierarchy(cbind(oath = updated_path,
-                                           freq = data$freq))
+  # transformed_json <- buildHierarchy2(
+  #   data.frame(
+  #     oath = updated_path,
+  #     freq = data$freq)
+  #   )
+  
+  transformed_json <- buildHierarchy(
+    cbind(
+      oath = updated_path,
+      freq = data$freq)
+  )
   
   print(transformed_json)
   
@@ -273,3 +365,13 @@ createSunburstPlot <- function(data, folder, fileName) {
     text = html,
     con = normalizePath(paste0(folder, fileName), mustWork = FALSE))
 }
+
+
+dat <- data.frame(
+  path = c("a", "a-a", "a-b", "a-c", "a-b-d", "a-c-d",
+           "b", "b-a", "b-b", "b-c"),
+  freq = c("1", "0.25", "0.25", "0.25", "0.1", "0.1",
+           "1", "0.25", "0.25", "0.25"))
+
+createSunburstPlot(data = dat, folder = "./", fileName = "sankey_NEW.html")
+

@@ -7,11 +7,11 @@
 buildHierarchy(csv)
 }
 \arguments{
-\item{csv}{CSV}
+\item{csv}{matrix}
 }
 \value{
 JSON
 }
 \description{
-Help function to create hierarchical data structure.
+buildHierarchy
 }

@@ -1,3 +1,11 @@
+#' depth
+#'
+#' Function to find depth of a list element.
+#'
+#' @param x input list (element)
+#' @param thisdepth current list depth
+#'
+#' @return the depth of the list element
 depth <- function(x, thisdepth = 0) {
   # Assertions
   checkmate::assertTRUE(!is.null(x))
@@ -12,7 +20,14 @@ depth <- function(x, thisdepth = 0) {
   }
 }
 
-
+#' stripname
+#'
+#' Recursive function to remove name from all levels of list.
+#'
+#' @param x input list
+#' @param name the name of the list item from which the names will be removed
+#'
+#' @return list with removed names
 stripname <- function(x, name) {
   # Assertions
   checkmate::assertTRUE(!is.null(x))
@@ -28,27 +43,14 @@ stripname <- function(x, name) {
   return(lapply(x, stripname, name))
 }
 
-
-buildHierarchy2 <- function(data) {
-  root <- list(
-    name = "root",
-    children = lapply(seq_len(nrow(data)), function(i) {
-      treats <- unlist(stringr::str_split(data[i, "oath"], "-"))
-      if (length(treats) == 1) {
-        list(name = treats,
-             size = data[i, "freq"])
-      } else {
-        list(name = treats[1],
-             children = lapply(seq_len(length(treats) - 1), function(t) {
-               list(name = treats[t + 1],
-                    size = data[i, "freq"])
-             }))
-      }
-    }))
-  return(rjson::toJSON(root))
-}
-
-
+#' buildHierarchy
+#'
+#' Help function to create hierarchical data structure.
+#'
+#' @param csv
+#'     CSV
+#'
+#' @returns JSON
 buildHierarchy <- function(csv) {
   root <- list("name" = "root", "children" = list())
   
@@ -133,7 +135,17 @@ buildHierarchy <- function(csv) {
   return(json)
 }
 
-
+#' transformCSVtoJSON
+#'
+#' Help function to transform data in csv format to required JSON format for
+#' HTML.
+#'
+#' @param data input data.frame
+#' @param outcomes character vector containing all event cohorts
+#' @param folder output folder
+#' @param fileName output file name
+#'
+#' @return the transformed csv as a json string
 transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
   # Assertions
   checkmate::assertDataFrame(x = data)
@@ -187,13 +199,8 @@ transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
       return(p)
     })
   
-  # transformed_json <- buildHierarchy(cbind(oath = updated_path,
-  #                                          freq = data$freq))
-  
-  transformed_json <- buildHierarchy2(
-    cbind.data.frame(
-      oath = updated_path,
-      freq = data$freq))
+  transformed_json <- buildHierarchy(cbind(oath = updated_path,
+                                           freq = data$freq))
   
   print(transformed_json)
   
@@ -206,7 +213,31 @@ transformCSVtoJSON <- function(data, outcomes, folder, fileName) {
   return(result)
 }
 
-
+#' createSunburstPlot
+#'
+#' Export a sunburst plot from a data.frame object.
+#'
+#' @param data
+#'     A data frame containing two columns: 1) column "path" should specify the
+#'     event cohorts separated by dashes - (combinations can be indicated using
+#'     &) and 2) column "freq" should specify how often that (unique) path
+#'     occurs.
+#' @param folder
+#'     Root folder to store the results.
+#' @param fileName
+#'     File name for the results.
+#'
+#' @export
+#'
+#' @returns NULL
+#'
+#' @examples
+#' \dontrun{
+#' createSunburstPlot(
+#'   data = data.frame(
+#'     path = c("1", "2"),
+#'     freq = c("0.5", "0.5")))
+#' }
 createSunburstPlot <- function(data, folder, fileName) {
   # Assertions
   checkmate::assertDataFrame(x = data)
@@ -228,9 +259,11 @@ createSunburstPlot <- function(data, folder, fileName) {
   
   # Load template HTML file
   html <- paste(
-    readLines("D:/Users/mvankessel/Desktop/TreatmentPatterns/inst/shiny/sunburst/sunburst_standalone.html"),
-    collapse = "\n"
-  )
+    readLines(
+      system.file(
+        package = "TreatmentPatterns",
+        "htmlTemplates", "sunburst_standalone.html")),
+    collapse = "\n")
   
   # Replace @insert_data
   html <- sub("@insert_data", json, html)
@@ -240,9 +273,3 @@ createSunburstPlot <- function(data, folder, fileName) {
     text = html,
     con = normalizePath(paste0(folder, fileName), mustWork = FALSE))
 }
-
-data <- data.frame(
-  path = c("A-B", "C"),
-  freq = c("0.66", "0.34"))
-
-createSunburstPlot(data, folder = "./", fileName = "Sunburst_NEW.html")

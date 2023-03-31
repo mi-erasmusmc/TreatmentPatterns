@@ -1,12 +1,10 @@
 # TreatmentPatterns Package
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/R-CMD-check.yaml/badge.svg?branch=dev)](https://github.com/darwin-eu-dev/TreatmentPatterns/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 This R package contains the resources for performing a treatment pathway analysis of a study population of interest in observational databases. The package partially relies on the Observational Medical Outcomes Partnership Common Data Model (OMOP CDM), but the main parts of the package are also usable with different data formats.
-
-Reference: Markus, A. F., Verhamme, K. M., Kors, J. A., & Rijnbeek, P. R. (2022). [TreatmentPatterns: An R package to facilitate the standardized development and analysis of treatment patterns across disease domains](https://doi.org/10.1016/j.cmpb.2022.107081). Computer Methods and Programs in Biomedicine, 107081.
 
 ## Features
 
@@ -18,18 +16,17 @@ Reference: Markus, A. F., Verhamme, K. M., Kors, J. A., & Rijnbeek, P. R. (2022)
 
 
 ## Screenshots
-Demo output: [example shiny application](https://mi-erasmusmc.shinyapps.io/TreatmentPatterns/).
 
 <table>
 <tr valign="bottom">
 <td width = 50%>
 
-<img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/sunburstplot.png"/>
+<img src="man/figures/sunburstplot.png"/>
 
 </td>
 <td width = 50%>
   
-<img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/sankeydiagram.png"/>
+<img src="man/figures/sankeydiagram.png"/>
 
 </td>
 </tr><tr>
@@ -51,12 +48,12 @@ Demo output: [example shiny application](https://mi-erasmusmc.shinyapps.io/Treat
 
 ## User Documentation
 Available documentation includes:
-- Vignette: [Perform a study using the TreatmentPatterns package](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatternsStudy.pdf)
-- Package manual: [TreatmentPatterns](https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/TreatmentPatterns_1.0.0.pdf)
+- Vignette: [Perform a study using the TreatmentPatterns package](https://darwin-eu-dev.github.io/TreatmentPatterns/articles/TreatmentPatternsStudy.html)
+- Package manual: [TreatmentPatterns](https://darwin-eu-dev.github.io/TreatmentPatterns/reference/index.html)
 
 ## Package Structure
-<img src="https://github.com/mi-erasmusmc/TreatmentPatterns/blob/master/docs/package.png"/>
+<img src="man/figures/package.png"/>
 
 
 ## Support
-We use the <a href="https://github.com/mi-erasmusmc/TreatmentPatterns/issues">GitHub issue tracker</a> for all bugs/issues/enhancements.
+We use the <a href="https://github.com/darwin-eu-dev/TreatmentPatterns/issues">GitHub issue tracker</a> for all bugs/issues/enhancements.

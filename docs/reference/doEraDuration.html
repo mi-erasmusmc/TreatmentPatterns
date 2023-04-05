@@ -34,9 +34,6 @@
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/DarwinTreatmentPatternsStudy.html">Perform a Darwin study using the TreatmentPatterns package</a>
     </li>
-    <li>
-      <a href="../articles/TreatmentPatternsStudy.html">Perform a study using the TreatmentPatterns package</a>
-    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -57,12 +54,12 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">doEraDuration</span><span class="op">(</span><span class="va">treatment_history</span>, <span class="va">minEraDuration</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">doEraDuration</span><span class="op">(</span><span class="va">treatmentHistory</span>, <span class="va">minEraDuration</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>treatment_history</dt>
+    <dl><dt>treatmentHistory</dt>
 <dd><p>Dataframe with event cohorts of the target cohort in different rows.</p></dd>
 
 
@@ -74,8 +71,8 @@
     <h2>Value</h2>
     
 
-<p>treatment_history
-    Updated dataframe, rows with duration &lt; 
+<p>treatmentHistory
+    Updated dataframe, rows with duration &lt;
     minEraDuration filtered out.</p>
     </div>
 
@@ -87,7 +84,7 @@
 <span class="r-in"><span>                               eventCohortIds <span class="op">=</span> <span class="va">eventCohortIds</span>,</span></span>
 <span class="r-in"><span>                               periodPriorToIndex <span class="op">=</span> <span class="va">periodPriorToIndex</span>,</span></span>
 <span class="r-in"><span>                               includeTreatments <span class="op">=</span> <span class="va">includeTreatments</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">doEraDuration</span><span class="op">(</span>treatment_history <span class="op">=</span> <span class="va">th</span>, minEraDuration <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">doEraDuration</span><span class="op">(</span>treatmentHistory <span class="op">=</span> <span class="va">th</span>, minEraDuration <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>

@@ -52,9 +52,6 @@
 <li>
       <a href="../articles/DarwinTreatmentPatternsStudy.html">Perform a Darwin study using the TreatmentPatterns package</a>
     </li>
-    <li>
-      <a href="../articles/TreatmentPatternsStudy.html">Perform a study using the TreatmentPatterns package</a>
-    </li>
   </ul>
 </li>
       </ul>
@@ -83,9 +80,14 @@ TreatmentPatterns package</h1>
     
     
 <p>In this vignette we will use an example describing the treatment
-patterns of viral sinusitis patients. The included drugs of interests
-are Acetaminophen, Amoxicillin, Aspirin, Clavulanate, Doxylamine, and
-Penicillin V. These examples are provided in the package and will run in
+patterns of <a href="https://atlas-demo.ohdsi.org/#/cohortdefinition/1781027" class="external-link">viral
+sinusitis</a> patients. The included drugs of interests are <a href="https://atlas-demo.ohdsi.org/#/cohortdefinition/1781028" class="external-link">Acetaminophen</a>,
+<a href="https://atlas-demo.ohdsi.org/#/cohortdefinition/1781029" class="external-link">Amoxicillin</a>,
+<a href="https://atlas-demo.ohdsi.org/#/cohortdefinition/1781030" class="external-link">Aspirin</a>,
+<a href="https://atlas-demo.ohdsi.org/#/cohortdefinition/1781031" class="external-link">Clavulanate</a>,
+<a href="https://atlas-demo.ohdsi.org/#/cohortdefinition/1781033" class="external-link">Doxylamine</a>,
+and <a href="https://atlas-demo.ohdsi.org/#/cohortdefinition/1781032" class="external-link">Penicillin
+V</a>. These examples are provided in the package and will run in
 Eunomia.</p>
 <div class="section level2">
 <h2 id="installation-of-treatmentpatterns">1. Installation of TreatmentPatterns<a class="anchor" aria-label="anchor" href="#installation-of-treatmentpatterns"></a>
@@ -120,6 +122,201 @@ following:</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">tools</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
+<h3 id="viral-sinusitis-cohort-parameters">Viral Sinusitis Cohort parameters<a class="anchor" aria-label="anchor" href="#viral-sinusitis-cohort-parameters"></a>
+</h3>
+<p>The following text is an export of ATLAS Version 2.12.2. The bold
+parts of the text are parameters set in the cohort definition.
+TreatmentPatterns expects that the cohort exit is set to <em>continuous
+observation</em>.</p>
+<div class="section level4">
+<h4 id="cohort-entry-events">Cohort Entry Events<a class="anchor" aria-label="anchor" href="#cohort-entry-events"></a>
+</h4>
+<p>People with continuous observation of <strong>365</strong> days
+before and <strong>1,095</strong> days after event may enter the cohort
+when observing any of the following:</p>
+<p>drug eras of <strong>‘[MVK] Viral Sinusistis drugs’</strong>. Limit
+cohort entry events to the <strong>earliest event</strong> per
+person.</p>
+</div>
+<div class="section level4">
+<h4 id="inclusion-criteria">Inclusion Criteria<a class="anchor" aria-label="anchor" href="#inclusion-criteria"></a>
+</h4>
+<p><strong>1. Viral Sinusitis diagnosis</strong> Entry events having at
+least 1 condition occurrence of ‘[MVK] Viral Sinusitis diagnosis’, allow
+events outside observation period.</p>
+<p><strong>2. Index year</strong> Entry events with the following event
+criteria: starting after December 31, 1949.</p>
+</div>
+<div class="section level4">
+<h4 id="cohort-exit">Cohort Exit<a class="anchor" aria-label="anchor" href="#cohort-exit"></a>
+</h4>
+<p>The person exits the cohort at the end of <strong>continuous
+observation</strong>.</p>
+</div>
+<div class="section level4">
+<h4 id="cohort-eras">Cohort Eras<a class="anchor" aria-label="anchor" href="#cohort-eras"></a>
+</h4>
+<p>Entry events will be combined into cohort eras if they are within
+<strong>0</strong> days of each other.</p>
+</div>
+<div class="section level4">
+<h4 id="appendix-1-concept-set-definitions">Appendix 1: Concept Set Definitions<a class="anchor" aria-label="anchor" href="#appendix-1-concept-set-definitions"></a>
+</h4>
+<table class="table">
+<colgroup>
+<col width="14%">
+<col width="23%">
+<col width="8%">
+<col width="14%">
+<col width="11%">
+<col width="16%">
+<col width="8%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">Concept Id</th>
+<th align="right">Concept Name</th>
+<th align="right">Domain</th>
+<th align="right">Vocabulary</th>
+<th align="right">Excluded</th>
+<th align="right">Descendants</th>
+<th align="right">Mapped</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">1125315</td>
+<td align="right">acetaminophen</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="even">
+<td align="right">1713332</td>
+<td align="right">amoxicillin</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="odd">
+<td align="right">1112807</td>
+<td align="right">aspirin</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="even">
+<td align="right">1759842</td>
+<td align="right">clavulanate</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="odd">
+<td align="right">1729720</td>
+<td align="right">penicillin V</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="even">
+<td align="right">738818</td>
+<td align="right">doxylamine</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="odd">
+<td align="right">738818</td>
+<td align="right">doxylamine</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="even">
+<td align="right">1119510</td>
+<td align="right">dextromethorphan</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="odd">
+<td align="right">1177480</td>
+<td align="right">ibuprofen</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="even">
+<td align="right">1118084</td>
+<td align="right">celecoxib</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+<tr class="odd">
+<td align="right">1115008</td>
+<td align="right">naproxen</td>
+<td align="right">Drug</td>
+<td align="right">RxNorm</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr>
+</tbody>
+</table>
+<p><em>[MVK] Viral Sinusistis drugs</em></p>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="14%">
+<col width="21%">
+<col width="13%">
+<col width="14%">
+<col width="11%">
+<col width="15%">
+<col width="8%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">Concept Id</th>
+<th align="right">Concept Name</th>
+<th align="right">Domain</th>
+<th align="right">Vocabulary</th>
+<th align="right">Excluded</th>
+<th align="right">Descendants</th>
+<th align="right">Mapped</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="right">40481087</td>
+<td align="right">Viral sinusitis</td>
+<td align="right">Condition</td>
+<td align="right">SNOMED</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+<td align="right">NO</td>
+</tr></tbody>
+</table>
+<p><em>[MVK] Viral Sinusitis diagnosis</em></p>
+</div>
+</div>
+<div class="section level3">
 <h3 id="generating-cohorts">Generating cohorts<a class="anchor" aria-label="anchor" href="#generating-cohorts"></a>
 </h3>
 <p>To make it easier on our selves later on, we will already specify
@@ -132,9 +329,7 @@ some parameters that we will reuse later using TreatmentPatterns.</p>
 <p>To generate cohorts using CohortGenerator we can follow the
 instructions specified in the vignette:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ohdsi.github.io/CohortGenerator/" class="external-link">CohortGenerator</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">cohortsToCreate</span> <span class="op">&lt;-</span> <span class="fu">CohortGenerator</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/CohortGenerator/reference/createEmptyCohortDefinitionSet.html" class="external-link">createEmptyCohortDefinitionSet</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">cohortsToCreate</span> <span class="op">&lt;-</span> <span class="fu">CohortGenerator</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/CohortGenerator/reference/createEmptyCohortDefinitionSet.html" class="external-link">createEmptyCohortDefinitionSet</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Get json-files included with TreatmentPatterns</span></span>
 <span><span class="va">cohortJsonFiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
@@ -152,17 +347,17 @@ instructions specified in the vignette:</p>
 <span>  <span class="co"># modify this to read your JSON/SQL files however you require</span></span>
 <span>  <span class="va">cohortJson</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readChar.html" class="external-link">readChar</a></span><span class="op">(</span><span class="va">cohortJsonFileName</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.info.html" class="external-link">file.info</a></span><span class="op">(</span></span>
 <span>    <span class="va">cohortJsonFileName</span><span class="op">)</span><span class="op">$</span><span class="va">size</span><span class="op">)</span></span>
-<span>  </span>
+<span></span>
 <span>  <span class="va">cohortExpression</span> <span class="op">&lt;-</span> <span class="fu">CirceR</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/CirceR/reference/cohortExpressionFromJson.html" class="external-link">cohortExpressionFromJson</a></span><span class="op">(</span><span class="va">cohortJson</span><span class="op">)</span></span>
-<span>  </span>
+<span></span>
 <span>  <span class="va">cohortSql</span> <span class="op">&lt;-</span> <span class="fu">CirceR</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/CirceR/reference/buildCohortQuery.html" class="external-link">buildCohortQuery</a></span><span class="op">(</span></span>
 <span>    <span class="va">cohortExpression</span>,</span>
 <span>    options <span class="op">=</span> <span class="fu">CirceR</span><span class="fu">::</span><span class="fu"><a href="https://ohdsi.github.io/CirceR/reference/createGenerateOptions.html" class="external-link">createGenerateOptions</a></span><span class="op">(</span>generateStats <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">cohortsToCreate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
-<span>    <span class="va">cohortsToCreate</span>, </span>
+<span>    <span class="va">cohortsToCreate</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>      cohortId <span class="op">=</span> <span class="va">i</span>,</span>
-<span>      cohortName <span class="op">=</span> <span class="va">cohortName</span>, </span>
+<span>      cohortName <span class="op">=</span> <span class="va">cohortName</span>,</span>
 <span>      sql <span class="op">=</span> <span class="va">cohortSql</span>,</span>
 <span>      stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -198,7 +393,7 @@ instructions specified in the vignette:</p>
 pre-specified parameters.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataSettings</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createDataSettings.html">createDataSettings</a></span><span class="op">(</span></span>
-<span>  connectionDetails <span class="op">=</span> <span class="va">connectionDetails</span>, <span class="co"># Eunomia::getEunomiaConnectionDetails()</span></span>
+<span>  connectionDetails <span class="op">=</span> <span class="va">connectionDetails</span>, <span class="co"># Eunomia connectionDetails</span></span>
 <span>  cdmDatabaseSchema <span class="op">=</span> <span class="va">cdmDatabaseSchema</span>, <span class="co"># "main"</span></span>
 <span>  resultSchema <span class="op">=</span> <span class="va">resultSchema</span>,           <span class="co"># "main"</span></span>
 <span>  cohortTable <span class="op">=</span> <span class="va">cohortTable</span><span class="op">)</span>             <span class="co"># "cohortTable"</span></span></code></pre></div>
@@ -224,8 +419,8 @@ of the cohort table.</li>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">saveSettings</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createSaveSettings.html">createSaveSettings</a></span><span class="op">(</span></span>
 <span>  databaseName <span class="op">=</span> <span class="st">"Eunomia"</span>,</span>
-<span>  rootFolder <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  outputFolder <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"output"</span>, <span class="st">"Eunomia"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>  rootFolder <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  outputFolder <span class="op">=</span> <span class="st">"output"</span><span class="op">)</span></span></code></pre></div>
 <ol style="list-style-type: decimal">
 <li>
 <strong>databaseName</strong>: Character string specifying the name
@@ -245,13 +440,13 @@ of the folder name the outputted files should be saved in.</li>
 information about our cohorts.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Select Viral Sinusitis Cohort</span></span>
-<span><span class="va">targetCohort</span> <span class="op">&lt;-</span> <span class="va">cohortsGenerated</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">cohortName</span> <span class="op">==</span> <span class="st">"ViralSinusitis"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">targetCohort</span> <span class="op">&lt;-</span> <span class="va">cohortsGenerated</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">cohortName</span> <span class="op">==</span> <span class="st">"ViralSinusitis"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">cohortId</span>, <span class="va">cohortName</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Select everything BUT Viral Sinusitis cohorts</span></span>
-<span><span class="va">eventCohorts</span> <span class="op">&lt;-</span> <span class="va">cohortsGenerated</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">cohortName</span> <span class="op">!=</span> <span class="st">"ViralSinusitis"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">eventCohorts</span> <span class="op">&lt;-</span> <span class="va">cohortsGenerated</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">cohortName</span> <span class="op">!=</span> <span class="st">"ViralSinusitis"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">cohortId</span>, <span class="va">cohortName</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cohortSettings</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/createCohortSettings.html">createCohortSettings</a></span><span class="op">(</span></span>
@@ -403,15 +598,39 @@ targetCohortId and eventCohortId.</li>
 <div class="section level3">
 <h3 id="addpathwaysettings">addPathwaySettings<a class="anchor" aria-label="anchor" href="#addpathwaysettings"></a>
 </h3>
-<p>Optionally we can add another pathway analysis. In this example we
-specify the same pathway settings, but we remove one drug:
-Acetaminophen.</p>
+<p>Optionally we can add another pathway analysis. Lets say for our
+analysis we want the following:</p>
+<ol style="list-style-type: decimal">
+<li>Make sure that the duration of an era is at least 2 weeks.</li>
+<li>Make sure two events of the same treatment may be 3 weeks
+apart.</li>
+<li>But if two eras overlap only 1 week they will be considered one
+era.</li>
+<li>Consider only pathways that at least have 5 people represented in
+them.</li>
+<li>Set the cut off to group combination treatments in ‘other’ to
+5.</li>
+<li>And most importantly we must name our study.</li>
+</ol>
+<p>In this example we will change some of the settings:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pathwaySettings</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/addPathwayAnalysis.html">addPathwayAnalysis</a></span><span class="op">(</span></span>
 <span>  pathwaySettings <span class="op">=</span> <span class="va">pathwaySettings</span>,</span>
 <span>  targetCohortIds <span class="op">=</span> <span class="va">targetCohort</span><span class="op">$</span><span class="va">cohortId</span>,</span>
 <span>  eventCohortIds <span class="op">=</span> <span class="va">eventCohorts</span><span class="op">$</span><span class="va">cohortId</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>,</span>
-<span>  studyName <span class="op">=</span> <span class="st">"One drug less"</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="co"># 6. Name of are new study</span></span>
+<span>  studyName <span class="op">=</span> <span class="st">"someOtherCoolParameters"</span>,</span>
+<span>  <span class="co"># 1. Minimum duration of 14 days.</span></span>
+<span>  minEraDuration <span class="op">=</span> <span class="fl">14</span>,</span>
+<span>  <span class="co"># 2. Collapse two eras if they are 21 days apart.</span></span>
+<span>  eraCollapseSize <span class="op">=</span> <span class="fl">21</span>,</span>
+<span>  <span class="co"># 3. 7 day overlap between eras</span></span>
+<span>  combinationWindow <span class="op">=</span> <span class="fl">7</span>,</span>
+<span>  <span class="co"># 4. At least 5 persons</span></span>
+<span>  minCellCount <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  <span class="co"># 5. nPathway =&lt; 5 -&gt; Other</span></span>
+<span>  groupCombinations <span class="op">=</span> <span class="fl">5</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <ol style="list-style-type: decimal">
 <li>
 <strong>pathwaySettings</strong>: The <code>pathwaySettings</code>
@@ -428,17 +647,21 @@ documentation. <strong>Some</strong> of these parameters are: studyName,
 minEraDuration, combinationWindow, eraCollapseSize, maxPathLength.</li>
 </ol>
 </div>
+</div>
+<div class="section level2">
+<h2 id="constructing-pathways-and-reviewing-output">Constructing pathways and reviewing output<a class="anchor" aria-label="anchor" href="#constructing-pathways-and-reviewing-output"></a>
+</h2>
 <div class="section level3">
-<h3 id="preconfiguring-file-structure">Preconfiguring file structure<a class="anchor" aria-label="anchor" href="#preconfiguring-file-structure"></a>
+<h3 id="writecohorttable">writeCohortTable<a class="anchor" aria-label="anchor" href="#writecohorttable"></a>
 </h3>
-<p>We setup the file structure for the output here, fetching some
-information from our generated cohorts from the CDM.</p>
+<p>writeCohortTable writes the cohort table and the cohortsToCreate
+table to our output folder</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/preConfigure.html">preConfigure</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/writeCohortTable.html">writeCohortTable</a></span><span class="op">(</span></span>
 <span>  saveSettings <span class="op">=</span> <span class="va">saveSettings</span>,</span>
 <span>  cohortSettings <span class="op">=</span> <span class="va">cohortSettings</span>,</span>
 <span>  dataSettings <span class="op">=</span> <span class="va">dataSettings</span>,</span>
-<span>  cohortTableNames <span class="op">=</span> <span class="va">cohortTableNames</span><span class="op">)</span></span></code></pre></div>
+<span>  tableName <span class="op">=</span> <span class="va">cohortTable</span><span class="op">)</span></span></code></pre></div>
 <ol style="list-style-type: decimal">
 <li>
 <strong>saveSettings</strong>: <code>saveSettings</code>
@@ -450,7 +673,8 @@ object.</li>
 <strong>dataSettings</strong>: <code>dataSettings</code>
 object.</li>
 <li>
-<strong>cohortTableNames</strong>: List of cohortTableNames.</li>
+<strong>tableName</strong>: Table name of the cohort table in the
+database.</li>
 </ol>
 </div>
 <div class="section level3">
@@ -471,7 +695,7 @@ object.</li>
 object.</li>
 <li>
 <strong>saveSettings</strong>: <code>saveSettings</code>
-object.</li>
+object.f</li>
 </ol>
 </div>
 <div class="section level3">
@@ -481,19 +705,8 @@ object.</li>
 files.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/generateOutput.html">generateOutput</a></span><span class="op">(</span>saveSettings <span class="op">=</span> <span class="va">saveSettings</span><span class="op">)</span></span></code></pre></div>
-<ol style="list-style-type: decimal">
-<li>
-<strong>saveSettings</strong>: <code>saveSettings</code>
-object.</li>
-</ol>
-</div>
-<div class="section level3">
-<h3 id="launchresultexporer">launchResultExporer<a class="anchor" aria-label="anchor" href="#launchresultexporer"></a>
-</h3>
-<p>Finnaly we can expore our results using the included shiny app.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/launchResultsExplorer.html">launchResultsExplorer</a></span><span class="op">(</span></span>
-<span>  saveSettings <span class="op">=</span> <span class="va">saveSettings</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Zipping: D:\Users\mvankessel\Documents\R-Packages\TreatmentPatterns\vignettes\output</span></span>
+<span><span class="co">## to: C:\Users\mvankessel\AppData\Local\Temp\RtmpwhVZGn\output.zip</span></span></code></pre>
 <ol style="list-style-type: decimal">
 <li>
 <strong>saveSettings</strong>: <code>saveSettings</code>

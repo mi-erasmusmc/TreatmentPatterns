@@ -34,9 +34,6 @@
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/DarwinTreatmentPatternsStudy.html">Perform a Darwin study using the TreatmentPatterns package</a>
     </li>
-    <li>
-      <a href="../articles/TreatmentPatternsStudy.html">Perform a study using the TreatmentPatterns package</a>
-    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -57,30 +54,13 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">checkDataSettings</span><span class="op">(</span></span>
-<span>  <span class="va">connectionDetails</span>,</span>
-<span>  <span class="va">cdmDatabaseSchema</span>,</span>
-<span>  <span class="va">resultSchema</span>,</span>
-<span>  <span class="va">cohortTable</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">checkDataSettings</span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>connectionDetails</dt>
-<dd><p>connectionDetails object.</p></dd>
-
-
-<dt>cdmDatabaseSchema</dt>
-<dd><p>Schema name of CDM.</p></dd>
-
-
-<dt>resultSchema</dt>
-<dd><p>Schema name of results.</p></dd>
-
-
-<dt>cohortTable</dt>
-<dd><p>Cohort table name.</p></dd>
+    <dl><dt>env</dt>
+<dd><p>Environment containging all the function environment variables.</p></dd>
 
 </dl></div>
     <div id="value">

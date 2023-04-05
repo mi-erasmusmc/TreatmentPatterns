@@ -19,6 +19,9 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/addChild.html</loc>
+  </url>
+  <url>
     <loc>/reference/addLabels.html</loc>
   </url>
   <url>
@@ -32,6 +35,12 @@
   </url>
   <url>
     <loc>/reference/buildHierarchy.html</loc>
+  </url>
+  <url>
+    <loc>/reference/checkAddPathwaySettings.html</loc>
+  </url>
+  <url>
+    <loc>/reference/checkCohorts.html</loc>
   </url>
   <url>
     <loc>/reference/checkConstructPathways.html</loc>
@@ -62,6 +71,9 @@
   </url>
   <url>
     <loc>/reference/createPathwaySettings.html</loc>
+  </url>
+  <url>
+    <loc>/reference/createSankeyDiagram.html</loc>
   </url>
   <url>
     <loc>/reference/createSaveSettings.html</loc>
@@ -166,6 +178,12 @@
     <loc>/reference/transformCSVtoJSON.html</loc>
   </url>
   <url>
+    <loc>/reference/TreatmentPatterns-package.html</loc>
+  </url>
+  <url>
     <loc>/reference/unzipFiles.html</loc>
+  </url>
+  <url>
+    <loc>/reference/writeCohortTable.html</loc>
   </url>
 </urlset>

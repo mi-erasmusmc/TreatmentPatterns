@@ -34,9 +34,6 @@
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/DarwinTreatmentPatternsStudy.html">Perform a Darwin study using the TreatmentPatterns package</a>
     </li>
-    <li>
-      <a href="../articles/TreatmentPatternsStudy.html">Perform a study using the TreatmentPatterns package</a>
-    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -57,14 +54,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">createSunburstPlot</span><span class="op">(</span></span>
-<span>  <span class="va">data</span>,</span>
-<span>  outcomes <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  folder <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fileName <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  shiny <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">""</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">createSunburstPlot</span><span class="op">(</span><span class="va">data</span>, <span class="va">folder</span>, <span class="va">fileName</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -76,26 +66,12 @@ event cohorts separated by dashes - (combinations can be indicated using
 occurs.</p></dd>
 
 
-<dt>outcomes</dt>
-<dd><p>Character vector containing all event cohorts.</p></dd>
-
-
 <dt>folder</dt>
 <dd><p>Root folder to store the results.</p></dd>
 
 
 <dt>fileName</dt>
 <dd><p>File name for the results.</p></dd>
-
-
-<dt>shiny</dt>
-<dd><p>Set to TRUE if HTML file is generated for shiny application, FALSE will
-generate a standalone HTML with title and legend.</p></dd>
-
-
-<dt>title</dt>
-<dd><p>Optional if shiny = FALSE: add descriptive title in sunburst plot for
-standalone HTML.</p></dd>
 
 </dl></div>
 

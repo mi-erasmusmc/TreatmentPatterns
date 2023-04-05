@@ -35,9 +35,6 @@ generating detailed output."><!-- mathjax --><script src="https://cdnjs.cloudfla
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/DarwinTreatmentPatternsStudy.html">Perform a Darwin study using the TreatmentPatterns package</a>
     </li>
-    <li>
-      <a href="../articles/TreatmentPatternsStudy.html">Perform a study using the TreatmentPatterns package</a>
-    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -60,8 +57,8 @@ generating detailed output.</p>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">doMinCellCount</span><span class="op">(</span></span>
-<span>  <span class="va">file_noyear</span>,</span>
-<span>  <span class="va">file_withyear</span>,</span>
+<span>  <span class="va">fileNoYear</span>,</span>
+<span>  <span class="va">fileWithYear</span>,</span>
 <span>  <span class="va">outputFolder</span>,</span>
 <span>  <span class="va">tempFolder</span>,</span>
 <span>  <span class="va">databaseName</span>,</span>
@@ -74,12 +71,12 @@ generating detailed output.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>file_noyear</dt>
+    <dl><dt>fileNoYear</dt>
 <dd><p>Dataframe with aggregated treatment pathways of the target cohort in
 different rows (unique pathways, with frequency).</p></dd>
 
 
-<dt>file_withyear</dt>
+<dt>fileWithYear</dt>
 <dd><p>Idem to file_noyear, but split over index_year.</p></dd>
 
 

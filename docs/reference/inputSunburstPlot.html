@@ -34,9 +34,6 @@
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/DarwinTreatmentPatternsStudy.html">Perform a Darwin study using the TreatmentPatterns package</a>
     </li>
-    <li>
-      <a href="../articles/TreatmentPatternsStudy.html">Perform a study using the TreatmentPatterns package</a>
-    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -59,11 +56,12 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">inputSunburstPlot</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
+<span>  <span class="va">tempFolder</span>,</span>
 <span>  <span class="va">outputFolder</span>,</span>
 <span>  <span class="va">databaseName</span>,</span>
 <span>  <span class="va">studyName</span>,</span>
 <span>  <span class="va">addNoPaths</span>,</span>
-<span>  <span class="va">index_year</span></span>
+<span>  <span class="va">indexYear</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -71,6 +69,10 @@
     <h2>Arguments</h2>
     <dl><dt>data</dt>
 <dd><p>Data</p></dd>
+
+
+<dt>tempFolder</dt>
+<dd><p>Temp folder</p></dd>
 
 
 <dt>outputFolder</dt>
@@ -89,7 +91,7 @@
 <dd><p>Add no paths</p></dd>
 
 
-<dt>index_year</dt>
+<dt>indexYear</dt>
 <dd><p>Index year</p></dd>
 
 </dl></div>

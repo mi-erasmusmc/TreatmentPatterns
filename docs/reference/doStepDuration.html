@@ -35,9 +35,6 @@ specified minimum post combination duration (minPostCombinationDuration)."><!-- 
   <ul class="dropdown-menu" role="menu"><li>
       <a href="../articles/DarwinTreatmentPatternsStudy.html">Perform a Darwin study using the TreatmentPatterns package</a>
     </li>
-    <li>
-      <a href="../articles/TreatmentPatternsStudy.html">Perform a study using the TreatmentPatterns package</a>
-    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -59,26 +56,26 @@ specified minimum post combination duration (minPostCombinationDuration).</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">doStepDuration</span><span class="op">(</span><span class="va">treatment_history</span>, <span class="va">minPostCombinationDuration</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">doStepDuration</span><span class="op">(</span><span class="va">treatmentHistory</span>, <span class="va">minPostCombinationDuration</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>treatment_history</dt>
+    <dl><dt>treatmentHistory</dt>
 <dd><p>Dataframe with event cohorts of the target cohort in different rows.</p></dd>
 
 
 <dt>minPostCombinationDuration</dt>
-<dd><p>Minimum time an event era should last before or after a generated combination
-treatment for it to be included in analysis.</p></dd>
+<dd><p>Minimum time an event era should last before or after a generated
+combination treatment for it to be included in analysis.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     
 
-<p>treatment_history
-    Updated dataframe, rows with duration_era &lt; 
+<p>treatmentHistory
+    Updated dataframe, rows with duration_era &lt;
     minPostCombinationDuration filtered out.</p>
     </div>
 

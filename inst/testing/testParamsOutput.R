@@ -8,9 +8,9 @@ TreatmentPatterns::constructPathways(
   saveSettings = saveSettings)
 
 # Generate output for folder structure etc.
-generateOutput(saveSettings = saveSettings)
+TreatmentPatterns::generateOutput(saveSettings = saveSettings)
 
-treatmentPathways <- TreatmentPatterns:::getPathways(
+treatmentPathways <- TreatmentPatterns::getPathways(
   outputFolder = saveSettings$outputFolder,
   tempFolder = saveSettings$tempFolder,
   databaseName = saveSettings$databaseName,

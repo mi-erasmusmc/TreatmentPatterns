@@ -95,7 +95,10 @@ generateOutput <- function(saveSettings) {
       eventSeq = dat[[i]][[4]],
       averageDuration = dat[[i]][[5]],
       median = dat[[i]][[6]],
-      count = dat[[i]][[7]],
+      sd = dat[[i]][[7]],
+      min = dat[[i]][[8]],
+      max = dat[[i]][[9]],
+      count = dat[[i]][[10]],
       study = rep(settings[1, i], length(dat[[i]][[3]]))
     )
   }))
@@ -123,7 +126,7 @@ generateOutput <- function(saveSettings) {
 
   # summary cnt
   summaryCount <- dplyr::bind_rows(lapply(seq_len(length(dat)), function(i) {
-    dat[[i]][[8]]
+    dat[[i]][[11]]
   }))
 
   write.csv(
@@ -133,10 +136,10 @@ generateOutput <- function(saveSettings) {
 
   treatmentPathways <- dplyr::bind_rows(lapply(
     seq_len(length(dat)), function(i) {
-    row.names(dat[[i]][[9]]) <- NULL
-    row.names(dat[[i]][[10]]) <- NULL
+    row.names(dat[[i]][[12]]) <- NULL
+    row.names(dat[[i]][[13]]) <- NULL
 
-    rbind(dat[[i]][[9]], dat[[i]][[10]], fill = TRUE)
+    rbind(dat[[i]][[12]], dat[[i]][[13]], fill = TRUE)
   }))
 
   write.csv(
@@ -488,8 +491,11 @@ outputDurationEras <- function(
   file <- groupInfrequentCombinations(file, groupCombinations)
 
   result <- file[, .(
-    AVG_DURATION = round(mean(duration_era), 3),
-    MEDIAN = round(median(duration_era), 3),
+    AVG_DURATION = round(mean(duration_era), 2),
+    MEDIAN = round(median(duration_era), 2),
+    SD = round(sd(duration_era), 2),
+    MIN = min(duration_era),
+    MAX = max(duration_era),
     COUNT = .N
   ), by = c("event_cohort_name", "event_seq")
   ][
@@ -506,6 +512,9 @@ outputDurationEras <- function(
     event_cohort_name = "Total treated",
     AVG_DURATION = round(mean(duration_era), 2),
     MEDIAN = round(median(duration_era), 2),
+    SD = round(sd(duration_era), 2),
+    MIN = min(duration_era),
+    MAX = max(duration_era),
     COUNT = .N
   ), by = c("event_seq")]
 
@@ -513,6 +522,9 @@ outputDurationEras <- function(
     event_cohort_name = "Fixed combinations",
     AVG_DURATION = round(mean(duration_era), 2),
     MEDIAN = round(median(duration_era), 2),
+    SD = round(sd(duration_era), 2),
+    MIN = min(duration_era),
+    MAX = max(duration_era),
     COUNT = .N
   ), by = c("event_seq", "fixed_combinations")]
 
@@ -526,6 +538,9 @@ outputDurationEras <- function(
     event_cohort_name = "All combinations",
     AVG_DURATION = round(mean(duration_era), 2),
     MEDIAN = round(median(duration_era), 2),
+    SD = round(sd(duration_era), 2),
+    MIN = min(duration_era),
+    MAX = max(duration_era),
     COUNT = .N
   ), by = c("event_seq", "all_combinations")]
 
@@ -539,6 +554,9 @@ outputDurationEras <- function(
     event_cohort_name = "Monotherapy",
     AVG_DURATION = round(mean(duration_era), 2),
     MEDIAN = round(median(duration_era), 2),
+    SD = round(sd(duration_era), 2),
+    MIN = min(duration_era),
+    MAX = max(duration_era),
     COUNT = .N
   ), by = c("event_seq", "monotherapy")]
 
@@ -550,6 +568,9 @@ outputDurationEras <- function(
     event_seq = "Overall",
     AVG_DURATION = round(mean(duration_era), 2),
     MEDIAN = round(median(duration_era), 2),
+    SD = round(sd(duration_era), 2),
+    MIN = min(duration_era),
+    MAX = max(duration_era),
     COUNT = .N
   ), by = c("event_cohort_name")]
 
@@ -558,6 +579,9 @@ outputDurationEras <- function(
     event_seq = "Overall",
     AVG_DURATION = round(mean(duration_era), 2),
     MEDIAN = round(median(duration_era), 2),
+    SD = round(sd(duration_era), 2),
+    MIN = min(duration_era),
+    MAX = max(duration_era),
     COUNT = .N
   )]
 
@@ -566,6 +590,9 @@ outputDurationEras <- function(
     event_seq = "Overall",
     AVG_DURATION = round(mean(duration_era), 2),
     MEDIAN = round(median(duration_era), 2),
+    SD = round(sd(duration_era), 2),
+    MIN = min(duration_era),
+    MAX = max(duration_era),
     COUNT = .N
   )]
 
@@ -575,6 +602,9 @@ outputDurationEras <- function(
       event_seq = "Overall",
       AVG_DURATION = round(mean(duration_era), 2),
       MEDIAN = round(median(duration_era), 2),
+      SD = round(sd(duration_era), 2),
+      MIN = min(duration_era),
+      MAX = max(duration_era),
       COUNT = .N
     )]
 
@@ -583,6 +613,9 @@ outputDurationEras <- function(
     event_seq = "Overall",
     AVG_DURATION = round(mean(duration_era), 2),
     MEDIAN = round(median(duration_era), 2),
+    SD = round(sd(duration_era), 2),
+    MIN = min(duration_era),
+    MAX = max(duration_era),
     COUNT = .N
   )]
 
@@ -608,11 +641,23 @@ outputDurationEras <- function(
     "Other")
 
   for (o in outcomes[!(outcomes %in% results$event_cohort_name)]) {
-    results <- rbind(results, list(o, "Overall", 0.0, 0.0, 0))
+    results <- rbind(results, list(o, "Overall", 0.0, 0.0, 0.0, 0, 0, 0))
   }
 
   # Remove durations computed using less than minCellCount observations
-  results[COUNT < minCellCount, c("AVG_DURATION", "MEDIAN", "COUNT")] <- NA
+  cat("- minCellCount --------------\n")
+  print(minCellCount)
+  cat("- results --------------\n")
+  print(results)
+  cat("- results < minCellCount --------------\n")
+  print(results[COUNT < 5])
+  
+  results[COUNT < minCellCount, c("AVG_DURATION", "MEDIAN", "SD", "MIN", "MAX", "COUNT")] <- NA
+  
+  cat("- results < minCellCount cleared --------------\n")
+  print(results)
+  cat("------------------\n")
+  
   ParallelLogger::logInfo("outputDurationEras done")
   on.exit(rm(columns))
   return(results)

@@ -645,19 +645,7 @@ outputDurationEras <- function(
   }
 
   # Remove durations computed using less than minCellCount observations
-  cat("- minCellCount --------------\n")
-  print(minCellCount)
-  cat("- results --------------\n")
-  print(results)
-  cat("- results < minCellCount --------------\n")
-  print(results[COUNT < 5])
-  
-  results[COUNT < minCellCount, c("AVG_DURATION", "MEDIAN", "SD", "MIN", "MAX", "COUNT")] <- NA
-  
-  cat("- results < minCellCount cleared --------------\n")
-  print(results)
-  cat("------------------\n")
-  
+  results[COUNT < as.numeric(minCellCount), c("AVG_DURATION", "MEDIAN", "SD", "MIN", "MAX", "COUNT")] <- NA
   ParallelLogger::logInfo("outputDurationEras done")
   on.exit(rm(columns))
   return(results)

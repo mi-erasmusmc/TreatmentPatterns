@@ -1,37 +1,49 @@
 Package: TreatmentPatterns
 Type: Package
 Title: A package to analyse real-world treatment patterns of a study population of interest
-Version: 1.0.0
-Author: Aniek F Markus 
-Maintainer: Aniek F Markus <a.markus@erasmusmc.nl>
-Description: This package gives insight in treatment patterns, the following tasks should be performed sequentially:
-    1. Create target/event cohorts of interest
-    2. Optional, only for OMOP-CDM data: Perform baseline characterization of study/target population
-    3. Construct treatment pathways
-    4. Generate output (sunburst plots, Sankey diagrams and more)
-    5. Launch shiny application to visualize the results
+Version: 2.0.0
+Author: Aniek F Markus
+Maintainer: Maarten van Kessel <m.l.vankessel@erasmusmc.nl>
+Description: This package gives insight in treatment patterns, the following
+  tasks should be performed sequentially:
+  1. Construct treatment pathways.
+  2. Generate output (sunburst plots, Sankey diagrams and more).
+  3. Launch shiny application to visualize the results.
 Depends:
-    R (>= 3.6.1)
+  R (>= 4.0)
 Imports: 
-    Andromeda,
-    DatabaseConnector,
+    DatabaseConnector (>= 6.0.0),
+    checkmate,
     data.table,
     dplyr,
     SqlRender,
     stringr,
     stringi,
-    readr,
+    ParallelLogger,
+    fs,
+    glue,
+    utils,
     rjson,
-    reshape2,
-    googleVis,
-    RJSONIO,
-    FeatureExtraction,
-    OhdsiSharing,
-    R.utils
+    googleVis
 Suggests:
-    ROhdsiWebApi
+    tibble,
+    testthat (>= 3.0.0),
+    usethis,
+    knitr,
+    Eunomia,
+    CohortDiagnostics,
+    CohortGenerator,
+    CirceR,
+    rmarkdown
+Remotes:
+    OHDSI/CohortDiagnostics,
+    OHDSI/CohortGenerator,
+    OHDSI/CirceR,
+    OHDSI/Eunomia
 License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
+Config/testthat/edition: 3
+Additional_repositories: https://OHDSI.github.io/drat

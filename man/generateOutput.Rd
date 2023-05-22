@@ -2,7 +2,7 @@
 % Please edit documentation in R/generateOutput.R
 \name{generateOutput}
 \alias{generateOutput}
-\title{Generate output (sunburst plots, Sankey diagrams and more).}
+\title{generateOutput}
 \usage{
 generateOutput(saveSettings)
 }
@@ -10,5 +10,6 @@ generateOutput(saveSettings)
 \item{saveSettings}{Settings object as created by createSaveSettings().}
 }
 \description{
-Generate output (sunburst plots, Sankey diagrams and more).
+Generates the output files in the specified output folder. It will also zip
+the output folder into a zip-file.
 }

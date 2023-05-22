@@ -32,9 +32,13 @@ out <- TreatmentPatterns:::outputDurationEras(
 )
 
 test_that("output", {
-  expect_equal(ncol(out), 4)
+  expect_equal(ncol(out), 8)
   expect_equal(typeof(out$event_cohort_name), "character")
   expect_equal(typeof(out$event_seq), "character")
   expect_equal(typeof(out$AVG_DURATION), "double")
+  expect_equal(typeof(out$MEDIAN), "double")
+  expect_equal(typeof(out$SD), "double")
+  expect_equal(typeof(out$MIN), "double")
+  expect_equal(typeof(out$MAX), "double")
   expect_equal(typeof(out$COUNT), "double")
 })

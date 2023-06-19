@@ -120,14 +120,16 @@ ui <- dashboardPage(
       tabItem(tabName = "studysettings",
               box(width = 12,
                   textOutput("tableStudySettingsTitle"),
-                  dataTableOutput("tableStudySettings")
+                  div(style = 'overflow-x: scroll',dataTableOutput("tableStudySettings", width = "100%")),
+                  downloadButton(outputId = "outputStudySettings", label = "Download")
               )
       ),
       
       tabItem(tabName = "characterization",
               box(width = 12,
                   textOutput("tableCharacterizationTitle"),
-                  dataTableOutput("tableCharacterization")
+                  div(style = 'overflow-x: scroll',dataTableOutput("tableCharacterization", width = "100%")),
+                  downloadButton(outputId = "outputCharacterization", label = "Download")
               )
       ),
       
@@ -150,8 +152,10 @@ ui <- dashboardPage(
               box(width = 6,
                   textOutput("tableTreatedPatientsTitle"),
                   dataTableOutput("tableTreatedPatients"),
+                  downloadButton(outputId = "outputTreatedPatients", label = "Download"),
                   textOutput("tableSummaryPathwayTitle"),
-                  dataTableOutput("tableSummaryPathway")
+                  dataTableOutput("tableSummaryPathway"),
+                  downloadButton(outputId = "outputSummaryPathway", label = "Download")
               ),
               box(width = 6,
                   textOutput("figureSummaryPathwayTitleYears"),
@@ -169,7 +173,8 @@ ui <- dashboardPage(
                   br(),
                   textOutput("tableDurationTitle"),
                   br(),
-                  dataTableOutput("tableDuration")
+                  dataTableOutput("tableDuration"),
+                  downloadButton(outputId = "outputDuration", label = "Download")
                 ),
                 tabPanel(
                   "Figures",

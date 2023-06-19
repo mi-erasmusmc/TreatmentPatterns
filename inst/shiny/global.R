@@ -7,7 +7,7 @@ library(DT)
 
 if (exists("shinySettings")) { # run via TreatmentPatterns::launchResultsExplorer
   setwd(shinySettings$outputFolder)
-} else { 
+} else {
   if (exists("pathResultsDirectory")) {
     setwd(pathResultsDirectory)
   } else {
@@ -15,8 +15,9 @@ if (exists("shinySettings")) { # run via TreatmentPatterns::launchResultsExplore
   }
 }
 
-local <- file.path(getwd())
-addResourcePath("workingdirectory", getwd())
+# local <- paste0(getwd(), "/output/")
+local <- paste0(getwd())
+addResourcePath("workingdirectory", local)
 
 # Fixing the labels
 included_databases <- list.dirs(local, recursive = FALSE, full.names = FALSE)
@@ -29,13 +30,12 @@ cohorts <- data.frame(readr::read_csv(file.path(local, included_databases[[1]],"
 
 all_targetcohorts <- unique(as.numeric(pathway_settings[pathway_settings$param == "targetCohortId",-1]))
 names(all_targetcohorts) <- sapply(all_targetcohorts, function(c) cohorts$cohortName[cohorts$cohortId == c])
-all_targetcohorts <- as.list(all_targetcohorts)
 
 all_studynames <- unique(as.character(pathway_settings[pathway_settings$param == "studyName",-1]))
 names(all_studynames) <- all_studynames # optional: change with own custom names
 all_studynames <- as.list(all_studynames)
 
-all_years <- list("Entire study period" = "all",  # todo: adjust to study period
+all_years <- list("Entire study period" = "all",  # TODO: adjust to study period
                   "Index year 2000" = "2000",
                   "Index year 2005" = "2005",
                   "Index year 2010" = "2010",
@@ -82,7 +82,7 @@ suppressWarnings({
     # For database find study populations
     available_studies <- list.dirs(path = paste0(local, "/", d), full.names = FALSE, recursive = FALSE)
     
-    for (s in available_studies[available_studies != "characterization"]) {
+    for (s in available_studies[!(available_studies %in% c("characterization", "settings"))]) {
       
       try({
         # Load summary counts
